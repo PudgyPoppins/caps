@@ -1,0 +1,36 @@
+<h1>{{ network.title }}</h1>
+<h3>Coords: {{ network.lat }}, {{ network.lon }}</h3>
+
+<a href="{% url 'network:addnon' network.slug %}">add a nonprofit</a>
+<a href="{% url 'network:updatenet' network.slug %}">update network</a>
+<a href="{% url 'network:deletenet' network.slug %}">delete network</a>
+<a href="{% url 'network:index' %}">back to index view</a>
+
+<ul>
+{% for non in network.nonprofit_set.all %}
+    <li>
+    	{% if non.website %}<a href="{{non.website}}">{{ non.title }}</a>
+    	{% else %} {{non.title}}
+    	{% endif %}
+    	| <a href="{% url 'network:deletenon' network.slug non.slug %}">delete</a>
+    	| <a href="{% url 'network:updatenon' network.slug non.slug %}">update</a>
+    	| <a href="{% url 'network:detailnon' network.slug non.slug %}">detail view</a>
+    	<ul>
+    		<li>Coords: {{ non.lat}}, {{non.lon}}</li>
+    		<li>Tags: {% for tag in non.tags.all %} {{ tag.name }} {% endfor %}</li>
+    	</ul>
+    </li>
+{% endfor %}
+</ul>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<h2>There's something wrong with this network!</h2>
+<form action="{% url 'network:report' network.slug %}" method="post">
+{% csrf_token %}
+{% for reason in reasons %}
+    <input type="radio" name="reason" id="reason{{ forloop.counter }}" value="{{ reason }}" {% if forloop.counter == 1%}checked{% endif %}>
+    <label for="reason{{ forloop.counter }}">{{ reason }}</label><br>
+{% endfor %}
+<input type="submit" value="Report">
+</form>

@@ -1,0 +1,19 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'network/style.css' %}">
+
+<a href="{% url 'network:addnet' %}">add a network</a>
+{% if network_list %}
+    <ul>
+    {% for n in network_list %}
+        <li>
+        	<a href="{% url 'network:detail' n.slug %}">{{ n.title }} created on {{ n.pub_date|date:'Y-m-d H:i' }}</a> <!--Example link addr: localhost/network/park-city-utah -->
+        	{% if n.src_link%}<img src="{{ n.src_link }}" width="100px;">{% endif %}
+        	{% if n.src_file%}<img src="{{ n.src_file }}" width="100px;">{% endif %}
+        	| <a href="{% url 'network:updatenet' n.slug %}">update</a> | <a href="{% url 'network:deletenet' n.slug %}">delete</a>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>WTF, who deleted all the networks?</p>
+    <p>It doesn't look like there are any networks yet. You could <a href="{% url 'network:addnet' %}">add</a> a network if you want to.</p>
+{% endif %}
