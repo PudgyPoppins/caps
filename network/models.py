@@ -6,12 +6,17 @@ from django.utils import timezone
 from geopy.geocoders import Nominatim
 geolocator = Nominatim()
 
+import PIL
+from PIL import Image
+from io import StringIO, BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
+
 # Create your models here.
 class Network(models.Model):
     pub_date = models.DateTimeField('date published', default=timezone.now)
     title = models.CharField(max_length=75, help_text="What town/city/location will this network be representing?", unique=True, default="")
     src_link = models.URLField(max_length=200, help_text="Enter a url for an image representing the network location", blank=True)	
-    src_file = models.ImageField(upload_to=None, help_text = "Submit a file for an image representing the network location", height_field=None, width_field=None, max_length=100, blank=True)
+    src_file = models.ImageField(upload_to='network_images', help_text = "Submit a file for an image representing the network location", height_field=None, width_field=None, max_length=100, blank=True)
     slug = models.SlugField(max_length=100, unique=True, blank=True)
 
     lat = models.DecimalField(max_digits=9, decimal_places=6, blank = True, null = True)
@@ -32,8 +37,30 @@ class Network(models.Model):
     was_flagged.short_description = 'Flagged / Reported?'
 
     def save(self, *args, **kwargs):
-    	self.netslug = slugify(self.title)
-    	super(Network, self).save(*args, **kwargs)
+        self.slug = slugify(self.title)
+
+    	#image resizing:
+		# 1024px width maximum
+        basewidth = 1024
+        img = Image.open(self.src_file)
+        # Keep the exif data
+        exif = None
+        if 'exif' in img.info:
+            exif = img.info['exif']
+        width_percent = (basewidth/float(img.size[0]))
+        height_size = int((float(img.size[1])*float(width_percent)))
+        img = img.resize((basewidth, height_size), PIL.Image.ANTIALIAS)
+        img = img.convert('RGB')
+        output = BytesIO()
+        # save the resized file to our IO ouput with the correct format and EXIF data ;-)
+        if exif:
+            img.save(output, format='JPEG', exif=exif, quality=100)
+        else:
+            img.save(output, format='JPEG', quality=100)
+        output.seek(0)
+        self.src_file = InMemoryUploadedFile(output, 'ImageField', "%s.jpg" % self.src_file.name, 'image/jpeg', output.getbuffer().nbytes, None)
+
+        super(Network, self).save(*args, **kwargs)
 
 class Tag(models.Model):
 	name = models.CharField(max_length=50, unique=True)
@@ -50,7 +77,7 @@ class Nonprofit(models.Model):
 	pub_date = models.DateTimeField('date published', default=timezone.now)
 	title = models.CharField(max_length=75, help_text="Enter the network name")
 	src_link = models.URLField(max_length=200, help_text="Enter a url for an image representing the network location", blank=True)	
-	src_file = models.ImageField(upload_to=None, help_text = "Submit a file for an image representing the network location", height_field=None, width_field=None, max_length=100, blank=True)
+	src_file = models.ImageField(upload_to='nonprofit_images', help_text = "Submit a file for an image representing the network location", height_field=None, width_field=None, max_length=100, blank=True)
 
 	#TODO: require at least one of these forms to be filled out
 	website = models.URLField(max_length=200, help_text="Enter the nonprofit website url, if applicable", null=True, blank=True)
@@ -79,6 +106,28 @@ class Nonprofit(models.Model):
 
 	def save(self, *args, **kwargs):
 		self.slug = slugify(self.title)
+
+		#image resizing:
+		# 1024px width maximum
+		basewidth = 1024
+		img = Image.open(self.src_file)
+		# Keep the exif data
+		exif = None
+		if 'exif' in img.info:
+		    exif = img.info['exif']
+		width_percent = (basewidth/float(img.size[0]))
+		height_size = int((float(img.size[1])*float(width_percent)))
+		img = img.resize((basewidth, height_size), PIL.Image.ANTIALIAS)
+		img = img.convert('RGB')
+		output = BytesIO()
+		# save the resized file to our IO ouput with the correct format and EXIF data ;-)
+		if exif:
+		    img.save(output, format='JPEG', exif=exif, quality=100)
+		else:
+		    img.save(output, format='JPEG', quality=100)
+		output.seek(0)
+		self.src_file = InMemoryUploadedFile(output, 'ImageField', "%s.jpg" % self.src_file.name, 'image/jpeg', output.getbuffer().nbytes, None)
+
 		super(Nonprofit, self).save(*args, **kwargs)
 
 	def __str__(self): 

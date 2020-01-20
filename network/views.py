@@ -7,7 +7,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView, FormVi
 
 # Create your views here.
 from .models import Network, Nonprofit
-from network.forms import NetworkFormCreate, NetworkFormUpdate, NonprofitForm
+from network.forms import NetworkFormCreate, NetworkFormUpdate, NonprofitFormCreate, NonprofitFormUpdate
 
 class IndexView(generic.ListView):
     template_name = 'network/index.html'
@@ -47,13 +47,22 @@ class NetDetailView(generic.DetailView):
 
 class AddNonView(CreateView):
     model = Nonprofit
-    form_class = NonprofitForm
+    form_class = NonprofitFormCreate
     def get_success_url(self):
     	return reverse('network:detail', kwargs={'slug' : self.object.network.slug})
-    #network = get_object_or_404(Network, slug=network_id)
+    def form_valid(self, form):
+    	nonprofit = form.save(commit=False)
+    	nonprofit.network = get_object_or_404(Network, slug=self.kwargs['network'])
+    	tag_temp_var = form.cleaned_data.get('tags') #this gets the tag data
+    	nonprofit.save() #saves the object, sets the id
+
+    	nonprofit.tags.set(tag_temp_var) #saves the previous tag data after the id is created
+    	nonprofit.save()
+    	self.object = nonprofit
+    	return HttpResponseRedirect(self.get_success_url())
 class UpdateNonView(UpdateView):
 	model = Nonprofit
-	form_class = NonprofitForm
+	form_class = NonprofitFormUpdate
 	template_name_suffix = '_update_form'
 	success_url = reverse_lazy('network:index')
 	def get_queryset(self):

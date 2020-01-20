@@ -8,8 +8,8 @@ from django.utils.translation import ugettext_lazy as _
 from network.models import Network, Nonprofit
 
 import geopy
-from geopy.geocoders import Nominatim
-geolocator = Nominatim()
+from geopy.geocoders import MapBox
+geolocator = MapBox(api_key='pk.eyJ1IjoicHVkZ3lwb3BwaW5zIiwiYSI6ImNqdnBiaDAwMDI3dzIzenFyZjc4Z2s1MGgifQ.ZY1iUikoHZ5fZqqcvYidpw')
 
 class NetworkFormUpdate(ModelForm):
     def clean_pub_date(self):
@@ -31,6 +31,14 @@ class NetworkFormUpdate(ModelForm):
 	    	if lon > 180 or lon < -180:
 	    		raise ValidationError(_('Invalid longitude - longitude must be between -180 and 180'))
     	return lon
+    def clean_image(self):
+        image = self.cleaned_data.get('src_file', False)
+        if image:
+            if image._size > MAX_UPLOAD_SIZE:
+                raise ValidationError("Image file too large ( > 2.5MB )")
+            return image
+        else:
+            raise ValidationError("Couldn't read uploaded image")
 
     class Meta:
     	model = Network
@@ -40,11 +48,18 @@ class NetworkFormUpdate(ModelForm):
     def save(self, commit=True):
     	instance = super().save(commit=False)
     	try:
-    		instance.lat = geolocator.geocode(self.cleaned_data.get('title'), timeout=None).latitude
-    		instance.lon = geolocator.geocode(self.cleaned_data.get('title'), timeout=None).longitude
+    		if self.cleaned_data.get('lat') is None or self.cleaned_data.get('lon') is None:
+	    		location = geolocator.geocode(self.cleaned_data.get('title'), timeout=None)
+	    		if location is not None:
+		    		instance.lat = location.latitude
+		    		instance.lon = location.longitude
+		    	else:
+		    		print("The geocoder could not find the coordinates based on this information. You should change the title or something.")
+		    		#set coords to None for now.
+		    		instance.lat = None
+		    		instance.lon = None
     	except geopy.exc.GeocoderTimedOut:
-    		print("The geocoder could not find the coordinates based on the address. Change the address to refresh the coordinates.")
-    		#TODO:Possibly flag this network as incorrect coordinates?
+    		print("The geocoder timed out.")
     	if commit:
     		instance.save()
     	return instance
@@ -54,12 +69,12 @@ class NetworkFormCreate(NetworkFormUpdate):
         self.fields.pop('lat')
         self.fields.pop('lon')
 
-class NonprofitForm(ModelForm):
+class NonprofitFormUpdate(ModelForm):
     class Meta:
     	model = Nonprofit
     	exclude = ('pub_date', 'flagged', 'slug')
     	labels = {'lat': _('Latitude'), 'lon': _('Longitude'), 'src_link': _('Image Url'), 'src_file': _('Image File')}
-    	help_texts = {'lat': _('Please enter the latitude of the location, or leave it blank to auto-generate one via the title'), 'lon': _('Please enter the longitude of the location, or leave it blank to auto-generate one via the title')}
+    	help_texts = {'lat': _('Please enter the latitude of the location, or leave it blank to auto-generate one via the address'), 'lon': _('Please enter the longitude of the location, or leave it blank to auto-generate one via the address')}
     	widgets = {
             'tags': CheckboxSelectMultiple()
         }
@@ -80,18 +95,41 @@ class NonprofitForm(ModelForm):
 	    	if lon > 180 or lon < -180:
 	    		raise ValidationError(_('Invalid longitude - longitude must be between -180 and 180'))
     	return lon
+    def clean(self):
+    	file = self.cleaned_data.get('src_file', False)
+    	url = self.cleaned_data.get('src_link', False)
+    	if url and file:
+    		raise ValidationError("You cannot upload both an image url and an image file. Please upload one or the other.")
+
     def save(self, commit=True):
     	instance = super().save(commit=False)
-    	instance.tags.set(self.cleaned_data.get('tags')) #setting the tags here since I overrided the save function
+    	#instance.tags.set(self.cleaned_data.get('tags')) #setting the tags here since I overrided the save function
+    	#I moved the above line to the views.py createview
     	try:
-    		instance.lat = geolocator.geocode(self.cleaned_data.get('title'), timeout=None).latitude
-    		instance.lon = geolocator.geocode(self.cleaned_data.get('title'), timeout=None).longitude
+    		if self.cleaned_data.get('address') is not None and (self.cleaned_data.get('lat') is None or self.cleaned_data.get('lon') is None):
+	    		print(self.cleaned_data.get('address'))
+	    		location = geolocator.geocode(self.cleaned_data.get('address'), timeout=None)
+	    		if location is not None:
+		    		instance.lat = location.latitude
+		    		instance.lon = location.longitude
+		    	else:
+		    		print("The geocoder could not find the coordinates based on this information. You should change the address or something.")
+		    		#set coords to None for now.
+		    		instance.lat = None
+		    		instance.lon = None
+    		elif self.cleaned_data.get('address') is None:
+    			#no address, no coords
+    			instance.lat = None
+    			instance.lon = None
     	except geopy.exc.GeocoderTimedOut:
-    		print("The geocoder could not find the coordinates based on the address. Change the address to refresh the coordinates.")
-    		#TODO:Possibly flag this nonprofit as incorrect coordinates?
+    		print("The geocoder timed out.")
     	if commit:
     		instance.save()
     	return instance
     def __init__(self, *args, **kwargs):
-        super(NonprofitForm, self).__init__(*args, **kwargs)
-        print(kwargs.get('data', None))
+        super(NonprofitFormUpdate, self).__init__(*args, **kwargs)
+
+class NonprofitFormCreate(NonprofitFormUpdate):
+    def __init__(self, *args, **kwargs):
+        super(NonprofitFormCreate, self).__init__(*args, **kwargs)
+        self.fields.pop('network')

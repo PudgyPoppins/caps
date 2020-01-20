@@ -1,3 +1,7 @@
+{% load static %}
+<script src="{% static 'network/mapbox.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'network/mapbox.css' %}">
+
 <h1>Create a new Network</h1>
 <form method="post">{% csrf_token %}
     {{ form.as_p }}

@@ -6,12 +6,16 @@
 <a href="{% url 'network:deletenet' network.slug %}">delete network</a>
 <a href="{% url 'network:index' %}">back to index view</a>
 
+{% if network.src_file%}<br><img src="{{ network.src_file.url }}"><br>{% endif %}
+{% if network.src_link%}<br><img src="{{ network.src_link }}"><br>{% endif %}
+
 <ul>
 {% for non in network.nonprofit_set.all %}
     <li>
     	{% if non.website %}<a href="{{non.website}}">{{ non.title }}</a>
     	{% else %} {{non.title}}
     	{% endif %}
+        <br>{% if non.src_file%}<img src="{{ non.src_file.url }}" width="100px">{% endif %}<br>
     	| <a href="{% url 'network:deletenon' network.slug non.slug %}">delete</a>
     	| <a href="{% url 'network:updatenon' network.slug non.slug %}">update</a>
     	| <a href="{% url 'network:detailnon' network.slug non.slug %}">detail view</a>
