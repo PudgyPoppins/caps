@@ -6,9 +6,7 @@ One thing I should focus on is working outside in.
 
 # TODO:
 * ## Forms:
-	* when you get prompted with the coordinates, you should be able to move a point on a map to select them, or when you enter the title, it should then move the map to the coords it'll generate
-	* this may help with next step: https://stackoverflow.com/questions/25457695/django-must-have-at-least-one-form-field-filled-in#26292412
-	* Require at least one of the website, email, address forms to be filled out for nonprofits
+	* when you get prompted with the coordinates, you should be able to move a point on a map to select them, or when you enter the title, it should then move the map to the coords it'll generate | https://docs.mapbox.com/mapbox-gl-js/example/drag-a-marker/
 
 * ## User system / classess
 	* create it
@@ -22,6 +20,7 @@ One thing I should focus on is working outside in.
 	* write some general tests
 	* ordering networks/nonprofits based on distance to you: https://geopy.readthedocs.io/en/stable/#module-geopy.distance
 	* switch image uploading to a service like aws
+	* use regex on phone model to enforce an answer
 
 # Issues
 * potential issue: networks, "Lisbon, Peru" and "Lisbon Peru" can be created because they have technically different titles (comma vs no comma), but they have the same slug
@@ -35,4 +34,4 @@ One thing I should focus on is working outside in.
 * 1/7 two network forms for createview and updateview now, nonprofit forms are coming along. Found more issues
 * 1/12 detail network view now uses an actual generic detail view, found and fixed a slug error (slugs are now unique with the scope of the individual network), and now nonprofit detail views and delete views kind of work... now reverses back to detail view after updating
 * 1/16 nonprofit delete view and detail view now work even if name is duplicated, found and fixed other non detail view bug, changed view success redirects, fixed tags not showing up, and switched to github.
-* 1/18 - 1/19 asked a fire stackoverflow questions, coords now need address to generate and have to be None type previously, changed geocoder to MapBox, foreign key is automatically created when you add a nonprofit, update form differs from create form for nonprofit (prescence of network field), added image uploads, and automatic image resizing. Only src_link or src_file can be filled, not both.
+* 1/18 - 1/19 asked a fire stackoverflow questions, coords now need address to generate and have to be None type previously, changed geocoder to MapBox, foreign key is automatically created when you add a nonprofit, update form differs from create form for nonprofit (prescence of network field), added image uploads, and automatic image resizing. Only src_link or src_file can be filled, not both. Required at least one of 4 nonprofit forms to filled out and worked with mapbox in the network create view.

@@ -15,7 +15,8 @@
     	{% if non.website %}<a href="{{non.website}}">{{ non.title }}</a>
     	{% else %} {{non.title}}
     	{% endif %}
-        <br>{% if non.src_file%}<img src="{{ non.src_file.url }}" width="100px">{% endif %}<br>
+        {% if non.src_file%}<br><img src="{{ non.src_file.url }}" width="100px"><br>{% endif %}
+        {% if non.src_link%}<br><img src="{{ non.src_link }}" width="100px"><br>{% endif %}
     	| <a href="{% url 'network:deletenon' network.slug non.slug %}">delete</a>
     	| <a href="{% url 'network:updatenon' network.slug non.slug %}">update</a>
     	| <a href="{% url 'network:detailnon' network.slug non.slug %}">detail view</a>

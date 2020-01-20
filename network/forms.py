@@ -100,6 +100,9 @@ class NonprofitFormUpdate(ModelForm):
     	url = self.cleaned_data.get('src_link', False)
     	if url and file:
     		raise ValidationError("You cannot upload both an image url and an image file. Please upload one or the other.")
+    	if self.cleaned_data['website'] is None and self.cleaned_data['phone'] is None and self.cleaned_data['address'] is None and self.cleaned_data['email'] is None:
+    		print('aww man')
+    		raise ValidationError("At least one of these forms (website, phone, address, email) needs to be filled out")
 
     def save(self, commit=True):
     	instance = super().save(commit=False)

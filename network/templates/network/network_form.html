@@ -5,5 +5,35 @@
 <h1>Create a new Network</h1>
 <form method="post">{% csrf_token %}
     {{ form.as_p }}
+
+    <div id="map" style="width:640px; height:360px;"></div>
+	<pre id="coordinates" class="coordinates"></pre>
+	 
+	<script>
+		mapboxgl.accessToken = 'pk.eyJ1IjoicHVkZ3lwb3BwaW5zIiwiYSI6ImNqdnBiaDAwMDI3dzIzenFyZjc4Z2s1MGgifQ.ZY1iUikoHZ5fZqqcvYidpw';
+	var coordinates = document.getElementById('coordinates');
+	var map = new mapboxgl.Map({
+	container: 'map',
+	style: 'mapbox://styles/mapbox/streets-v11',
+	center: [0, 0],
+	zoom: 2
+	});
+	 
+	var marker = new mapboxgl.Marker({
+	draggable: true
+	})
+	.setLngLat([0, 0])
+	.addTo(map);
+	 
+	function onDragEnd() {
+	var lngLat = marker.getLngLat();
+	coordinates.style.display = 'block';
+	coordinates.innerHTML =
+	'Longitude: ' + lngLat.lng + '<br />Latitude: ' + lngLat.lat;
+	}
+	 
+	marker.on('dragend', onDragEnd);
+	</script>
+
     <input type="submit" value="Save">
 </form>
