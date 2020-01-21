@@ -7,7 +7,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView, FormVi
 
 # Create your views here.
 from .models import Network, Nonprofit
-from network.forms import NetworkFormCreate, NetworkFormUpdate, NonprofitFormCreate, NonprofitFormUpdate
+from network.forms import NetworkForm, NonprofitFormCreate, NonprofitFormUpdate
 
 class IndexView(generic.ListView):
     template_name = 'network/index.html'
@@ -22,7 +22,7 @@ class IndexView(generic.ListView):
 class AddNetView(CreateView):
     model = Network
     #fields = ['title', 'src_link', 'src_file']
-    form_class = NetworkFormCreate
+    form_class = NetworkForm
     success_url = reverse_lazy('network:index')
 class DeleteNetView(DeleteView):
 	model = Network
@@ -30,7 +30,7 @@ class DeleteNetView(DeleteView):
 class UpdateNetView(UpdateView):
 	slug_url_kwarg = 'slug'
 	model = Network
-	form_class = NetworkFormUpdate
+	form_class = NetworkForm
 	template_name_suffix = '_update_form'
 	def get_success_url(self):
 		return reverse('network:detail', kwargs={'slug' : self.object.slug})

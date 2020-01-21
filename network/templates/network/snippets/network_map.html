@@ -1,0 +1,74 @@
+{% load static %}
+
+<script src="{% static 'network/mapbox.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'network/mapbox.css' %}">
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.4.2/mapbox-gl-geocoder.css"></link>
+
+<div id="map" style="width:640px; height:360px;"></div>
+	<pre id="coordinates" class="coordinates"></pre>
+	 
+	<script>
+		mapboxgl.accessToken = 'pk.eyJ1IjoicHVkZ3lwb3BwaW5zIiwiYSI6ImNqdnBiaDAwMDI3dzIzenFyZjc4Z2s1MGgifQ.ZY1iUikoHZ5fZqqcvYidpw';
+		var coordinates = document.getElementById('coordinates');
+		var map = new mapboxgl.Map({
+			container: 'map',
+			style: 'mapbox://styles/mapbox/streets-v11',
+			{% if object.lat is None and object.lon is None%}center: [-98, 37],
+			{% elif object.lat and object.lon %}center: [{{ object.lon }}, {{ object.lat }}],
+			{% endif %}
+			zoom: 2
+		});
+
+		/*var geocoder = new MapboxGeocoder({
+		  accessToken: mapboxgl.accessToken,
+		  mapboxgl: mapboxgl
+		});
+		document.getElementById("geocoder").appendChild(geocoder.onAdd(map));*/
+		
+		//var el = document.createElement('div');
+		//el.className = 'marker';
+
+		var marker = new mapboxgl.Marker({
+			draggable: true,
+			//element: el,
+			color: '#4668F2',
+			anchor: 'bottom'
+		})
+		{% if object.lat is None and object.lon is None%}.setLngLat([-98, 37])
+		{% elif object.lat and object.lon %}.setLngLat([{{ object.lon }}, {{ object.lat }}])
+		{% endif %}
+		.addTo(map);
+		 
+		function onDragEnd() {
+			var lngLat = marker.getLngLat();
+			coordinates.style.display = 'block';
+			coordinates.innerHTML = 'Latitude: ' + lngLat.lat + '<br />Longitude: ' + lngLat.lng;
+			document.getElementById('id_lat').value = Math.round( lngLat.lat * 1000 + Number.EPSILON ) / 1000; //round to nearest thousandth
+			document.getElementById('id_lon').value = Math.round( lngLat.lng * 1000 + Number.EPSILON ) / 1000; //round to nearest thousandth
+			map.setCenter(marker.getLngLat());
+		}
+		 
+		marker.on('dragend', onDragEnd);
+
+		{% if object.lat and object.lon %}onDragEnd(){% endif %}
+
+		document.getElementById('id_title')
+        .addEventListener('blur', function (event) {
+            var request = new XMLHttpRequest()
+			var networkName = document.getElementById("id_title").value;
+			request.open('GET', 'https://api.mapbox.com/geocoding/v5/mapbox.places/' + networkName + '.json?access_token=pk.eyJ1IjoibWF0dGZpY2tlIiwiYSI6ImNqNnM2YmFoNzAwcTMzM214NTB1NHdwbnoifQ.Or19S7KmYPHW8YjRz82v6g&cachebuster=1574363463263&autocomplete=false&country=us&limit=1', true)
+			request.onload = function() {
+				// Begin accessing JSON data here
+				var data = JSON.parse(this.response);
+				coords = data.features[0].center;
+				if (coords.length>1){ //coords were found, adjust the map
+					marker.setLngLat(data.features[0].center);
+					onDragEnd();
+					map.setZoom(9);
+			  	}
+			}
+
+			request.send()
+        });
+	</script>

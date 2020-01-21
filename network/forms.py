@@ -11,7 +11,7 @@ import geopy
 from geopy.geocoders import MapBox
 geolocator = MapBox(api_key='pk.eyJ1IjoicHVkZ3lwb3BwaW5zIiwiYSI6ImNqdnBiaDAwMDI3dzIzenFyZjc4Z2s1MGgifQ.ZY1iUikoHZ5fZqqcvYidpw')
 
-class NetworkFormUpdate(ModelForm):
+class NetworkForm(ModelForm):
     def clean_pub_date(self):
         data = self.cleaned_data['pub_date']
         # Check if a date is not in the future more than one day. 
@@ -45,29 +45,7 @@ class NetworkFormUpdate(ModelForm):
     	fields = ['title', 'src_link', 'src_file', 'lat', 'lon']
     	labels = {'lat': _('Latitude'), 'lon': _('Longitude'), 'src_link': _('Image Url'), 'src_file': _('Image File')}
     	help_texts = {'lat': _('Please enter the latitude of the location, or leave it blank to auto-generate one via the title'), 'lon': _('Please enter the longitude of the location, or leave it blank to auto-generate one via the title')} 
-    def save(self, commit=True):
-    	instance = super().save(commit=False)
-    	try:
-    		if self.cleaned_data.get('lat') is None or self.cleaned_data.get('lon') is None:
-	    		location = geolocator.geocode(self.cleaned_data.get('title'), timeout=None)
-	    		if location is not None:
-		    		instance.lat = location.latitude
-		    		instance.lon = location.longitude
-		    	else:
-		    		print("The geocoder could not find the coordinates based on this information. You should change the title or something.")
-		    		#set coords to None for now.
-		    		instance.lat = None
-		    		instance.lon = None
-    	except geopy.exc.GeocoderTimedOut:
-    		print("The geocoder timed out.")
-    	if commit:
-    		instance.save()
-    	return instance
-class NetworkFormCreate(NetworkFormUpdate):
-    def __init__(self, *args, **kwargs):
-        super(NetworkFormCreate, self).__init__(*args, **kwargs)
-        self.fields.pop('lat')
-        self.fields.pop('lon')
+    	widgets = {'lat': forms.HiddenInput(), 'lon': forms.HiddenInput()}
 
 class NonprofitFormUpdate(ModelForm):
     class Meta:

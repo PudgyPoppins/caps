@@ -5,8 +5,10 @@ This project doesn't really require a readme (yet), but I'm just keeping this to
 One thing I should focus on is working outside in.
 
 # TODO:
+* see image issue
 * ## Forms:
 	* when you get prompted with the coordinates, you should be able to move a point on a map to select them, or when you enter the title, it should then move the map to the coords it'll generate | https://docs.mapbox.com/mapbox-gl-js/example/drag-a-marker/
+		* Look at that startpage project I did on my school computer to get the javascript to access the input field (for the title to pass the coords to the box)
 
 * ## User system / classess
 	* create it
@@ -25,6 +27,7 @@ One thing I should focus on is working outside in.
 # Issues
 * potential issue: networks, "Lisbon, Peru" and "Lisbon Peru" can be created because they have technically different titles (comma vs no comma), but they have the same slug
 * potential issue: image gets resized every time it is saved if it's above a certain width. While I set this to 100% conversion, I'm curious if future loss occurs
+	* to solve this, wrap the whole thing in an if image width > 1024 px, just to be safe and eficient
 
 # What was done
 * 12/30 added tests, static files, tagging, the flagged attribute to both network and nonprofit, and changed the admin site
@@ -35,3 +38,4 @@ One thing I should focus on is working outside in.
 * 1/12 detail network view now uses an actual generic detail view, found and fixed a slug error (slugs are now unique with the scope of the individual network), and now nonprofit detail views and delete views kind of work... now reverses back to detail view after updating
 * 1/16 nonprofit delete view and detail view now work even if name is duplicated, found and fixed other non detail view bug, changed view success redirects, fixed tags not showing up, and switched to github.
 * 1/18 - 1/19 asked a fire stackoverflow questions, coords now need address to generate and have to be None type previously, changed geocoder to MapBox, foreign key is automatically created when you add a nonprofit, update form differs from create form for nonprofit (prescence of network field), added image uploads, and automatic image resizing. Only src_link or src_file can be filled, not both. Required at least one of 4 nonprofit forms to filled out and worked with mapbox in the network create view.
+* 1/20 I removed the network geocoding funcition in the forms and replaced it with a more intuitive, map function, instead. Coorindates are now generated with a mapbox map for network update and create view
