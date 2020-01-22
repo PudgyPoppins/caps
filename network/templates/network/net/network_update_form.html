@@ -1,4 +1,5 @@
 <a href="{% url 'network:detail' object.slug %}">back to detail view</a>
+
 <h1>Change Network data</h1>
 <form method="post">{% csrf_token %}
     {{ form.as_p }}

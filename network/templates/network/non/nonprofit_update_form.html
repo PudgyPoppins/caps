@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Update {{ object.title }}{% endblock %}
+
+{% block content %}
+<a href="{% url 'network:detail' object.network.slug %}">back to detail view</a>
+
+<h1>Change Nonprofit data</h1>
+<form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    {% include 'network/snippets/nonprofit_map.html' %}
+    <input type="submit" value="Update">
+</form>
+{% endblock %}

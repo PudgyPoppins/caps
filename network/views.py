@@ -24,14 +24,16 @@ class AddNetView(CreateView):
     #fields = ['title', 'src_link', 'src_file']
     form_class = NetworkForm
     success_url = reverse_lazy('network:index')
+    template_name = 'network/net/network_form.html'
 class DeleteNetView(DeleteView):
 	model = Network
 	success_url = reverse_lazy('network:index')
+	template_name = 'network/net/network_confirm_delete.html'
 class UpdateNetView(UpdateView):
 	slug_url_kwarg = 'slug'
 	model = Network
 	form_class = NetworkForm
-	template_name_suffix = '_update_form'
+	template_name = 'network/net/network_update_form.html'
 	def get_success_url(self):
 		return reverse('network:detail', kwargs={'slug' : self.object.slug})
 
@@ -39,7 +41,7 @@ class UpdateNetView(UpdateView):
 class NetDetailView(generic.DetailView):
     model = Network
     slug_url_kwarg: 'slug'
-    template_name = 'network/detail.html'
+    template_name = 'network/net/network_detail.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['reasons'] = ["General trolling", "The network name is not accurate / inappropiate", "The network image is not accurate / inappropiate", "The coordinates are wrong"]
@@ -48,8 +50,13 @@ class NetDetailView(generic.DetailView):
 class AddNonView(CreateView):
     model = Nonprofit
     form_class = NonprofitFormCreate
+    template_name = 'network/non/nonprofit_form.html'
     def get_success_url(self):
     	return reverse('network:detail', kwargs={'slug' : self.object.network.slug})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['network'] = get_object_or_404(Network, slug=self.kwargs['network'])#pass the network data to the createview so it can use it for coords and stuff
+        return context
     def form_valid(self, form):
     	nonprofit = form.save(commit=False)
     	nonprofit.network = get_object_or_404(Network, slug=self.kwargs['network'])
@@ -63,15 +70,20 @@ class AddNonView(CreateView):
 class UpdateNonView(UpdateView):
 	model = Nonprofit
 	form_class = NonprofitFormUpdate
-	template_name_suffix = '_update_form'
 	success_url = reverse_lazy('network:index')
+	template_name = 'network/non/nonprofit_update_form.html'
 	def get_queryset(self):
 		return Nonprofit.objects.filter(network__slug=self.kwargs['network'])
 	def get_success_url(self):
 		return reverse('network:detail', kwargs={'slug' : self.object.network.slug})
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['network'] = get_object_or_404(Network, slug=self.kwargs['network'])#pass the network data to the updateview so it can use it for coords and stuff
+		return context
 class DeleteNonView(DeleteView):
 	model = Nonprofit
 	success_url = reverse_lazy('network:index')
+	template_name = 'network/non/nonprofit_confirm_delete.html'
 	def get_queryset(self):
 		return Nonprofit.objects.filter(network__slug=self.kwargs['network'])
 	def get_success_url(self):
@@ -79,7 +91,7 @@ class DeleteNonView(DeleteView):
 
 class NonDetailView(generic.DetailView):
     model = Nonprofit
-    template_name = 'network/non.html'
+    template_name = 'network/non/nonprofit_detail.html'
     def get_queryset(self):
         return Nonprofit.objects.filter(network__slug=self.kwargs['network'])
 

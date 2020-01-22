@@ -1,2 +1,11 @@
 /*The server must be restarted for css changes to take effect*/
-*{font-family: sans-serif, serif;}
+*{box-sizing: border-box;}
+body, html{padding:0; border:0;}
+
+.marker{
+	background-image: url("images/marker.svg");
+	background-size: cover;
+	background-position: center center;
+	width: 33px;
+	height: 42px;
+}

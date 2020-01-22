@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="description" content=""><!--TODO:describe it-->
+	<meta name="keywords" content=""><!--TODO: set keywords-->
+	<meta name="author" content="TODO"> <!--TODO: name of author should probably be the name of the site + developer -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title>NAMEOFSITE — {% block title %}{% endblock %}</title>
+
+	<link rel="stylesheet" type="text/css" href="{% static 'network/style.css' %}">
+</head>
+
+<body>
+	{% block content %}
+		<h1>Content hasn't been overriden</h1>
+	{% endblock %}
+</body>
+</html>
