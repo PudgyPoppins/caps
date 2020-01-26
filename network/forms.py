@@ -83,34 +83,6 @@ class NonprofitFormUpdate(ModelForm):
     		print('aww man')
     		raise ValidationError("At least one of these forms (website, phone, address, email) needs to be filled out")
 
-    '''def save(self, commit=True):
-    	instance = super().save(commit=False)
-    	#instance.tags.set(self.cleaned_data.get('tags')) #setting the tags here since I overrided the save function
-    	#I moved the above line to the views.py createview
-    	try:
-    		if self.cleaned_data.get('address') is not None and (self.cleaned_data.get('lat') is None or self.cleaned_data.get('lon') is None):
-	    		print(self.cleaned_data.get('address'))
-	    		location = geolocator.geocode(self.cleaned_data.get('address'), timeout=None)
-	    		if location is not None:
-		    		instance.lat = location.latitude
-		    		instance.lon = location.longitude
-		    	else:
-		    		print("The geocoder could not find the coordinates based on this information. You should change the address or something.")
-		    		#set coords to None for now.
-		    		instance.lat = None
-		    		instance.lon = None
-    		elif self.cleaned_data.get('address') is None:
-    			#no address, no coords
-    			instance.lat = None
-    			instance.lon = None
-    	except geopy.exc.GeocoderTimedOut:
-    		print("The geocoder timed out.")
-    	if commit:
-    		instance.save()
-    	return instance
-    def __init__(self, *args, **kwargs):
-        super(NonprofitFormUpdate, self).__init__(*args, **kwargs)'''
-
 class NonprofitFormCreate(NonprofitFormUpdate):
     def __init__(self, *args, **kwargs):
         super(NonprofitFormCreate, self).__init__(*args, **kwargs)
