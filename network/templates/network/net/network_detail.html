@@ -1,5 +1,11 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+
+{% block title %}{{ network.title }}{% endblock %}
+
+{% block content %}
 <h1>{{ network.title }}</h1>
-<h3>Coords: {{ network.lat }}, {{ network.lon }}</h3>
+<h3>Coords: {{ network.lat|floatformat:3 }}, {{ network.lon|floatformat:3 }}</h3>
 
 <a href="{% url 'network:addnon' network.slug %}">add a nonprofit</a>
 <a href="{% url 'network:updatenet' network.slug %}">update network</a>
@@ -21,7 +27,8 @@
     	| <a href="{% url 'network:updatenon' network.slug non.slug %}">update</a>
     	| <a href="{% url 'network:detailnon' network.slug non.slug %}">detail view</a>
     	<ul>
-    		<li>Coords: {{ non.lat}}, {{non.lon}}</li>
+    		<li>Coords: {{ non.lat|floatformat:3 }}, {{ non.lon|floatformat:3 }}</li>
+            <li>Address: {{ non.address|shorten_address }}</li>
     		<li>Tags: {% for tag in non.tags.all %} {{ tag.name }} {% endfor %}</li>
     	</ul>
     </li>
@@ -39,3 +46,4 @@
 {% endfor %}
 <input type="submit" value="Report">
 </form>
+{% endblock %}

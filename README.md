@@ -7,10 +7,6 @@ One thing I should focus on is working outside in.
 # TODO:
 * see image issue
 * ## Forms / views:
-	* network mapbox
-		* only show the map when the address field has data
-		* replace the address field entirely with the geocoder field. address field turns into a hidden field, and the geocoder updates it onchange. I'll also shorten the address in the template view "7725, Glenwild Dr, Park City 84098, Utah, United States..." should just be shown as "7725 Glenwild Dr, Park City UT" | https://github.com/mapbox/mapbox-gl-geocoder/blob/master/API.md#query to auto search when an address is used
-		* manually render the nonprofit create and update form so that I can move the geocoder box into the address field area. Alternatively, I may be able to create a parent div for the address field, append the geocoder as a child to it, and use css to hide the field rather than a widget (so the labels stay)
 	* show a map on the nonprofit detail view of the location (if applicable), and a map of all of the nonprofits with address on the network detail view
 
 * ## User system / user classess
@@ -21,6 +17,7 @@ One thing I should focus on is working outside in.
 		* flag nonprofits and networks that can't generate coordinates due to timeout errors with a reason there
 		* reports should probably be a separate model that has a many to many relationship with nonprofits and networks, and could be assigned or deleted
 * ## Later:
+	* When making the site look good, I'll probably have to override all of the forms with custom elements. See nonprofit_map and change all of that dom element creation stuff that I did.
 	* favicon
 	* write some general tests
 	* ordering networks/nonprofits based on distance to you: https://geopy.readthedocs.io/en/stable/#module-geopy.distance
@@ -45,3 +42,4 @@ One thing I should focus on is working outside in.
 * 1/18 - 1/19 asked a fire stackoverflow questions, coords now need address to generate and have to be None type previously, changed geocoder to MapBox, foreign key is automatically created when you add a nonprofit, update form differs from create form for nonprofit (prescence of network field), added image uploads, and automatic image resizing. Only src_link or src_file can be filled, not both. Required at least one of 4 nonprofit forms to filled out and worked with mapbox in the network create view.
 * 1/20 I removed the network geocoding funcition in the forms and replaced it with a more intuitive, map function, instead. Coorindates are now generated with a mapbox map for network update and create view
 * 1/21 added a flyTo for the network map to make it more similar to the nonprofit geocoder movement, changed the marker style to something more unique, used network data in nonprofit create/update to bbox geocoding, moved all of the template views into better folders, worked on base.html and extending it
+* 1/25 show and hide map/coordinates in nonprofit create/update view if no coordinates, clear coords on submit if there's no address, sets default coords to network coords if they don't exist, moved map and geocoder and coordinates by where the address field is, and completely automated the coordinates and address field! Added a custom template filter to use regex to shorten addressess that are too long.

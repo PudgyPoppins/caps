@@ -1,4 +1,6 @@
 {% load static %}
+{% load custom_filters %}
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,7 +10,7 @@
 	<meta name="author" content="TODO"> <!--TODO: name of author should probably be the name of the site + developer -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<title>NAMEOFSITE — {% block title %}{% endblock %}</title>
+	<title>{% block title %}SITENAME{% endblock %}</title>
 
 	<link rel="stylesheet" type="text/css" href="{% static 'network/style.css' %}">
 </head>

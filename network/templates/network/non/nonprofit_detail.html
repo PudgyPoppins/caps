@@ -1,5 +1,5 @@
 <h1>{{ nonprofit.title }}</h1>
-<h3>Coords: {{ nonprofit.lat }} {{ nonprofit.lon }}</h3>
+<h3>Coords: {{ nonprofit.lat|floatformat:3 }} {{ nonprofit.lon|floatformat:3 }}</h3>
 <a href="{% url 'network:deletenon' nonprofit.network.slug nonprofit.slug %}">delete</a>
 <a href="{% url 'network:updatenon' nonprofit.network.slug nonprofit.slug %}">update</a>
 <a href="{% url 'network:detail' nonprofit.network.slug %}">back to network</a>

@@ -45,7 +45,7 @@ class NetworkForm(ModelForm):
     	fields = ['title', 'src_link', 'src_file', 'lat', 'lon']
     	labels = {'lat': _('Latitude'), 'lon': _('Longitude'), 'src_link': _('Image Url'), 'src_file': _('Image File')}
     	help_texts = {'lat': _('Please enter the latitude of the location, or leave it blank to auto-generate one via the title'), 'lon': _('Please enter the longitude of the location, or leave it blank to auto-generate one via the title')} 
-    	widgets = {'lat': forms.HiddenInput(), 'lon': forms.HiddenInput()}
+    	widgets = {'lat': forms.HiddenInput(), 'lon': forms.HiddenInput(),}
 
 class NonprofitFormUpdate(ModelForm):
     class Meta:
@@ -54,7 +54,8 @@ class NonprofitFormUpdate(ModelForm):
     	labels = {'lat': _('Latitude'), 'lon': _('Longitude'), 'src_link': _('Image Url'), 'src_file': _('Image File')}
     	help_texts = {'lat': _('Please enter the latitude of the location, or leave it blank to auto-generate one via the address'), 'lon': _('Please enter the longitude of the location, or leave it blank to auto-generate one via the address')}
     	widgets = {
-            'tags': CheckboxSelectMultiple()
+            'tags': CheckboxSelectMultiple(),
+            'lat': forms.HiddenInput(), 'lon': forms.HiddenInput(),
         }
     def clean_pub_date(self):
         data = self.cleaned_data['pub_date']
@@ -82,7 +83,7 @@ class NonprofitFormUpdate(ModelForm):
     		print('aww man')
     		raise ValidationError("At least one of these forms (website, phone, address, email) needs to be filled out")
 
-    def save(self, commit=True):
+    '''def save(self, commit=True):
     	instance = super().save(commit=False)
     	#instance.tags.set(self.cleaned_data.get('tags')) #setting the tags here since I overrided the save function
     	#I moved the above line to the views.py createview
@@ -108,7 +109,7 @@ class NonprofitFormUpdate(ModelForm):
     		instance.save()
     	return instance
     def __init__(self, *args, **kwargs):
-        super(NonprofitFormUpdate, self).__init__(*args, **kwargs)
+        super(NonprofitFormUpdate, self).__init__(*args, **kwargs)'''
 
 class NonprofitFormCreate(NonprofitFormUpdate):
     def __init__(self, *args, **kwargs):

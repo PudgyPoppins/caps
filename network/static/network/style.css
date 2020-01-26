@@ -9,3 +9,6 @@ body, html{padding:0; border:0;}
 	width: 33px;
 	height: 42px;
 }
+.addressWrapper{}
+#map{width:640px; height:360px;}
+#id_address{display:none;}

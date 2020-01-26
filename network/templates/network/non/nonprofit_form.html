@@ -1,4 +1,8 @@
 {% extends "base.html" %}
+
+{% block title %}Add a nonprofit{% endblock %}
+
+{% block content %}
 <a href="{% url 'network:detail' network.slug %}">back to detail view</a>
 
 <h1>Create a new Nonprofit</h1>
@@ -7,3 +11,4 @@
     {% include 'network/snippets/nonprofit_map.html' %}
     <input type="submit" value="Save">
 </form>
+{% endblock %}
