@@ -1,5 +1,5 @@
 {% load static %}
-{% load custom_filters %}
+{% load compress %}
 
 <!DOCTYPE html>
 <html>
@@ -12,10 +12,13 @@
 
 	<title>{% block title %}SITENAME{% endblock %}</title>
 
-	<link rel="stylesheet" type="text/css" href="{% static 'network/style.css' %}">
+	{% compress css %}
+    <link type="text/x-scss" href="{% static 'style.scss' %}" rel="stylesheet">
+	{% endcompress %}
 </head>
 
 <body>
+	{% include "navbar.html" %}
 	{% block content %}
 		<h1>Content hasn't been overriden</h1>
 	{% endblock %}

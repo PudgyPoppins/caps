@@ -86,6 +86,8 @@ class Nonprofit(models.Model):
 	address = models.CharField(max_length=100, help_text="Enter the nonprofit address, if applicable", null=True, blank=True)
 	email = models.EmailField(max_length=254, help_text="Please enter a relevant email for volunteering, if applicable", null = True, blank=True)
 
+	description = models.CharField(max_length=1024, help_text="What kind of work will volunteers be doing here?", null=True, blank=True)
+
 	lat = models.DecimalField(max_digits=9, decimal_places=6, null = True, blank=True)
 	lon = models.DecimalField(max_digits=9, decimal_places=6, null = True, blank=True)
 

@@ -1,0 +1,75 @@
+{% load static %}
+{% load custom_filters %}
+
+{% if type == "network" or type == "nonprofit" and nonprofit.lat and nonprofit.lon %} <!--Include map if it's a network, or if it's a nonprofit and has coords-->
+<script src="{% static 'network/mapbox.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'network/mapbox.css' %}">
+
+<div id="map" style="width:640px; height:360px;"></div>
+
+{% if type == "nonprofit" %}
+<pre id="coordinates" class="coordinates">
+Latitude: {{ nonprofit.lat|floatformat:3  }}<br/>Longitude: {{ nonprofit.lon|floatformat:3  }}
+</pre>
+{% elif type == "network" %}
+<pre id="coordinates" class="coordinates">
+Latitude: {{ network.lat|floatformat:3  }}<br/>Longitude: {{ network.lon|floatformat:3  }}
+</pre>
+{% endif %}
+
+<script>
+	mapboxgl.accessToken = 'pk.eyJ1IjoicHVkZ3lwb3BwaW5zIiwiYSI6ImNqdnBiaDAwMDI3dzIzenFyZjc4Z2s1MGgifQ.ZY1iUikoHZ5fZqqcvYidpw';
+	var coordinates = document.getElementById('coordinates');
+	var map = new mapboxgl.Map({
+		container: 'map',
+		style: 'mapbox://styles/mapbox/streets-v11',
+		{% if type == "nonprofit" %}center: [{{ nonprofit.lon }}, {{ nonprofit.lat }}], zoom: 14
+		{% elif type == "network" %}center: [{{ network.lon }}, {{ network.lat }}], zoom: 12
+		{% endif %}
+	});
+
+	var el = document.createElement('div');
+	el.className = 'marker';
+
+	{% if type == "nonprofit" %}
+
+	var marker = new mapboxgl.Marker({
+		element: el,
+		anchor: 'bottom'
+	})
+	.setLngLat([{{ nonprofit.lon }}, {{ nonprofit.lat }}])
+	.addTo(map);
+
+	{% elif type == "network" %}
+	var geojson = {
+		type: 'FeatureCollection',
+		features: [
+		{% for non in network.nonprofit_set.all %}
+		{% if non.lat and non.lon %}
+			{
+		      type: 'Feature',
+		      geometry: {
+		        type: 'Point',
+		        coordinates: [{{ non.lon }}, {{ non.lat }}]
+		      },
+		      properties: {
+		        title: '{{ non.title }}',
+		        link: '{{ non.slug }}',
+		        description: '{{ non.address|shorten_address }}'
+		      }
+		    },
+		{% endif %}
+		{% endfor %}
+		]};
+	geojson.features.forEach(function(marker) {
+		var el = document.createElement('div');
+		el.className = 'marker';
+		new mapboxgl.Marker(el)
+			.setLngLat(marker.geometry.coordinates)
+			.setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
+			.setHTML('<h3><a href="#' + marker.properties.link + '">' + marker.properties.title + '</a></h3><p>' + marker.properties.description + '</p>')) //popup html
+			.addTo(map);
+	});
+	{% endif %}
+</script>
+{% endif %}

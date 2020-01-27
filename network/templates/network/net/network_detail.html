@@ -15,9 +15,11 @@
 {% if network.src_file%}<br><img src="{{ network.src_file.url }}"><br>{% endif %}
 {% if network.src_link%}<br><img src="{{ network.src_link }}"><br>{% endif %}
 
+{% include "network/snippets/map.html" with type="network" %}
+
 <ul>
 {% for non in network.nonprofit_set.all %}
-    <li>
+    <li id="{{ non.slug }}">
     	{% if non.website %}<a href="{{non.website}}">{{ non.title }}</a>
     	{% else %} {{non.title}}
     	{% endif %}

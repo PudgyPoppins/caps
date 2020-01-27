@@ -1,0 +1,81 @@
+/*The server must be restarted for css changes to take effect*/
+
+/*All map stuff*/
+.marker{
+	background-image: url("images/marker.svg");
+	background-size: cover;
+	background-position: center center;
+	width: 33px;
+	height: 42px;
+}
+.addressWrapper{}
+#map{width:640px; height:360px;}
+#id_address{display:none;}
+.mapboxgl-popup {
+  max-width: 200px;
+}
+.mapboxgl-popup-content {
+  text-align: center;
+}
+/*End map stuff*/
+
+*{box-sizing: border-box;}
+
+*:not(.flickity-slider):not(.carousel-cell):not(.mapboxgl-marker){
+	transition:0.2s ease-in;
+}
+h1, h2, h3, h4, h5, h6, p, a, li, ul, ol, input, label{
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+  font-weight:400;
+}
+
+
+head, body{
+  width:100%; height:100%;
+  padding:0; margin:0;
+}
+h1{font-weight:500;}
+a, a:visited{
+  color:#25D;
+  text-decoration: none;
+  cursor:pointer;
+}
+a:hover, a:focus{
+  color: darken(#25d, 7.5%);
+  text-decoration: underline;
+}
+.alt-a, .alt-a:visited{color:#5c5f6f;}
+.alt-a:hover, .alt-a:focus{color:#7f8292;}
+.float-right{float:right;}
+
+.flex{
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  flex-flow:row wrap;
+}
+
+.navbar{
+  position:sticky;
+  position:-webkit-sticky;
+  top:0;
+  padding:0 50px;
+  background:white;
+  box-shadow: 0 5px 10px 0 rgba(0,0,0,0.1);
+  z-index:100;
+}
+.navbar h1, .navbar h1 a, .navbar h1 a:hover, .navbar h1 a:focus{
+  font-size:25px;
+  padding:0; margin:0;
+  text-decoration: none;
+  color:black;
+}
+.navLinks{margin-left:auto;}
+.navLinks a{display:block; text-decoration:none; padding:15px 7.5px; border-bottom:2.5px solid transparent;}
+.navLinks a:hover{border-bottom:2.5px solid #25D;}
+.userIcon{
+  width:40px;
+  height:40px;
+  border-radius:100%;
+  margin-left:7.5px;
+}

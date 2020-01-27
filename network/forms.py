@@ -56,6 +56,7 @@ class NonprofitFormUpdate(ModelForm):
     	widgets = {
             'tags': CheckboxSelectMultiple(),
             'lat': forms.HiddenInput(), 'lon': forms.HiddenInput(),
+            'description': forms.Textarea(),
         }
     def clean_pub_date(self):
         data = self.cleaned_data['pub_date']

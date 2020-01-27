@@ -1,3 +1,9 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+
+{% block title %}{{ nonprofit.title }}{% endblock %}
+
+{% block content %}
 <h1>{{ nonprofit.title }}</h1>
 <h3>Coords: {{ nonprofit.lat|floatformat:3 }} {{ nonprofit.lon|floatformat:3 }}</h3>
 <a href="{% url 'network:deletenon' nonprofit.network.slug nonprofit.slug %}">delete</a>
@@ -9,30 +15,8 @@
 
 <p>When I finish the network/nonprofit side of this, I want to be able to have a calendar view of all of the nonprofit's events, if any, here</p>
 
-{% if nonprofit.lat and nonprofit.lon%}
-	<div id="map" style="width:640px; height:360px;"></div>
-		 
-	<script>
-		mapboxgl.accessToken = 'pk.eyJ1IjoicHVkZ3lwb3BwaW5zIiwiYSI6ImNqdnBiaDAwMDI3dzIzenFyZjc4Z2s1MGgifQ.ZY1iUikoHZ5fZqqcvYidpw';
-		var coordinates = document.getElementById('coordinates');
-		var map = new mapboxgl.Map({
-			container: 'map',
-			style: 'mapbox://styles/mapbox/streets-v11',
-			{% if object.lat is None and object.lon is None%}center: [-98, 37], zoom: 2
-			{% elif object.lat and object.lon %}center: [{{ object.lon }}, {{ object.lat }}], zoom: 10
-			{% endif %}
-		});
+{% if nonprofit.address%}<p>Address: {{ nonprofit.address|shorten_address }}</p>{% endif %}
 
-		var el = document.createElement('div');
-		el.className = 'marker';
+{% include "network/snippets/map.html" with type="nonprofit" %}
 
-		var marker = new mapboxgl.Marker({
-			draggable: true,
-			color: '#4668F2',
-			element: el,
-			anchor: 'bottom'
-		})
-		.setLngLat([{{ nonprofit.lon }}, {{ nonprofit.lat }}])
-		.addTo(map);
-	</script>
-{% endif %}
+{% endblock %}
