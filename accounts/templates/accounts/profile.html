@@ -1,1 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{{profile.username}}{% endblock %}
+
+{% block content %}
+
+<h2>User: {{ profile.username }}</h2>
+<a href="mailto:{{ profile.email }}">{{ profile.email }}</a>
+
+{% if user.username == profile.username %}
 <a href="{% url 'password_reset' %}">reset password</a>
+{% endif %}
+
+{% endblock %}

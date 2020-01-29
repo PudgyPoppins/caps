@@ -3,8 +3,7 @@ from django.utils.text import slugify
 import datetime
 from django.utils import timezone
 
-from geopy.geocoders import Nominatim
-geolocator = Nominatim()
+from accounts.models import User
 
 import PIL
 from PIL import Image
@@ -23,6 +22,8 @@ class Network(models.Model):
 	lon = models.DecimalField(max_digits=9, decimal_places=6, blank = True, null = True)
 
 	flagged = models.BooleanField(default=False)
+	created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True)
+
 
 	def __str__(self): 
 		return self.title
@@ -92,7 +93,9 @@ class Nonprofit(models.Model):
 	lon = models.DecimalField(max_digits=9, decimal_places=6, null = True, blank=True)
 
 	tags = models.ManyToManyField(Tag, blank=True)
+
 	flagged = models.BooleanField(default=False)
+	created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True)
 
 	slug = models.SlugField(max_length=100, blank=True)
 

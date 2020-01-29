@@ -24,7 +24,7 @@
         <!--If you're logged in, show this-->
         {% if user.is_authenticated %}
             <a href="{% url 'logout' %}">log out</a>
-            <a href="{% url 'accounts:profile' user.pk %}">{{ user.username }}</a>
+            <a href="{% url 'accounts:profile' user.username %}">{{ user.username }}</a>
             <img src="{{ user.email|gravatar_url }}" class="userIcon" alt="gravitar user icon" title="{{ user }}"/>
         {% endif %}
     </div>

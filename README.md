@@ -7,10 +7,11 @@ One thing I should focus on is working outside in.
 # TODO:
 * see image issue
 * ## Forms / views:
-	* 
+	* markdown for the volunteer description would be pretty cool, I think
+	* when you refresh the page, all of the field values are kept. However, the address is NOT.
 
 * ## User system / user classess
-	* show which nonprofits were created by which user, etc. Fix profile. I also would like to have a username instead of a number, if that's possible, for the profile.
+	* show which nonprofits were created by which user, etc
 	* show a message when a user signs out
 	* override the reset password email
 	* override accounts login view so that you can't access it if you're logged in, as well as other views
@@ -48,3 +49,4 @@ One thing I should focus on is working outside in.
 * 1/21 added a flyTo for the network map to make it more similar to the nonprofit geocoder movement, changed the marker style to something more unique, used network data in nonprofit create/update to bbox geocoding, moved all of the template views into better folders, worked on base.html and extending it
 * 1/25 show and hide map/coordinates in nonprofit create/update view if no coordinates, clear coords on submit if there's no address, sets default coords to network coords if they don't exist, moved map and geocoder and coordinates by where the address field is, and completely automated the coordinates and address field! Added a custom template filter to use regex to shorten addressess that are too long.
 * 1/26 added a map for the detail view of the network and nonprofit, and added scss, a navbar, and a gravitar. Moved around some templates. You can now log in and out, and reset your password if you forgit it. I added login restrictions to some views. I added a custom user model, too.
+* 1/28 renamed the customuser model (which took a lot of trouble), and created a user profile screen

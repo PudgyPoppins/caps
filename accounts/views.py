@@ -1,7 +1,7 @@
 from django.shortcuts import render
 #from django.contrib.auth.forms import UserCreationForm
 from .forms import CustomUserCreationForm
-from .models import CustomUser
+from .models import User
 from django.urls import reverse_lazy
 from django.views import generic
 
@@ -14,6 +14,6 @@ class SignUp(generic.CreateView):
     success_url = reverse_lazy('login')
     template_name = 'accounts/signup.html'
 
-class Profile(generic.DetailView):
-    model = CustomUser
-    template_name = 'accounts/profile.html'
+def get_profile(request, username):
+    user = User.objects.get(username=username)
+    return render(request, 'accounts/profile.html', {"profile":user}) #I'm passing this info through as profile instead of user because if the profile is not the user's own, I want them to be able to see their stuff still
