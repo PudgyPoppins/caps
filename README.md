@@ -11,15 +11,18 @@ One thing I should focus on is working outside in.
 	* when you refresh the page, all of the field values are kept. However, the address is NOT.
 
 * ## User system / user classess
-	* show which nonprofits were created by which user, etc
+	* when you go to accounts/profile, it should show your profile if you're logged in, otherwise it'll tell you to sign up or log in
+	* you should only be able to delete an object that you've created, unless you're a moderator
+	* change the default page if you're signed in or not (signed out, /home, signed in, /networks)
 	* show a message when a user signs out
-	* override the reset password email
-	* override accounts login view so that you can't access it if you're logged in, as well as other views
-	* create it
+	* override accounts login view so that you can't access it if you're *logged in*, as well as other views
+	* create groups
 	* ### Reporting System
 		* If a nonprofit is flagged true, then send an email with the reason
 			* scratch that... first, add a many to many field of reasons, similar to tags, to nonprofits and networks. Then, if they have a reason, it will automatically pop up as flagged in the template view.
 		* reports should probably be a separate model that has a many to many relationship with nonprofits and networks, and could be assigned or deleted
+* ## Calendar
+	* create it
 * ## Later:
 	* When making the site look good, I'll probably have to override all of the forms with custom elements. See nonprofit_map and change all of that dom element creation stuff that I did.
 	* favicon
@@ -50,3 +53,4 @@ One thing I should focus on is working outside in.
 * 1/25 show and hide map/coordinates in nonprofit create/update view if no coordinates, clear coords on submit if there's no address, sets default coords to network coords if they don't exist, moved map and geocoder and coordinates by where the address field is, and completely automated the coordinates and address field! Added a custom template filter to use regex to shorten addressess that are too long.
 * 1/26 added a map for the detail view of the network and nonprofit, and added scss, a navbar, and a gravitar. Moved around some templates. You can now log in and out, and reset your password if you forgit it. I added login restrictions to some views. I added a custom user model, too.
 * 1/28 renamed the customuser model (which took a lot of trouble), and created a user profile screen
+* 1/29 changed the navbar up just a bit, added the users' created nonprofits/networks to their profile, added a redirect view. If you're already logged in, it fills out your email for the password reset form. I overrided the password reset email, too, and its subject. I realized that before I add groups, I should finish with adding the calendar app as well as the reporting system

@@ -11,4 +11,36 @@
 <a href="{% url 'password_reset' %}">reset password</a>
 {% endif %}
 
+<h3>Created Networks</h3>
+{% if created_networks %}
+    <ul>
+    {% for n in created_networks %}
+        <li>
+        	<a href="{% url 'network:detail' n.slug %}">{{ n.title }}</a>
+        	{% if n.src_link%}<img src="{{ n.src_link }}" width="100px;">{% endif %}
+        	{% if n.src_file%}<img src="{{ n.src_file.url }}" width="100px;">{% endif %}
+        	{% if user.username == profile.username %}| <a href="{% url 'network:updatenet' n.slug %}">update</a> | <a href="{% url 'network:deletenet' n.slug %}">delete</a>{% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>This user hasn't created any networks yet.</p>
+{% endif %}
+
+<h3>Created Nonprofits</h3>
+{% if created_nonprofits %}
+    <ul>
+    {% for non in created_nonprofits %}
+        <li>
+        	<a href="{% url 'network:detailnon' non.network.slug non.slug %}">{{ non.title }}</a>
+        	{% if non.src_link%}<img src="{{ non.src_link }}" width="100px;">{% endif %}
+        	{% if non.src_file%}<img src="{{ non.src_file.url }}" width="100px;">{% endif %}
+        	{% if user.username == profile.username %}| <a href="{% url 'network:updatenon' non.network.slug non.slug %}">update</a> | <a href="{% url 'network:deletenon' non.network.slug non.slug %}">delete</a>{% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>This user hasn't created any nonprofits yet.</p>
+{% endif %}
+
 {% endblock %}

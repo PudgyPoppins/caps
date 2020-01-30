@@ -2,12 +2,15 @@ This file is kind of like the ReadMe #TODO section. However, it's more of like a
 I will NOT do bug reporting in this section
 
 * # Users
+	* ## Groups
+		* Nonprofit representatives: these people can claim a nonprofit (maybe a fk relationship? Multiple people per one np?) by clicking a claim button on the nonprofit page. After they verify themselves with a moderator, they can add events onto the nonprofit page.
+		* moderators: get reports of flagging, can delete anything, etc
+		* base users:
+	* ## Reporting
 * # Networks
 	* ## Nonprofits
 		* Can be ordered by name, distance away from you, and time created
-		* Nonprofit coordinates autogenerate on create.
-		* If you change the nonprofits's coordinates in an update, then it shouldn't override them with the geolocator.
 
-		* Alternative, probably better coordinate creation:
-			Whenever you enter an address, it opens up a toggles showing a map with a pin. The pin pops up first wherever the geocoder sets it from the address. Then, the user is able to move the pin to a different location on the map to change the coords. The coordinates of the pin (known by mapbox) are passed to invisible coordinate fields using javascript. This will be more intuitive for the user.
-	* ## Reporting
+		* Whenever you enter an address, it opens up a toggles showing a map with a pin. The pin pops up first wherever the geocoder sets it from the address. Then, the user is able to move the pin to a different location on the map to change the coords. The coordinates of the pin (known by mapbox) are passed to invisible coordinate fields using javascript. This will be more intuitive for the user.
+* # Calendar
+	* If you are a nonprofit representative, you can add volunteer events to a calendar, which other users will be able to see
