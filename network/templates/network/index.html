@@ -10,7 +10,10 @@
         	<a href="{% url 'network:detail' n.slug %}">{{ n.title }} created on {{ n.pub_date|date:'Y-m-d H:i' }}</a> <!--Example link addr: localhost/network/park-city-utah -->
         	{% if n.src_link%}<img src="{{ n.src_link }}" width="100px;">{% endif %}
         	{% if n.src_file%}<img src="{{ n.src_file.url }}" width="100px;">{% endif %}
-        	| <a href="{% url 'network:updatenet' n.slug %}">update</a> | <a href="{% url 'network:deletenet' n.slug %}">delete</a>
+        	| <a href="{% url 'network:updatenet' n.slug %}">update</a> 
+            {% if user.is_authenticated and user.username == non.created_by.username or perms.network.delete_nonprofit %}
+            | <a href="{% url 'network:deletenet' n.slug %}">delete</a>
+            {% endif %}
         </li>
     {% endfor %}
     </ul>

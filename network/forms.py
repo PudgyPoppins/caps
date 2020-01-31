@@ -7,9 +7,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from network.models import Network, Nonprofit
 
-import geopy
-from geopy.geocoders import MapBox
-geolocator = MapBox(api_key='pk.eyJ1IjoicHVkZ3lwb3BwaW5zIiwiYSI6ImNqdnBiaDAwMDI3dzIzenFyZjc4Z2s1MGgifQ.ZY1iUikoHZ5fZqqcvYidpw')
+#import geopy
+#from geopy.geocoders import MapBox
+#geolocator = MapBox(api_key='pk.eyJ1IjoicHVkZ3lwb3BwaW5zIiwiYSI6ImNqdnBiaDAwMDI3dzIzenFyZjc4Z2s1MGgifQ.ZY1iUikoHZ5fZqqcvYidpw')
 
 class NetworkForm(ModelForm):
     def clean_pub_date(self):

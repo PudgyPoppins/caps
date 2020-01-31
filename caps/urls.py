@@ -22,7 +22,6 @@ from django.views.generic import RedirectView
 
 urlpatterns = [
     path('', include('home.urls')),
-    path('home/', RedirectView.as_view(url='/')), #redirect
 
     path('network/', include('network.urls')),
     path('networks/', RedirectView.as_view(url='/network/')), #redirect
@@ -33,6 +32,9 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+handler403 = 'home.views.handler403'
+handler404 = 'home.views.handler404'
 
 if settings.DEBUG: # hopefully helps with images
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

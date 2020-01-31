@@ -3,8 +3,9 @@ I will NOT do bug reporting in this section
 
 * # Users
 	* ## Groups
-		* Nonprofit representatives: these people can claim a nonprofit (maybe a fk relationship? Multiple people per one np?) by clicking a claim button on the nonprofit page. After they verify themselves with a moderator, they can add events onto the nonprofit page.
+		* Nonprofit representatives: these people can claim a nonprofit (maybe a fk relationship? Multiple people per one np?) by clicking a claim button on the nonprofit page. After they verify themselves with a moderator, they can add events onto the nonprofit page. On their profile page, I want something akin to a twitter verification check mark to appear
 		* moderators: get reports of flagging, can delete anything, etc
+			* moderators can also retrieve items that were deleted within the last month and reinstate them. Later than that, and it gets perma-deleted
 		* base users:
 	* ## Reporting
 * # Networks

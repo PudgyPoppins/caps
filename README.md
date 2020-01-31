@@ -4,17 +4,19 @@ This project doesn't really require a readme (yet), but I'm just keeping this to
 
 One thing I should focus on is working outside in.
 
+This might come in handy for providing back links: <a href="javascript:history.go(-1)">back</a>
+
 # TODO:
 * see image issue
-* ## Forms / views:
-	* markdown for the volunteer description would be pretty cool, I think
-	* when you refresh the page, all of the field values are kept. However, the address is NOT.
+* ## Network / Nonprofits
+	* soft deleting as an option (a moderator could recover a deleted object up to 2 weeks later or so) | https://medium.com/@adriennedomingus/soft-deletion-in-django-e4882581c340 | this one is probably better: https://blog.khophi.co/soft-delete-django-quickly/
+	* ### Forms
+		* markdown for the volunteer description would be pretty cool, I think
+		* when you refresh the page, all of the field values are kept. However, the address is NOT.
 
 * ## User system / user classess
-	* when you go to accounts/profile, it should show your profile if you're logged in, otherwise it'll tell you to sign up or log in
-	* you should only be able to delete an object that you've created, unless you're a moderator
-	* change the default page if you're signed in or not (signed out, /home, signed in, /networks)
-	* show a message when a user signs out
+	* a user should be able to delete their own account
+	* show a message when a user signs out | https://pythonprogramming.net/messages-django-tutorial/
 	* override accounts login view so that you can't access it if you're *logged in*, as well as other views
 	* create groups
 	* ### Reporting System
@@ -23,9 +25,13 @@ One thing I should focus on is working outside in.
 		* reports should probably be a separate model that has a many to many relationship with nonprofits and networks, and could be assigned or deleted
 * ## Calendar
 	* create it
+	* have a network calendar with all of the events of all of the nonprofits on it, and a nonprofit calendar with specific events on it
+	* it's called calendar, but do I even want to show a calendar screen? Could it be like this?: https://www.kpcw.org/community-calendar#stream/0
+	* the ability to add recurring events
 * ## Later:
+	* 404 error page isn't getting css.
 	* When making the site look good, I'll probably have to override all of the forms with custom elements. See nonprofit_map and change all of that dom element creation stuff that I did.
-	* favicon
+	* make more favicons (for phones) and more meta data (twitter card, etc)
 	* write some general tests
 	* ordering networks/nonprofits based on distance to you: https://geopy.readthedocs.io/en/stable/#module-geopy.distance
 	* switch image uploading to a service like aws
@@ -34,6 +40,7 @@ One thing I should focus on is working outside in.
 	* set keywords and author meta for base.html
 
 # Issues
+* whenever you add a nonprofit with the same name in the same network, it rightfully raises an error, but not in the form view which is what I want
 * issue: networks, "Lisbon, Peru" and "Lisbon Peru" can be created because they have technically different titles (comma vs no comma), but they have the same slug
 * potential issue: image gets resized every time it is saved if it's above a certain width. While I set this to 100% conversion, I'm curious if future loss occurs
 	* to solve this, wrap the whole thing in an if image width > 1024 px, just to be safe and eficient
@@ -54,3 +61,4 @@ One thing I should focus on is working outside in.
 * 1/26 added a map for the detail view of the network and nonprofit, and added scss, a navbar, and a gravitar. Moved around some templates. You can now log in and out, and reset your password if you forgit it. I added login restrictions to some views. I added a custom user model, too.
 * 1/28 renamed the customuser model (which took a lot of trouble), and created a user profile screen
 * 1/29 changed the navbar up just a bit, added the users' created nonprofits/networks to their profile, added a redirect view. If you're already logged in, it fills out your email for the password reset form. I overrided the password reset email, too, and its subject. I realized that before I add groups, I should finish with adding the calendar app as well as the reporting system
+* 1/30 Added a favicon. Added an accounts/profile view that shows you're account if you're logged in, prompts for log in otherwise. Changed the default main page (/) to reflect whether you're logged in or not. The navbar now has an "add a nonprofit" button if you're on a network detail page. You can only delete networks and nonprofits that you've either created, or if you explicitly have the permission "delete_network" or "delete_nonprofit". Overrided the 403 forbidden error. Custom 404 error, too, but for some reason that doesn't get css.

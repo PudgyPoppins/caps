@@ -19,6 +19,8 @@ class SignUp(generic.CreateView):
 
 def get_profile(request, username):
     user = get_object_or_404(User, username=username)
+    if user == request.user:
+    	return HttpResponseRedirect(reverse('accounts:current_profile'))
     created_networks = Network.objects.filter(created_by=user)
     created_nonprofits = Nonprofit.objects.filter(created_by=user)
     context = {
@@ -30,3 +32,14 @@ def get_profile(request, username):
 
 def redirect_profile(request, username):
 	return HttpResponseRedirect(reverse('accounts:profile', kwargs={'username' : username}))
+@login_required
+def current_profile(request):
+	user = request.user
+	created_networks = Network.objects.filter(created_by=user)
+	created_nonprofits = Nonprofit.objects.filter(created_by=user)
+	context = {
+		'profile': user,
+	    'created_networks': created_networks,
+	    'created_nonprofits': created_nonprofits,
+	}
+	return render(request, 'accounts/profile.html', context)
