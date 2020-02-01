@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Delete {{ object }}?{% endblock %}
+
+{% block content %}
+<h1>Delete this User</h1>
+<form method="post">{% csrf_token %}
+    <p>Are you sure you want to delete the user "{{ object }}"?</p>
+    <p><b>This action cannot be undone!</b></p>
+    <input type="submit" value="Confirm">
+</form>
+{% endblock %}

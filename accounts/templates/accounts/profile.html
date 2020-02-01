@@ -7,8 +7,9 @@
 <h2>User: {{ profile.username }}</h2>
 <a href="mailto:{{ profile.email }}">{{ profile.email }}</a>
 
-{% if user.username == profile.username %}
-<a href="{% url 'password_reset' %}">reset password</a>
+{% if user.username == profile.username %}<a href="{% url 'password_reset' %}">reset password</a>{% endif %}
+{% if user.username == profile.username or perms.accounts.delete_user %}
+<a href="{% url 'accounts:delete_user' profile.username %}">delete account</a>
 {% endif %}
 
 <h3>Created Networks</h3>

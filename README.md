@@ -9,20 +9,20 @@ This might come in handy for providing back links: <a href="javascript:history.g
 # TODO:
 * see image issue
 * ## Network / Nonprofits
+	* maybe a success message on creation/update? | https://docs.djangoproject.com/en/3.0/ref/contrib/messages/#adding-messages-in-class-based-views
 	* soft deleting as an option (a moderator could recover a deleted object up to 2 weeks later or so) | https://medium.com/@adriennedomingus/soft-deletion-in-django-e4882581c340 | this one is probably better: https://blog.khophi.co/soft-delete-django-quickly/
 	* ### Forms
 		* markdown for the volunteer description would be pretty cool, I think
 		* when you refresh the page, all of the field values are kept. However, the address is NOT.
 
 * ## User system / user classess
-	* a user should be able to delete their own account
-	* show a message when a user signs out | https://pythonprogramming.net/messages-django-tutorial/
-	* override accounts login view so that you can't access it if you're *logged in*, as well as other views
+
 	* create groups
 	* ### Reporting System
 		* If a nonprofit is flagged true, then send an email with the reason
 			* scratch that... first, add a many to many field of reasons, similar to tags, to nonprofits and networks. Then, if they have a reason, it will automatically pop up as flagged in the template view.
 		* reports should probably be a separate model that has a many to many relationship with nonprofits and networks, and could be assigned or deleted
+		* when a user gets their own account reported, they see a warning message in the top of their profile, and their background image in the navbar turns red
 * ## Calendar
 	* create it
 	* have a network calendar with all of the events of all of the nonprofits on it, and a nonprofit calendar with specific events on it
@@ -61,4 +61,5 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 1/26 added a map for the detail view of the network and nonprofit, and added scss, a navbar, and a gravitar. Moved around some templates. You can now log in and out, and reset your password if you forgit it. I added login restrictions to some views. I added a custom user model, too.
 * 1/28 renamed the customuser model (which took a lot of trouble), and created a user profile screen
 * 1/29 changed the navbar up just a bit, added the users' created nonprofits/networks to their profile, added a redirect view. If you're already logged in, it fills out your email for the password reset form. I overrided the password reset email, too, and its subject. I realized that before I add groups, I should finish with adding the calendar app as well as the reporting system
-* 1/30 Added a favicon. Added an accounts/profile view that shows you're account if you're logged in, prompts for log in otherwise. Changed the default main page (/) to reflect whether you're logged in or not. The navbar now has an "add a nonprofit" button if you're on a network detail page. You can only delete networks and nonprofits that you've either created, or if you explicitly have the permission "delete_network" or "delete_nonprofit". Overrided the 403 forbidden error. Custom 404 error, too, but for some reason that doesn't get css.
+* 1/30 Added a favicon. Added an /accounts/profile view that shows you're account if you're logged in, prompts for log in otherwise. Changed the default main page (/) to reflect whether you're logged in or not. The navbar now has an 'add a nonprofit' button if you're on a network detail page. You can only delete networks and nonprofits that you've either created, or if you explicitly have the permission 'delete_network' or 'delete_nonprofit'. Overrided the 403 forbidden error. Custom 404 error, too, but for some reason that doesn't get css.
+* 1/31 If you're already logged in, you can't sign up or log in again, you get redirected to main, and a message appears and tells you that you can't do that. Put an indicator on the navbar if you're on a certain page. Put password requirements on login page. Users can delete their own account, or an admin can delete users' accounts. Replaced permission denied with a redirect and message.

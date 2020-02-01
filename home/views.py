@@ -7,7 +7,6 @@ from network.models import Network, Nonprofit
 from django.utils import timezone
 
 def main(request):
-	print(request.user)
 	if request.user.is_authenticated:
 		network_list = Network.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')
 		return render(request, 'network/index.html', {"network_list": network_list})

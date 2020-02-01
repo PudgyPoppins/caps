@@ -73,6 +73,7 @@ a:hover, a:focus{
 .navLinks{margin-left:auto; padding-right:57.5px;} //47.5 is enough space for the image to go in, + 10 for the padding
 .navLinks a{display:block; text-decoration:none; padding:15px 7.5px; border-bottom:2.5px solid transparent;}
 .navLinks a:hover{border-bottom:2.5px solid #25D; background-color:darken(white, 2.5%)}
+.navLinks a.active{background-color:darken(white, 2.5%);}
 #userLink{
   padding:5px;
   position: absolute; right:50px;

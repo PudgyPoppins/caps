@@ -8,7 +8,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView, FormVi
 
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
+from django.contrib import messages
 
 # Create your views here.
 from .models import Network, Nonprofit
@@ -47,7 +47,8 @@ class DeleteNetView(LoginRequiredMixin, DeleteView):
 
 	def dispatch(self, request, *args, **kwargs):
 		if not self.user_passes_test(request):
-			raise PermissionDenied
+			messages.error(request, "You do not have permission to delete this network")
+			return HttpResponseRedirect(reverse('network:detail', kwargs={'slug' : self.object.slug}))
 		return super(DeleteNetView, self).dispatch(request, *args, **kwargs)
 
 class UpdateNetView(LoginRequiredMixin, UpdateView):
@@ -123,7 +124,8 @@ class DeleteNonView(LoginRequiredMixin, DeleteView):
 
 	def dispatch(self, request, *args, **kwargs):
 		if not self.user_passes_test(request):
-			raise PermissionDenied
+			messages.error(request, "You do not have permission to delete this nonprofit")
+			return HttpResponseRedirect(reverse('network:detailnon', kwargs={'network': self.object.network.slug, 'slug' : self.object.slug}))
 		return super(DeleteNonView, self).dispatch(request, *args, **kwargs)
 
 class NonDetailView(generic.DetailView):

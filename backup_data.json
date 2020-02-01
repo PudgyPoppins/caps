@@ -129,10 +129,10 @@
 },
 {
   "model": "sessions.session",
-  "pk": "n6y414mc0wnhtdu7u2nafzyk5td661sb",
+  "pk": "qpypy8awmy12xnm1hhkx2o9q3fnoa7q9",
   "fields": {
-    "session_data": "M2FmYWNjNjcyZjYwN2U4ODE2NDg3ZGI2Yzk2ZTVhOGMxN2E5ZDhjNDp7Il9hdXRoX3VzZXJfaWQiOiIxIiwiX2F1dGhfdXNlcl9iYWNrZW5kIjoiZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5kcy5Nb2RlbEJhY2tlbmQiLCJfYXV0aF91c2VyX2hhc2giOiIyMGViNmZkMWZkMWNmZDMwMzliODgwM2U4MWU1MGQxODE1MmUyYjJkIn0=",
-    "expire_date": "2020-02-12T03:29:59.114Z"
+    "session_data": "YjZkYWY5MmRiMzEyMjg1ZmJmNjZkMzY0MzA0YzIzNWYyMzgyMDViMDp7Il9hdXRoX3VzZXJfaWQiOiIyIiwiX2F1dGhfdXNlcl9iYWNrZW5kIjoiZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5kcy5Nb2RlbEJhY2tlbmQiLCJfYXV0aF91c2VyX2hhc2giOiJhZmNjMDZkNjQzMmExZjNjZGMxZjNhMDJjZGUwMmVjOTBjZjI5N2M4In0=",
+    "expire_date": "2020-02-14T03:24:25.957Z"
   }
 },
 {
@@ -460,11 +460,31 @@
   }
 },
 {
+  "model": "auth.group",
+  "pk": 1,
+  "fields": {
+    "name": "Moderator",
+    "permissions": [
+      3,
+      4,
+      16,
+      25,
+      26,
+      27,
+      28,
+      33,
+      34,
+      35,
+      36
+    ]
+  }
+},
+{
   "model": "accounts.user",
   "pk": 1,
   "fields": {
     "password": "pbkdf2_sha256$180000$KDVbLlLCjjvY$YMir6ug1kxn+1OPAOXkZnnacVWYHoyL5X//az/z4Slo=",
-    "last_login": "2020-01-29T03:29:58.970Z",
+    "last_login": "2020-01-31T03:13:53.220Z",
     "is_superuser": true,
     "first_name": "",
     "last_name": "",
@@ -473,6 +493,24 @@
     "date_joined": "2020-01-29T03:29:34.687Z",
     "username": "admin",
     "email": "pudgypoppins@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$180000$jZPlStSm3PQI$IbcHCUt0uVQkitB9U7GPUZeEEIK79rGlqjTgZxU0C28=",
+    "last_login": "2020-01-31T03:24:25.877Z",
+    "is_superuser": false,
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2020-01-31T02:07:43.778Z",
+    "username": "bdiamond21",
+    "email": "bdiamond21@pcstudents.us",
     "groups": [],
     "user_permissions": []
   }
@@ -536,6 +574,28 @@
     "flagged": false,
     "created_by": 1,
     "slug": "test",
+    "tags": []
+  }
+},
+{
+  "model": "network.nonprofit",
+  "pk": 4,
+  "fields": {
+    "network": 1,
+    "pub_date": "2020-01-31T02:25:50.323Z",
+    "title": "test again",
+    "src_link": "",
+    "src_file": "",
+    "website": null,
+    "phone": null,
+    "address": "Harvest Cafe, 820 Park Ave, Park City, Utah 84060, United States of America",
+    "email": null,
+    "description": null,
+    "lat": "40.647905",
+    "lon": "-111.499211",
+    "flagged": false,
+    "created_by": 2,
+    "slug": "test-again",
     "tags": []
   }
 },
@@ -667,6 +727,19 @@
     "object_repr": "KPCW",
     "action_flag": 2,
     "change_message": "[{\"changed\": {\"fields\": [\"Created by\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 11,
+  "fields": {
+    "action_time": "2020-01-30T02:13:31.586Z",
+    "user": 1,
+    "content_type": 4,
+    "object_id": "1",
+    "object_repr": "Moderator",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
   }
 }
 ]

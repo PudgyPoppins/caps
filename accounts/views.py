@@ -8,14 +8,43 @@ from django.views import generic
 
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import user_passes_test, login_required
+from django.contrib.auth.views import LoginView
+from django.views.decorators.debug import sensitive_post_parameters
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.cache import never_cache
 
 from network.models import Network, Nonprofit
 
-#@method_decorator(user_passes_test(lambda u: not u.is_authenticated()), name='dispatch')
+from django.contrib import messages
+#from django.utils.safestring import mark_safe
+
 class SignUp(generic.CreateView):
     form_class = CustomUserCreationForm
     success_url = reverse_lazy('login')
     template_name = 'accounts/signup.html'
+    def dispatch(self, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            messages.error(self.request, "You can't sign up if you're already logged in")
+            return HttpResponseRedirect(reverse('home:main'))
+        else:
+            return super().dispatch(*args, **kwargs)
+
+class Login(LoginView):
+    redirect_authenticated_user = True #overrided the class so that now logging in automatically redirects back to main
+    @method_decorator(sensitive_post_parameters())
+    @method_decorator(csrf_protect)
+    @method_decorator(never_cache)
+    def dispatch(self, request, *args, **kwargs):
+        if self.redirect_authenticated_user and self.request.user.is_authenticated:
+            redirect_to = self.get_success_url()
+            if redirect_to == self.request.path:
+                raise ValueError(
+                    "Redirection loop for authenticated user detected. Check that "
+                    "your LOGIN_REDIRECT_URL doesn't point to a login page."
+                )
+            messages.error(self.request, "You are already logged in")
+            return HttpResponseRedirect(redirect_to)
+        return super().dispatch(request, *args, **kwargs)
 
 def get_profile(request, username):
     user = get_object_or_404(User, username=username)
@@ -43,3 +72,23 @@ def current_profile(request):
 	    'created_nonprofits': created_nonprofits,
 	}
 	return render(request, 'accounts/profile.html', context)
+
+@login_required
+def delete_user(request, username): 
+    obj = get_object_or_404(User, username=username)
+
+    if not (request.user.username == username or request.user.has_perm('accounts.delete_user')):
+        messages.error(request, "You do not have permission to delete this user")
+        return HttpResponseRedirect(reverse('accounts:profile', kwargs={'username' : username}))
+    else:
+        if request.method =="POST": 
+            obj.delete() #delete object
+
+            #redirects:
+            if request.user.has_perm('accounts.delete_user'):
+                messages.success(request, "User deleted successfully")
+                return HttpResponseRedirect(reverse('home:main')) #the user is an admin / moderator, don't bring them to login view
+            else:
+                return reverse('login')
+  
+    return render(request, "accounts/user_confirm_delete.html", {"object": obj}) 
