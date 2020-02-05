@@ -23,6 +23,7 @@ I will NOT do bug reporting in this section
 	* Events can repeat weekly or monthly | https://www.kpcw.org/community-calendar#stream/0
 	* when a user gets created, they automatically have a calendar for themselves created, too. Same goes for nonprofits and networks.
 		* Users can add their personal events to their personal calendar
+	* There's also a global calendar that has general events for the entire website (planned site maintenance, Mitzvah Day, etc). I can't really think of any big global events, but it'd be nice to have.
 * # Logging
 	* You can log hours that you've completed for yourself, and write a description of the work that you did
 	* If a nonprofit has a verified representative, then you can put them as who you volunteered for, then they can confirm that you did volunteer there
