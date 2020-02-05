@@ -17,7 +17,13 @@ I will NOT do bug reporting in this section
 * # Calendar
 	* If you are a nonprofit representative, you can add volunteer events to a calendar, which other users will be able to see
 	* Models (Event):
-		* start_time, end_time, repeat (choice field), title, description, nonprofit (foreign key), network (foreign key)
-	* An event can have a nonprofit fk or a network fk, or no fk, but it cannot have both
+		* start_time, end_time, all_day (boolean), repeat (choice field), end_repeat (date field) title, description, nonprofit (foreign key), network (foreign key), user (foreign key)
+	* An event can have a nonprofit fk, a user fk, a network fk, or no fk, but it can only have one of these options
 	* I want to be able to display an HTMLcalendar, as well as a list of events
 	* Events can repeat weekly or monthly | https://www.kpcw.org/community-calendar#stream/0
+	* when a user gets created, they automatically have a calendar for themselves created, too. Same goes for nonprofits and networks.
+		* Users can add their personal events to their personal calendar
+* # Logging
+	* You can log hours that you've completed for yourself, and write a description of the work that you did
+	* If a nonprofit has a verified representative, then you can put them as who you volunteered for, then they can confirm that you did volunteer there
+	* Users can add logs from their profile. Users search for a nonprofit, and if one isn't found, then they get prompted to create one.

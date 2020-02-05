@@ -1,4 +1,4 @@
-# WHENEVER YOU WANT TO START THE VIRTUAL DEV: source ~/.virtualenvs/djangodev/bin/activate
+# WHENEVER YOU WANT TO START THE VIRTUAL DEV: source ~/.virtualenvs/caps/bin/activate
 
 This project doesn't really require a readme (yet), but I'm just keeping this to track progress and see what I need to do...
 
@@ -17,17 +17,20 @@ This might come in handy for providing back links: <a href="javascript:history.g
 
 * ## User system / user classess
 
-	* create groups
+	* create groups | https://docs.djangoproject.com/en/3.0/ref/contrib/auth/#django.contrib.auth.models.Group
 	* ### Reporting System
-		* If a nonprofit is flagged true, then send an email with the reason
+		* If a nonprofit is flagged true, then send an email with the reason | https://docs.djangoproject.com/en/3.0/topics/email/#send-mass-mail
 			* scratch that... first, add a many to many field of reasons, similar to tags, to nonprofits and networks. Then, if they have a reason, it will automatically pop up as flagged in the template view.
 		* reports should probably be a separate model that has a many to many relationship with nonprofits and networks, and could be assigned or deleted
-		* when a user gets their own account reported, they see a warning message in the top of their profile, and their background image in the navbar turns red
+		* when a user gets their own account reported, they see a warning message in the top of their profile, and their background image in the navbar turns red | https://docs.djangoproject.com/en/3.0/ref/contrib/messages/#expiration-of-messages
 * ## Calendar
-	* create it
+	* create a calendar model and views
+	* import events from a google cal
+	* rss feeds
 	* have a network calendar with all of the events of all of the nonprofits on it, and a nonprofit calendar with specific events on it
 	* it's called calendar, but do I even want to show a calendar screen? Could it be like this?: https://www.kpcw.org/community-calendar#stream/0
-	* the ability to add recurring events
+
+	* users can have their own calendars that have their own events on them. They could choose to subscribe to certain nonprofits / networks, and get events from there, and add their own events.
 * ## Later:
 	* 404 error page isn't getting css.
 	* When making the site look good, I'll probably have to override all of the forms with custom elements. See nonprofit_map and change all of that dom element creation stuff that I did.
@@ -63,3 +66,4 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 1/29 changed the navbar up just a bit, added the users' created nonprofits/networks to their profile, added a redirect view. If you're already logged in, it fills out your email for the password reset form. I overrided the password reset email, too, and its subject. I realized that before I add groups, I should finish with adding the calendar app as well as the reporting system
 * 1/30 Added a favicon. Added an /accounts/profile view that shows you're account if you're logged in, prompts for log in otherwise. Changed the default main page (/) to reflect whether you're logged in or not. The navbar now has an 'add a nonprofit' button if you're on a network detail page. You can only delete networks and nonprofits that you've either created, or if you explicitly have the permission 'delete_network' or 'delete_nonprofit'. Overrided the 403 forbidden error. Custom 404 error, too, but for some reason that doesn't get css.
 * 1/31 If you're already logged in, you can't sign up or log in again, you get redirected to main, and a message appears and tells you that you can't do that. Put an indicator on the navbar if you're on a certain page. Put password requirements on login page. Users can delete their own account, or an admin can delete users' accounts. Replaced permission denied with a redirect and message.
+* 2/4 Most of my work was troubleshooting a virtualenv, so few changes here. Added the event model, a recurrence field (after a lot of research), and some values for it. TODO is to add more model forms for calendar and event, as well as basic views (CRUD). An event belongs to a calendar, and a calendar belongs to either a nonprofit, network, or user.
