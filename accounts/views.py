@@ -48,7 +48,7 @@ class Login(LoginView):
 
 def get_profile(request, username):
     user = get_object_or_404(User, username=username)
-    if user == request.user:
+    if request.user.is_authenticated and user == request.user:
     	return HttpResponseRedirect(reverse('accounts:current_profile'))
     created_networks = Network.objects.filter(created_by=user)
     created_nonprofits = Nonprofit.objects.filter(created_by=user)

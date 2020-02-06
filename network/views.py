@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 from django.utils import timezone
-from django.views.generic.edit import CreateView, DeleteView, UpdateView, FormView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 
 from django.utils.decorators import method_decorator
@@ -11,6 +11,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 
 # Create your views here.
+from cal.models import Calendar
+
 from .models import Network, Nonprofit
 from network.forms import NetworkForm, NonprofitFormCreate, NonprofitFormUpdate
 
@@ -67,6 +69,7 @@ class NetDetailView(generic.DetailView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		context['is_on_detail_page'] = True
+		context['calendar'] = Calendar.objects.filter(nonprofit__isnull=True).get(network=self.object.id)
 		context['reasons'] = ["General trolling", "The network name is not accurate / inappropiate", "The network image is not accurate / inappropiate", "The coordinates are wrong"]
 		return context
 

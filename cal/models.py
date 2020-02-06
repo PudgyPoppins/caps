@@ -8,7 +8,7 @@ from network.models import Network, Nonprofit
 
 # Create your models here.
 class Calendar(models.Model):
-	title = models.CharField(help_text="What is the name of this calendar?", max_length=75, default="")
+	title = models.CharField(help_text="What is the name of this calendar?", max_length=100, unique=True)
 
 	user = models.ForeignKey(User, on_delete=models.CASCADE, null = True, blank = True)
 	nonprofit = models.ForeignKey(Nonprofit, on_delete=models.CASCADE, null = True, blank = True)
@@ -28,6 +28,8 @@ class Event(models.Model):
 	end_time = models.DateTimeField('ending time', default=timezone.now)
 	all_day = models.BooleanField('all day?', help_text="will this event last the entire day", default=False)
 	repeat = RecurrenceField()
+
+	verified = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True, help_text="has a nonprofit representative verified this network?")
 
 	calendar = models.ForeignKey(Calendar, on_delete=models.CASCADE, default="")#TODO: the default should be a global calendar
 

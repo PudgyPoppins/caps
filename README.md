@@ -24,10 +24,15 @@ This might come in handy for providing back links: <a href="javascript:history.g
 		* reports should probably be a separate model that has a many to many relationship with nonprofits and networks, and could be assigned or deleted
 		* when a user gets their own account reported, they see a warning message in the top of their profile, and their background image in the navbar turns red | https://docs.djangoproject.com/en/3.0/ref/contrib/messages/#expiration-of-messages
 * ## Calendar
-	* create a calendar model and views
+	* REMOVE THE CALENDAR AUTO-TITLE GENERATE THING, just set title to be null and blank, and just put it as a hidden field!
+	* when I add the calendars to the user detail page, the network detail page, and the nonprofit detail page, wrap this around a tag with the id #calendar
+	* In the javascript for the event update/create, I'm going to have to override some things; the calendar will be determined by an html created dropdown that has the values for the other nonprofits in the network, and their own user calendar. When this dropdown value changes, it automatically redirects them to the respective createview/update view of that calendar. If the "all_day" checkmark is clicked, then the starting and ending times will be set to 00:00 and 00:00 for the entire day
+	* create views and forms
+		* events and calendars will all have crud views. Events will have detail views. When going to what would be a calendar detail view, it'll just redirect you to the page that that calendar appears on (network detail, nonprofit detail, user detail only if you're the user, otherwise error)
+	* have a network calendar with all of the events of all of the nonprofits on it, and a nonprofit calendar with specific events on it
+	
 	* import events from a google cal
 	* rss feeds
-	* have a network calendar with all of the events of all of the nonprofits on it, and a nonprofit calendar with specific events on it
 	* it's called calendar, but do I even want to show a calendar screen? Could it be like this?: https://www.kpcw.org/community-calendar#stream/0
 
 	* users can have their own calendars that have their own events on them. They could choose to subscribe to certain nonprofits / networks, and get events from there, and add their own events.
@@ -67,3 +72,4 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 1/30 Added a favicon. Added an /accounts/profile view that shows you're account if you're logged in, prompts for log in otherwise. Changed the default main page (/) to reflect whether you're logged in or not. The navbar now has an 'add a nonprofit' button if you're on a network detail page. You can only delete networks and nonprofits that you've either created, or if you explicitly have the permission 'delete_network' or 'delete_nonprofit'. Overrided the 403 forbidden error. Custom 404 error, too, but for some reason that doesn't get css.
 * 1/31 If you're already logged in, you can't sign up or log in again, you get redirected to main, and a message appears and tells you that you can't do that. Put an indicator on the navbar if you're on a certain page. Put password requirements on login page. Users can delete their own account, or an admin can delete users' accounts. Replaced permission denied with a redirect and message.
 * 2/4 Most of my work was troubleshooting a virtualenv, so few changes here. Added the event model, a recurrence field (after a lot of research), and some values for it. TODO is to add more model forms for calendar and event, as well as basic views (CRUD). An event belongs to a calendar, and a calendar belongs to either a nonprofit, network, or user.
+* 2/5 Added some calendar views to redirect to where they would naturally be (calendars/<network>/<nonprofit> redirects to the network/<network>/<nonprofit>#calendar, where the calendar would be). Did some more form and model work. In the admin site, added a way to add calendars to pre-existing things. Added calendar to network detail view under #calendar.

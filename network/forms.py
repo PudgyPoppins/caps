@@ -7,10 +7,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from network.models import Network, Nonprofit
 
-#import geopy
-#from geopy.geocoders import MapBox
-#geolocator = MapBox(api_key='pk.eyJ1IjoicHVkZ3lwb3BwaW5zIiwiYSI6ImNqdnBiaDAwMDI3dzIzenFyZjc4Z2s1MGgifQ.ZY1iUikoHZ5fZqqcvYidpw')
-
 class NetworkForm(ModelForm):
 	def clean_pub_date(self):
 		data = self.cleaned_data['pub_date']
@@ -79,9 +75,9 @@ class NonprofitFormUpdate(ModelForm):
 		file = self.cleaned_data.get('src_file', False)
 		url = self.cleaned_data.get('src_link', False)
 		if url and file:
-			raise ValidationError("You cannot upload both an image url and an image file. Please upload one or the other.")
+			raise ValidationError(_("You cannot upload both an image url and an image file. Please upload one or the other."))
 		if self.cleaned_data['website'] is None and self.cleaned_data['phone'] is None and self.cleaned_data['address'] is None and self.cleaned_data['email'] is None:
-			raise ValidationError("At least one of these forms (website, phone, address, email) needs to be filled out")
+			raise ValidationError(_("At least one of these forms (website, phone, address, email) needs to be filled out"))
 
 class NonprofitFormCreate(NonprofitFormUpdate):
 	def __init__(self, *args, **kwargs):

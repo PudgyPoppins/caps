@@ -22,6 +22,8 @@
 
 {% include "network/snippets/map.html" with type="network" %}
 
+<div id="calendar">{{ calendar }}</div>
+
 <ul>
 {% for non in network.nonprofit_set.all %}
     <li id="{{ non.slug }}">

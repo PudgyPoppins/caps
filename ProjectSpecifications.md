@@ -16,13 +16,11 @@ I will NOT do bug reporting in this section
 		* Whenever you enter an address, it opens up a toggles showing a map with a pin. The pin pops up first wherever the geocoder sets it from the address. Then, the user is able to move the pin to a different location on the map to change the coords. The coordinates of the pin (known by mapbox) are passed to invisible coordinate fields using javascript. This will be more intuitive for the user.
 * # Calendar
 	* If you are a nonprofit representative, you can add volunteer events to a calendar, which other users will be able to see
-	* Models (Event):
-		* start_time, end_time, all_day (boolean), repeat (choice field), end_repeat (date field) title, description, nonprofit (foreign key), network (foreign key), user (foreign key)
-	* An event can have a nonprofit fk, a user fk, a network fk, or no fk, but it can only have one of these options
-	* I want to be able to display an HTMLcalendar, as well as a list of events
+		* Scratch that... anyone can add an event to a nonprofit, but it'll show up as unverified, which means that you have to toggle a button to be able to see it, and there'll be a little warning on it
 	* Events can repeat weekly or monthly | https://www.kpcw.org/community-calendar#stream/0
 	* when a user gets created, they automatically have a calendar for themselves created, too. Same goes for nonprofits and networks.
 		* Users can add their personal events to their personal calendar
+		* a nonprofit calendar will have a nonprofit fk and a network fk. A network calendar will have a network fk. A user calendar will have a user fk.
 	* There's also a global calendar that has general events for the entire website (planned site maintenance, Mitzvah Day, etc). I can't really think of any big global events, but it'd be nice to have.
 * # Logging
 	* You can log hours that you've completed for yourself, and write a description of the work that you did

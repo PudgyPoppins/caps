@@ -24,11 +24,13 @@ from django.views.i18n import JavaScriptCatalog
 from django.conf import settings
 from django.views.generic import RedirectView
 
+import network.views
+
 urlpatterns = [
     path('', include('home.urls')),
 
     path('network/', include('network.urls')),
-    path('networks/', RedirectView.as_view(url='/network/')), #redirect
+    #path('networks/', RedirectView.as_view(url='/network/')), #redirect
 
     path('calendar/', include('cal.urls')),
 
