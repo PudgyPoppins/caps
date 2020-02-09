@@ -1,0 +1,93 @@
+<!--This is where the calendar, with all of its events, will go-->
+{% load static %}
+<script src="{% static 'cal/rrule.js' %}"></script>
+
+<script src="{% static 'cal/fullcalendar.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'cal/fullcalendar.css' %}">
+<script src="{% static 'cal/daygrid.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'cal/daygrid.css' %}">
+<script src="{% static 'cal/list.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'cal/list.css' %}">
+
+<script src="{% static 'cal/rrulefullcalendar.js' %}"></script>
+
+{% if type == "user" %}
+<a href="{% url 'cal:addevent' profile.username %}">add an event</a>
+{% elif type == "nonprofit" %}
+<a href="{% url 'cal:addevent' nonprofit.network.slug nonprofit.slug %}">add an event</a>
+{% elif type == "network" %}
+<a href="{% url 'cal:addevent' network.slug %}">add an event</a>
+{% endif %}
+
+<div id="calendar"></div>
+
+<script>
+
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+        	allDayDefault: false,
+        	eventLimit: true,
+        	plugins: [ 'dayGrid', 'list', 'rrule' ],
+        	header: {
+		      left: 'prev,next today',
+		      center: 'title',
+		      right: 'dayGridMonth,dayGridWeek,listDay'
+		    },
+        	//defaultView: 'listWeek',
+
+        	events: [
+        		{% if type == "network" %}
+				{% for noncal in calendar.networkcal.all %}
+				{% for i in noncal.event_set.all %}
+				{
+                    title: "{{ i.title}}",
+                    {% if i.event_type == "AA" %}backgroundColor: 'red',
+                    {% elif i.event_type == "CE" %}backgroundColor: 'yellow',
+                    {% elif i.event_type == "NV" %}backgroundColor: 'gray',
+                    {% endif %}
+
+                    {% if i.repeat %}
+                    rrule: 'DTSTART:{{ i.start_time|date:"Ymd" }}T{{ i.start_time|date:"His" }}\n{{ i.repeat }}',
+                    duration: '02:00',
+                    {% else %}
+                    start: '{{ i.start_time|date:"Y-m-d" }}',
+                    end: '{{ i.end_time|date:"Y-m-d" }}',
+                    {% if i.all_day %}allDay: true,{% endif %}
+                    {% endif %}
+                    description: '{{ i.description }}'
+
+                },
+				{% endfor %}
+				{% endfor %}
+				{% endif %}
+
+                {% for i in calendar.event_set.all %}
+                {
+                    title: "{{ i.title}}",
+                    {% if i.event_type == "AA" %}backgroundColor: 'red',
+                    {% elif i.event_type == "CE" %}backgroundColor: 'yellow',
+                    {% elif i.event_type == "NV" %}backgroundColor: 'gray',
+                    {% endif %}
+
+                    {% if i.repeat %}
+                    rrule: 'DTSTART:{{ i.start_time|date:"Ymd" }}T{{ i.start_time|date:"His" }}\n{{ i.repeat }}',
+                    duration: '02:00',
+                    {% else %}
+                    start: '{{ i.start_time|date:"Y-m-d" }}',
+                    end: '{{ i.end_time|date:"Y-m-d" }}',
+                    {% if i.all_day %}allDay: true,{% endif %}
+                    {% endif %}
+                    description: '{{ i.description }}'
+
+                },
+                {% endfor %}
+                
+            ]
+        });
+
+        calendar.render();
+      });
+
+    </script>

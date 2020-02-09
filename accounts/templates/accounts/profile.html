@@ -44,4 +44,6 @@
     <p>This user hasn't created any nonprofits yet.</p>
 {% endif %}
 
+{% if user.username == profile.username %}{% include "cal/snippets/calendar.html" with type="user" %}{% endif %}
+
 {% endblock %}

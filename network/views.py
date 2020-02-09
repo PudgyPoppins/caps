@@ -34,7 +34,14 @@ class AddNetView(LoginRequiredMixin, CreateView):
 	template_name = 'network/net/network_form.html'
 	def form_valid(self, form):
 		form.instance.created_by = self.request.user #sets the created_by user to the current one
-		return super().form_valid(form)
+
+		network = form.save(commit=False)
+		network.save() #saves the object, sets the id
+		self.object = network
+
+		network_cal = Calendar(network=self.object)
+		network_cal.save()
+		return HttpResponseRedirect(self.get_success_url())
 
 class DeleteNetView(LoginRequiredMixin, DeleteView):
 	model = Network
@@ -69,7 +76,7 @@ class NetDetailView(generic.DetailView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		context['is_on_detail_page'] = True
-		context['calendar'] = Calendar.objects.filter(nonprofit__isnull=True).get(network=self.object.id)
+		context['calendar'] = Calendar.objects.get(network=self.object.id)
 		context['reasons'] = ["General trolling", "The network name is not accurate / inappropiate", "The network image is not accurate / inappropiate", "The coordinates are wrong"]
 		return context
 
@@ -94,6 +101,11 @@ class AddNonView(LoginRequiredMixin, CreateView):
 		nonprofit.tags.set(tag_temp_var) #saves the previous tag data after the id is created
 		nonprofit.save()
 		self.object = nonprofit
+
+		network_calendar = Calendar.objects.get(network=self.object.network.id)
+		nonprofit_cal = Calendar(nonprofit=self.object, network_calendar=network_calendar)
+		nonprofit_cal.save() #these last three lines create a calendar for this nonprofit
+
 		return HttpResponseRedirect(self.get_success_url())
 
 class UpdateNonView(LoginRequiredMixin, UpdateView):
@@ -136,6 +148,10 @@ class NonDetailView(generic.DetailView):
 	template_name = 'network/non/nonprofit_detail.html'
 	def get_queryset(self):
 		return Nonprofit.objects.filter(network__slug=self.kwargs['network'])
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['calendar'] = Calendar.objects.get(nonprofit=self.object.id)
+		return context
 
 
 def report(request, network_id):

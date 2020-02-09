@@ -20,10 +20,10 @@
 {% if nonprofit.src_file%}<img src="{{ nonprofit.src_file.url }}">{% endif %}
 {% if nonprofit.src_link%}<img src="{{ nonprofit.src_link }}">{% endif %}
 
-<p>When I finish the network/nonprofit side of this, I want to be able to have a calendar view of all of the nonprofit's events, if any, here</p>
-
 {% if nonprofit.address%}<p>Address: {{ nonprofit.address|shorten_address }}</p>{% endif %}
 
 {% include "network/snippets/map.html" with type="nonprofit" %}
+
+{% include "cal/snippets/calendar.html" with type="nonprofit" %}
 
 {% endblock %}

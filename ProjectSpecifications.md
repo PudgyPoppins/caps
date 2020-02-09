@@ -22,6 +22,9 @@ I will NOT do bug reporting in this section
 		* Users can add their personal events to their personal calendar
 		* a nonprofit calendar will have a nonprofit fk and a network fk. A network calendar will have a network fk. A user calendar will have a user fk.
 	* There's also a global calendar that has general events for the entire website (planned site maintenance, Mitzvah Day, etc). I can't really think of any big global events, but it'd be nice to have.
+* # Organizations
+	* Organizations are groups of users that can bring in networks and nonprofits into their organization. They can have specific hour requirements for over a period of time, and can host their own events.
+	* Organizations can subscribe to certain calendars (just like users), and they can also add their own events
 * # Logging
 	* You can log hours that you've completed for yourself, and write a description of the work that you did
 	* If a nonprofit has a verified representative, then you can put them as who you volunteered for, then they can confirm that you did volunteer there

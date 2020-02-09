@@ -22,7 +22,7 @@
 
 {% include "network/snippets/map.html" with type="network" %}
 
-<div id="calendar">{{ calendar }}</div>
+{% include "cal/snippets/calendar.html" with type="network" %}
 
 <ul>
 {% for non in network.nonprofit_set.all %}

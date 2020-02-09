@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.views import generic
@@ -7,7 +7,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 
 from django.utils.decorators import method_decorator
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 # Create your views here.
@@ -41,16 +41,36 @@ def nonprofitcal(request, network, nonprofit):
 	return HttpResponseRedirect(reverse('network:detailnon', kwargs={'network' : nonprofit.network.slug, 'slug' : nonprofit.slug}) + '#calendar')
 
 #Event Views
-class AddEventView(LoginRequiredMixin, CreateView):
-	model = Event
-	#fields = ['title', 'src_link', 'src_file']
-	form_class = EventForm
-	def get_success_url(self):
-		if self.object.calendar.nonprofit:
-			return reverse('nonprofit:detail', kwargs={'network' : self.object.calendar.nonprofit.network.slug, 'slug' : self.object.calendar.nonprofit.slug})
-		else:
-			return reverse('home:main')
-	template_name = 'cal/event/event_form.html'
-	def form_valid(self, form):
-		form.instance.created_by = self.request.user #sets the created_by user to the current one
-		return super().form_valid(form)
+@login_required
+def add_event(request, username=None, nonprofit=None, network=None):
+	calendar = Calendar.objects.get(isGlobal=True)
+	success_url = reverse('home:main')
+	if username:
+		user = get_object_or_404(User, username=username)
+		calendar = Calendar.objects.get(user=user)
+		success_url = reverse('accounts:get_profile')
+	elif nonprofit and network:
+		network = get_object_or_404(Network, slug=network)
+		nonprofit = get_object_or_404(Nonprofit, slug=nonprofit, network=network)
+		calendar = Calendar.objects.get(nonprofit=nonprofit)
+		success_url = reverse('network:detailnon', kwargs={'network' : nonprofit.network.slug, 'slug' : nonprofit.slug})
+	elif network:
+		network = get_object_or_404(Network, slug=network)
+		print(network.slug)
+		calendar = Calendar.objects.get(network=network)
+		success_url = reverse('network:detail', kwargs={'slug' : network.slug})
+	else:
+		messages.error(request, "That wasn't a valid url for creating an event")
+		raise Http404("Couldn't find this calendar")
+
+	form = EventForm()
+	if request.method == "POST":
+			form = EventForm(request.POST)
+			if form.is_valid():
+				event = Event(form.cleaned_data)
+				event.save()
+				event.calendar.set([calendar])
+				event.save()
+				messages.success(request, "Event added successfully!")
+				return HttpResponseRedirect(success_url + "#calendar")
+	return render(request, 'cal/event/event_form.html', {"form" : form, "calendar": calendar})

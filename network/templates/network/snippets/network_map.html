@@ -36,8 +36,7 @@
 		coordinates.innerHTML = 'Latitude: ' + lngLat.lat + '<br />Longitude: ' + lngLat.lng;
 		document.getElementById('id_lat').value = Math.round( lngLat.lat * 1000 + Number.EPSILON ) / 1000; //round to nearest thousandth
 		document.getElementById('id_lon').value = Math.round( lngLat.lng * 1000 + Number.EPSILON ) / 1000; //round to nearest thousandth
-		map.flyTo({center: [lngLat.lng, lngLat.lat], essential: true});
-		//map.setCenter(marker.getLngLat());
+		map.flyTo({center: [lngLat.lng, lngLat.lat], zoom:10, essential: true});
 	}
 	 
 	marker.on('dragend', onDragEnd);
@@ -56,8 +55,7 @@
 			if (coords.length>1){ //coords were found, adjust the map
 				marker.setLngLat(coords);
 				onDragEnd();
-				map.flyTo({center: [lngLat.lng, lngLat.lat], essential: true});
-				map.setZoom(10);
+				map.flyTo({center: [lngLat.lng, lngLat.lat], zoom:10, essential: true});
 		  	}
 		}
 

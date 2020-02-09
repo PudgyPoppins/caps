@@ -38,7 +38,7 @@ class NetworkForm(ModelForm):
 
 	class Meta:
 		model = Network
-		fields = ['title', 'src_link', 'src_file', 'lat', 'lon', 'created_by']
+		fields = ['title', 'src_link', 'src_file', 'lat', 'lon']
 		labels = {'lat': _('Latitude'), 'lon': _('Longitude'), 'src_link': _('Image Url'), 'src_file': _('Image File')}
 		help_texts = {'lat': _('Please enter the latitude of the location, or leave it blank to auto-generate one via the title'), 'lon': _('Please enter the longitude of the location, or leave it blank to auto-generate one via the title')} 
 		widgets = {'lat': forms.HiddenInput(), 'lon': forms.HiddenInput(),}

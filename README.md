@@ -18,24 +18,29 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * ## User system / user classess
 
 	* create groups | https://docs.djangoproject.com/en/3.0/ref/contrib/auth/#django.contrib.auth.models.Group
+	* if you're a moderator or nonprofit representative, this'll show up on your user profile
 	* ### Reporting System
 		* If a nonprofit is flagged true, then send an email with the reason | https://docs.djangoproject.com/en/3.0/topics/email/#send-mass-mail
 			* scratch that... first, add a many to many field of reasons, similar to tags, to nonprofits and networks. Then, if they have a reason, it will automatically pop up as flagged in the template view.
 		* reports should probably be a separate model that has a many to many relationship with nonprofits and networks, and could be assigned or deleted
 		* when a user gets their own account reported, they see a warning message in the top of their profile, and their background image in the navbar turns red | https://docs.djangoproject.com/en/3.0/ref/contrib/messages/#expiration-of-messages
 * ## Calendar
-	* REMOVE THE CALENDAR AUTO-TITLE GENERATE THING, just set title to be null and blank, and just put it as a hidden field!
-	* when I add the calendars to the user detail page, the network detail page, and the nonprofit detail page, wrap this around a tag with the id #calendar
-	* In the javascript for the event update/create, I'm going to have to override some things; the calendar will be determined by an html created dropdown that has the values for the other nonprofits in the network, and their own user calendar. When this dropdown value changes, it automatically redirects them to the respective createview/update view of that calendar. If the "all_day" checkmark is clicked, then the starting and ending times will be set to 00:00 and 00:00 for the entire day
+	* fix rrule events
+	* add some way to have a created_by attribute to events. If you created a network event, or if you are a nonprofit rep, or if it's your personal user event that you created, then add "editable" in fullcalendar
+	* since I have sign up events, I'll have to somehow adjust the repeating thing, because you could sign up on one week, but the next week, you would be still be signed up which is bad. Or, easy route, sign ups are incompatable with repeating events!
+	* Users can 'subscribe' to network calendars and nonprofit calendars, adding all of these events to their calendar. They can also just add specific events to their cals
+	* In the javascript for the event update/create, I'm going to have to override some things; the calendar will be determined by an html created dropdown that has the values for the other nonprofits in the network, and their own user calendar. When this dropdown value changes, it automatically redirects them to the respective createview/update view of that calendar.
 	* create views and forms
-		* events and calendars will all have crud views. Events will have detail views. When going to what would be a calendar detail view, it'll just redirect you to the page that that calendar appears on (network detail, nonprofit detail, user detail only if you're the user, otherwise error)
-	* have a network calendar with all of the events of all of the nonprofits on it, and a nonprofit calendar with specific events on it
+		* events and calendars will all have crud views. Events will have detail views.
+		* Finish adding sign-ups to Events. Users can sign up (many users can sign up to one calendar event, so like a reverse fk), but you can also sign up without an account, you just leave your name and email. Furthermore, sign-up event creators can add
 	
 	* import events from a google cal
 	* rss feeds
 	* it's called calendar, but do I even want to show a calendar screen? Could it be like this?: https://www.kpcw.org/community-calendar#stream/0
 
-	* users can have their own calendars that have their own events on them. They could choose to subscribe to certain nonprofits / networks, and get events from there, and add their own events.
+* ##Organizations
+	* Organizations are a way for groups of users to connect to specific nonprofits and networks
+	* Organizations need to have their own calendars, so their own calendar views and urls in cal.urls.py, and their own model in cal.models.py, and probably some stuff in the admin site, too
 * ## Later:
 	* 404 error page isn't getting css.
 	* When making the site look good, I'll probably have to override all of the forms with custom elements. See nonprofit_map and change all of that dom element creation stuff that I did.
@@ -48,6 +53,7 @@ This might come in handy for providing back links: <a href="javascript:history.g
 	* set keywords and author meta for base.html
 
 # Issues
+* if you refresh a network when you're creating it, the coords will reset while the title stays, which isn't good. I should clear the forms on page reload for this view.
 * whenever you add a nonprofit with the same name in the same network, it rightfully raises an error, but not in the form view which is what I want
 * issue: networks, "Lisbon, Peru" and "Lisbon Peru" can be created because they have technically different titles (comma vs no comma), but they have the same slug
 * potential issue: image gets resized every time it is saved if it's above a certain width. While I set this to 100% conversion, I'm curious if future loss occurs
@@ -73,3 +79,5 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 1/31 If you're already logged in, you can't sign up or log in again, you get redirected to main, and a message appears and tells you that you can't do that. Put an indicator on the navbar if you're on a certain page. Put password requirements on login page. Users can delete their own account, or an admin can delete users' accounts. Replaced permission denied with a redirect and message.
 * 2/4 Most of my work was troubleshooting a virtualenv, so few changes here. Added the event model, a recurrence field (after a lot of research), and some values for it. TODO is to add more model forms for calendar and event, as well as basic views (CRUD). An event belongs to a calendar, and a calendar belongs to either a nonprofit, network, or user.
 * 2/5 Added some calendar views to redirect to where they would naturally be (calendars/<network>/<nonprofit> redirects to the network/<network>/<nonprofit>#calendar, where the calendar would be). Did some more form and model work. In the admin site, added a way to add calendars to pre-existing things. Added calendar to network detail view under #calendar.
+* 2/6 Calendars can now have a fk relationship to themselves and are one-to-one with network, user, nonprofit. Nonprofit calendars are auto created. Network calendars are auto created. Added a custom calendar filter on the admin page. User calendars are auto created. On the event form, changed some of the all day stuff. The power went out so I wasn't able to commit.
+* 2/8 Added some more event fields. Set the calendar attribute to be manytomany so that you can add it to multiple calendars (user calendars, etc). Developed the event form more. Account anniversary gets created every time a user signs up. Added fullcalendar scripts and stuff. Added an event add view, but it looks weird, and I probably won't use it. Added events to calendar. I got rrule to work, but depending on what I do in the add event view, I might have to change some stuff. Maybe I won't even have to use the schedule package at all, just create rrules on the fly with rrule.js? Also, I have to make sure I get the duration right, because right now, it's just auto two hours.
