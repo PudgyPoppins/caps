@@ -1,5 +1,6 @@
 import re
 import hashlib
+import datetime
 
 from django import template
 register = template.Library()
@@ -23,3 +24,11 @@ def shorten_address(value):
 			return newValue
 		else:
 			return value
+
+@register.filter
+def duration(start_time, end_time):
+	duration = (end_time - start_time).total_seconds()
+	hours, remainder = divmod(duration, 3600)
+	minutes, seconds = divmod(remainder, 60)
+
+	return '{:02}:{:02}:{:02}'.format(int(hours), int(minutes), int(seconds))

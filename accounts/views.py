@@ -18,7 +18,7 @@ from network.models import Network, Nonprofit
 
 from datetime import datetime
 from datetime import timedelta
-import recurrence
+from dateutil.rrule import *
 
 from django.contrib import messages
 #from django.utils.safestring import mark_safe
@@ -37,14 +37,11 @@ class SignUp(generic.CreateView):
 		user_cal.save()
 
 		#all of this down to the return statement creates a yearly repeating account anniversary event
-		today = datetime.now().replace(hour=0, minute=0, second=0)
-		pattern = recurrence.Recurrence(
-			dtstart=today,
-			rrules=[recurrence.Rule(recurrence.YEARLY),]
-		)
+		today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+		pattern = rrule(freq=YEARLY, dtstart=today)
 
 		description = "On this day in " + str(today.year) + ", your account was created!"
-		aa_event = Event(repeat=pattern, all_day=True, start_time=today, end_time=today + timedelta(days=1), event_type='AA', title="Account Anniversary", description=description)
+		aa_event = Event(recurrence=pattern, all_day=True, start_time=today, end_time=today + timedelta(days=1), event_type='AA', title="Account Anniversary", description=description)
 		aa_event.save()
 		aa_event.calendar.set([user_cal])
 		aa_event.save()

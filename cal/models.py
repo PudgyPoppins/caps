@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils import timezone
 import datetime
-from recurrence.fields import RecurrenceField
 
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -40,7 +39,7 @@ class Event(models.Model):
 	start_time = models.DateTimeField('starting time', default=timezone.now)
 	end_time = models.DateTimeField('ending time', default=timezone.now)
 	all_day = models.BooleanField('all day?', help_text="will this event last the entire day", default=False)
-	repeat = RecurrenceField(null = True, blank = True)
+	recurrence = models.CharField(help_text="Will this event ever repeat?", null = True, blank = True, max_length=200)
 
 	class event_type_choices(models.TextChoices):
 		VO = 'VO', _('Volunteering Opportunity') #Network events cannot access this

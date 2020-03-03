@@ -70,7 +70,7 @@ class EventAdminForm(ModelForm):
 		start_time = self.cleaned_data.get('start_time')
 		end_time = self.cleaned_data.get('end_time')
 
-		if str(start_time.time())[0:5] == "00:00" and star_time + datetime.timedelta(days=1) == date_time:#the event meets all the qualifications of an all_day event
+		if str(start_time.time())[0:5] == "00:00" and start_time + datetime.timedelta(days=1) == end_time:#the event meets all the qualifications of an all_day event
 			instance.all_day = True
 		if self.cleaned_data.get('all_day'): #if this is an all day event, set the hour of the start_time to be 00:00, and the end_time to be one day later
 			instance.start_time = start_time.replace(hour=0, minute=0, second=0)

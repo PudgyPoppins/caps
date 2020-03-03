@@ -1,5 +1,6 @@
 <!--This is where the calendar, with all of its events, will go-->
 {% load static %}
+{% load custom_filters %}
 <script src="{% static 'cal/rrule.js' %}"></script>
 
 <script src="{% static 'cal/fullcalendar.js' %}"></script>
@@ -8,6 +9,8 @@
 <link rel="stylesheet" type="text/css" href="{% static 'cal/daygrid.css' %}">
 <script src="{% static 'cal/list.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'cal/list.css' %}">
+<script src="{% static 'cal/timegrid.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'cal/timegrid.css' %}">
 
 <script src="{% static 'cal/rrulefullcalendar.js' %}"></script>
 
@@ -23,71 +26,221 @@
 
 <script>
 
-      document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
+  document.addEventListener('DOMContentLoaded', function() {
+	var calendarEl = document.getElementById('calendar');
+	var modal = document.getElementById("eventModal");
 
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-        	allDayDefault: false,
-        	eventLimit: true,
-        	plugins: [ 'dayGrid', 'list', 'rrule' ],
-        	header: {
-		      left: 'prev,next today',
-		      center: 'title',
-		      right: 'dayGridMonth,dayGridWeek,listDay'
-		    },
-        	//defaultView: 'listWeek',
+	var calendar = new FullCalendar.Calendar(calendarEl, {
+		allDayDefault: false,
+		eventLimit: true,
+		plugins: [ 'dayGrid', 'list', 'rrule', 'timeGrid' ],
+		header: {
+		  left: 'prev,next today',
+		  center: 'title',
+		  right: 'dayGridMonth,timeGridWeek,listDay'
+		},
+		eventClick: function(info) {
+		  var eventObj = info.event;
+		  modal.style.display = "block";
+		  document.getElementById("modalTitle").innerHTML = eventObj.title;
+		  document.getElementById("modalDescription").innerHTML = eventObj.extendedProps.description;
+		  if(eventObj.start && eventObj.end){document.getElementById("modalTime").innerHTML = eventObj.start + " - " + eventObj.end;}
+		},
 
-        	events: [
-        		{% if type == "network" %}
-				{% for noncal in calendar.networkcal.all %}
-				{% for i in noncal.event_set.all %}
-				{
-                    title: "{{ i.title}}",
-                    {% if i.event_type == "AA" %}backgroundColor: 'red',
-                    {% elif i.event_type == "CE" %}backgroundColor: 'yellow',
-                    {% elif i.event_type == "NV" %}backgroundColor: 'gray',
-                    {% endif %}
-
-                    {% if i.repeat %}
-                    rrule: 'DTSTART:{{ i.start_time|date:"Ymd" }}T{{ i.start_time|date:"His" }}\n{{ i.repeat }}',
-                    duration: '02:00',
-                    {% else %}
-                    start: '{{ i.start_time|date:"Y-m-d" }}',
-                    end: '{{ i.end_time|date:"Y-m-d" }}',
-                    {% if i.all_day %}allDay: true,{% endif %}
-                    {% endif %}
-                    description: '{{ i.description }}'
-
-                },
-				{% endfor %}
-				{% endfor %}
+		events: [
+			{% if type == "network" %}
+			{% for noncal in calendar.networkcal.all %}
+			{% for i in noncal.event_set.all %}
+			{
+				title: "{{ i.title}}",
+				{% if i.event_type == "AA" %}backgroundColor: 'red',
+				{% elif i.event_type == "CE" %}backgroundColor: 'yellow',
+				{% elif i.event_type == "NV" %}backgroundColor: 'gray',
 				{% endif %}
 
-                {% for i in calendar.event_set.all %}
-                {
-                    title: "{{ i.title}}",
-                    {% if i.event_type == "AA" %}backgroundColor: 'red',
-                    {% elif i.event_type == "CE" %}backgroundColor: 'yellow',
-                    {% elif i.event_type == "NV" %}backgroundColor: 'gray',
-                    {% endif %}
+				{% if i.all_day %}allDay: true,{% endif %}
+				{% if i.recurrence %}
+					rrule: '{{ i.recurrence }}',
+					{% if not i.all_day %}duration: '{{ i.start_time|duration:i.end_time }}',{% endif %}
+				{% else %}
+					start: '{{ i.start_time|date:"Y-m-d" }}',
+					end: '{{ i.end_time|date:"Y-m-d" }}',
+				{% endif %}
+				extendedProps: {description: '{{ i.description }}',},
 
-                    {% if i.repeat %}
-                    rrule: 'DTSTART:{{ i.start_time|date:"Ymd" }}T{{ i.start_time|date:"His" }}\n{{ i.repeat }}',
-                    duration: '02:00',
-                    {% else %}
-                    start: '{{ i.start_time|date:"Y-m-d" }}',
-                    end: '{{ i.end_time|date:"Y-m-d" }}',
-                    {% if i.all_day %}allDay: true,{% endif %}
-                    {% endif %}
-                    description: '{{ i.description }}'
+			},
+			{% endfor %}
+			{% endfor %}
+			{% endif %}
 
+			{% for i in calendar.event_set.all %}
+			{
+				title: "{{ i.title}}",
+				{% if i.event_type == "AA" %}backgroundColor: 'red',
+				{% elif i.event_type == "CE" %}backgroundColor: 'yellow',
+				{% elif i.event_type == "NV" %}backgroundColor: 'gray',
+				{% endif %}
+
+				{% if i.all_day %}allDay: true,{% endif %}
+				{% if i.recurrence %}
+					rrule: '{{ i.recurrence }}',
+					{% if not i.all_day %}duration: '{{ i.start_time|duration:i.end_time }}',{% endif %}
+				{% else %}
+					start: '{{ i.start_time|date:"Y-m-d" }}',
+					end: '{{ i.end_time|date:"Y-m-d" }}',
+				{% endif %}
+				extendedProps: {description: '{{ i.description }}',},
+
+			},
+			{% endfor %}
+			
+		]
+	});
+
+	calendar.render();
+  });
+
+</script>
+
+
+<div id="eventModal" class="modal">
+  <div class="modal-content eventmodal">
+    <span class="close">&times;</span>
+    <h1 id="modalTitle">Event title</h1>
+    <p id="modalTime">Time</p>
+    <p id="modalDescription">Description</p>
+  </div>
+</div>
+
+<script>
+	var modal = document.getElementById("eventModal");
+	var span = document.getElementsByClassName("close")[0];
+	span.onclick = function() {
+	  modal.style.display = "none";
+	}
+	window.onclick = function(event) {
+	  if (event.target == modal) {
+	    modal.style.display = "none";
+	  }
+	} 
+</script>
+
+<!--
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.css"/>
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/css/bootstrap.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js"></script>
+<script>
+
+        $(document).ready(function () {
+            var calendar = $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
                 },
-                {% endfor %}
-                
-            ]
+                events: [
+                    {% for event in events %}
+                        {
+                            title: "{{ event.name}}",
+                            start: '{{ event.start|date:"Y-m-d" }}',
+                            end: '{{ event.end|date:"Y-m-d" }}',
+                            id: '{{ event.id }}',
+                        },
+                    {% endfor %}
+                ],
+                selectable: true,
+                selectHelper: true,
+                editable: true,
+                eventLimit: true,
+                select: function (start, end, allDay) {
+                    var title = prompt("Enter Event Title");
+                    if (title) {
+                        var start = $.fullCalendar.formatDate(start, "Y-MM-DD HH:mm:ss");
+                        var end = $.fullCalendar.formatDate(end, "Y-MM-DD HH:mm:ss");
+                        $.ajax({
+                            type: "GET",
+                            url: '/add_event',
+                            data: {'title': title, 'start': start, 'end': end},
+                            dataType: "json",
+                            success: function (data) {
+                                calendar.fullCalendar('refetchEvents');
+                                alert("Added Successfully");
+                            },
+                            failure: function (data) {
+                                alert('There is a problem!!!');
+                            }
+                        });
+                    }
+                },
+                eventResize: function (event) {
+                    var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
+                    var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
+                    var title = event.title;
+                    var id = event.id;
+                    $.ajax({
+                        type: "GET",
+                        url: '/update',
+                        data: {'title': title, 'start': start, 'end': end, 'id': id},
+                        dataType: "json",
+                        success: function (data) {
+                            calendar.fullCalendar('refetchEvents');
+                            alert('Event Update');
+                        },
+                        failure: function (data) {
+                            alert('There is a problem!!!');
+                        }
+                    });
+                },
+
+                eventDrop: function (event) {
+                    var start = $.fullCalendar.formatDate(event.start, "Y-MM-DD HH:mm:ss");
+                    var end = $.fullCalendar.formatDate(event.end, "Y-MM-DD HH:mm:ss");
+                    var title = event.title;
+                    var id = event.id;
+                    $.ajax({
+                        type: "GET",
+                        url: '/update',
+                        data: {'title': title, 'start': start, 'end': end, 'id': id},
+                        dataType: "json",
+                        success: function (data) {
+                            calendar.fullCalendar('refetchEvents');
+                            alert('Event Update');
+                        },
+                        failure: function (data) {
+                            alert('There is a problem!!!');
+                        }
+                    });
+                },
+
+                eventClick: function (event) {
+                    if (confirm("Are you sure you want to remove it?")) {
+                        var id = event.id;
+                        $.ajax({
+                            type: "GET",
+                            url: '/remove',
+                            data: {'id': id},
+                            dataType: "json",
+                            success: function (data) {
+                                calendar.fullCalendar('refetchEvents');
+                                alert('Event Removed');
+                            },
+                            failure: function (data) {
+                                alert('There is a problem!!!');
+                            }
+                        });
+                    }
+                },
+
+            });
         });
 
-        calendar.render();
-      });
-
     </script>
+
+    <div class="container">
+    <div id="calendar"></div>
+</div>-->

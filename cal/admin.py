@@ -53,7 +53,7 @@ class CalendarAdmin(admin.ModelAdmin):
 
 class EventAdmin(admin.ModelAdmin):
 	form = EventAdminForm
-	list_display = ('title', 'get_calendars', 'start_time', 'end_time', 'repeat')
+	list_display = ('title', 'get_calendars', 'start_time', 'end_time', 'recurrence')
 	def get_calendars(self, obj):
 		return ", ".join([calendar.__str__() for calendar in obj.calendar.all()])
 	search_fields = ['title']

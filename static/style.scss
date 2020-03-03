@@ -62,7 +62,7 @@ a:hover, a:focus{
   padding:0 50px;
   background:white;
   box-shadow: 0 5px 10px 0 rgba(0,0,0,0.1);
-  z-index:100;
+  z-index:5;
 }
 .navbar h1, .navbar h1 a, .navbar h1 a:hover, .navbar h1 a:focus{
   font-size:25px;
@@ -84,4 +84,50 @@ a:hover, a:focus{
   height:40px;
   border-radius:100%;
   vertical-align: middle;
+}
+
+.modal{
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 5; /* Sit on top */
+  left: 0; top: 0; bottom:0; right:0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+.modal-content {
+  background-color: white;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+  animation-name: animatetop;
+  animation-duration: 0.4s;
+  -webkit-animation-name: animatetop;
+  -webkit-animation-duration: 0.4s;
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+@keyframes animatetop {
+  from {margin-top: -300px; opacity: 0}
+  to {margin-top: 5%; opacity: 1}
+}
+@-webkit-keyframes animatetop {
+  from {margin-top: -300px; opacity: 0}
+  to {margin-top: 5%; opacity: 1}
 }

@@ -44,12 +44,3 @@ handler404 = 'home.views.handler404'
 
 if settings.DEBUG: # hopefully helps with images
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-js_info_dict = {
-    'packages': ('recurrence', ),
-}
-
-# jsi18n can be anything you like here
-urlpatterns += [
-    url(r'^jsi18n/$', JavaScriptCatalog.as_view(), js_info_dict),
-]
