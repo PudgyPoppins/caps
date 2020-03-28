@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<a href="{% url 'orgs:addorg' %}">create a new organization</a>
+{% if org_list %}
+    <ul>
+    {% for o in org_list %}
+        <li>
+        	<a href="{% url 'orgs:detail' o.slug %}">{{ o.title }} created on {{ o.pub_date|date:'Y-m-d H:i' }}</a>
+        	{% if o.src_link%}<img src="{{ o.src_link }}" width="100px;">{% endif %}
+        	{% if o.src_file%}<img src="{{ o.src_file.url }}" width="100px;">{% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>It doesn't look like there are any organizations yet. You could <a href="{% url 'orgs:addorg' %}">create</a> an organization if you want to.</p>
+{% endif %}
+
+{% endblock %}

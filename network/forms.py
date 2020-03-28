@@ -27,14 +27,12 @@ class NetworkForm(ModelForm):
 			if lon > 180 or lon < -180:
 				raise ValidationError(_('Invalid longitude - longitude must be between -180 and 180'))
 		return lon
-	def clean_image(self):
+	def clean_src_file(self):
 		image = self.cleaned_data.get('src_file', False)
 		if image:
-			if image._size > MAX_UPLOAD_SIZE:
+			if image._size > 2.5*1024*1024:
 				raise ValidationError("Image file too large ( > 2.5MB )")
-			return image
-		else:
-			raise ValidationError("Couldn't read uploaded image")
+		return image
 
 	class Meta:
 		model = Network

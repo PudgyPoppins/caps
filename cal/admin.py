@@ -33,6 +33,9 @@ class NotNullFilter(admin.SimpleListFilter):
 class UserFilter(NotNullFilter):
 	title = "User"
 	parameter_name = "user"
+class OrganizationFilter(NotNullFilter):
+	title = "Organization"
+	parameter_name = "organization"
 class NonprofitFilter(NotNullFilter):
 	title = "Nonprofit"
 	parameter_name = "nonprofit"
@@ -46,10 +49,10 @@ class EventInline(admin.TabularInline):
 
 class CalendarAdmin(admin.ModelAdmin):
 	inlines = [EventInline,]
-	list_filter = (UserFilter, NonprofitFilter, NetworkFilter)
+	list_filter = (UserFilter, OrganizationFilter, NonprofitFilter, NetworkFilter)
 	form = CalendarAdminForm
-	list_display = ('user', 'nonprofit', 'network', 'isGlobal')
-	search_fields = ('user', 'nonprofit', 'network', 'isGlobal')
+	list_display = ('user', 'organization', 'nonprofit', 'network', 'isGlobal')
+	search_fields = ('user', 'organization', 'nonprofit', 'network', 'isGlobal')
 
 class EventAdmin(admin.ModelAdmin):
 	form = EventAdminForm

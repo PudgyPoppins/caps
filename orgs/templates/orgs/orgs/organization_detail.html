@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{ organization.title }}{% endblock %}
+
+{% block content %}
+<h1>{{ organization.title }}</h1>
+<h3>{{ organization.description }}</h3>
+
+<a href="{% url 'orgs:index' %}">back to index view</a>
+
+{% if organization.src_file%}<br><img src="{{ network.src_file.url }}"><br>{% endif %}
+{% if network.src_link%}<br><img src="{{ network.src_link }}"><br>{% endif %}
+
+{% if organization.public or user.is_authenticated and user in organization.member.all or user in organization.moderator.all or user in organization.leader.all %}
+{% include "cal/snippets/calendar.html" with type="organization" %}
+
+<ul>
+    <li>Leaders: {% for leader in organization.leader.all %} {{ leader }} {% endfor %}</li>
+    <li>Helpers: {% for mod in organization.moderator.all %} {{ mod }} {% endfor %}</li>
+    <li>Members: {% for mem in organization.member.all %} {{ mem }} {% endfor %}</li>
+</ul>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+{% else %}
+<p>Request Access</p>
+<p>This is a private organization! If you believe that you should have access to this organization, make sure that you're <a href="{% url 'login' %}">logged in</a>.</p>
+{% endif %}
+{% endblock %}

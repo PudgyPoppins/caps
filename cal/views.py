@@ -13,9 +13,19 @@ from django.contrib import messages
 # Create your views here.
 from network.models import Network, Nonprofit
 from accounts.models import User
+from orgs.models import Organization
 
 from .models import Calendar, Event
 from .forms import EventForm
+
+from rest_framework import viewsets
+from rest_framework import permissions
+from .serializers import EventSerializer
+
+class EventViewSet(viewsets.ModelViewSet):
+    queryset = Event.objects.all().order_by('-start_time')
+    serializer_class = EventSerializer
+    permission_classes = [permissions.IsAdminUser]
 
 def index(request):
 	return HttpResponse("This is where the global calendar would go.")
@@ -30,6 +40,16 @@ def usercal(request, username):
 		return HttpResponseRedirect(reverse('accounts:current_profile') + '#calendar')
 def redirect_usercal(request, username):
 	return HttpResponseRedirect(reverse('cal:usercal', kwargs={'username' : username}))
+
+def orgcal(request, organization):
+	org = get_object_or_404(Organization, slug=organization)
+	if org.public or (request.user.is_authenticated and request.user in org.member.all() or request.user in org.leader.all() or request.user in org.moderator.all()): #the organization is public or the user is a part of the organization
+		return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : org.slug}) + '#calendar')
+	else: 
+		messages.error(request, "You don't have permission to view this organization's calendar!")
+		return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : org.slug}))
+def redirect_orgcal(request, organization):
+	return HttpResponseRedirect(reverse('cal:orgcal', kwargs={'organization' : organization}))
 
 def networkcal(request, network):
 	network = get_object_or_404(Network, slug=network)
