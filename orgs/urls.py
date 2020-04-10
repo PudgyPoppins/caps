@@ -10,6 +10,8 @@ urlpatterns = [
     #path('<slug:slug>/update/', views.UpdateNetView.as_view(), name='updatenet'), #update a network
     path('<slug:slug>/', views.OrgDetailView.as_view(), name='detail'), #shows organizations in more detail
 
+    path('<slug:organization>/generate_invite/', views.CreateInvitation.as_view(), name='geninvite'), #generate an invitation
+
     #path('<slug:network>/add/', views.AddNonView.as_view(), name='addnon'), #add a nonprofit
     #path('<slug:network>/<slug:slug>/', views.NonDetailView.as_view(), name='detailnon'), #nonprofit detail view
     #path('<slug:network>/<slug:slug>/update/', views.UpdateNonView.as_view(), name='updatenon'), #update a nonprofit

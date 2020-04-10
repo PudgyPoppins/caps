@@ -24,6 +24,7 @@ This might come in handy for providing back links: <a href="javascript:history.g
 			* scratch that... first, add a many to many field of reasons, similar to tags, to nonprofits and networks. Then, if they have a reason, it will automatically pop up as flagged in the template view.
 		* reports should probably be a separate model that has a many to many relationship with nonprofits and networks, and could be assigned or deleted
 		* when a user gets their own account reported, they see a warning message in the top of their profile, and their background image in the navbar turns red | https://docs.djangoproject.com/en/3.0/ref/contrib/messages/#expiration-of-messages
+			* how about we send an email instead?
 * ## Calendar
 	* add some way to have a created_by attribute to events. If you created a network event, or if you are a nonprofit rep, or if it's your personal user event that you created, then add "editable" in fullcalendar
 		* Scratch the editable part, I don't want someone to be able to go into inspect element and edit events. Make it a form again, that's the best way!
@@ -105,3 +106,4 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 3/2 Created a custom filter to get the duration for those recurring events. We're also back on the virtual dev, which will hopefully stay that way. Added a modal for events. Might do some more work with crispy forms in the future for form rendering.
 * 3/7 Changed how the date was rendered on the modal.
 * 3/28 Did a LOT of work adding organizations, and a bit of calendar stuff (which I have to complete).
+* 4/9 Added the invitation model and started the create view. I need to see how I'll store dates for ALL of my stuff, including calendar. I installed moment.js so I can easily convert to different timezones. I'm not sure if I should store dates in American/Denver time (the default time for the server), or in UTC :shrug:

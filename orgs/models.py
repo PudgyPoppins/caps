@@ -1,6 +1,6 @@
 from django.db import models
 
-import datetime
+import datetime, random, string
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -44,7 +44,7 @@ class Organization(models.Model):
 			# Keep the exif data
 			exif = None
 			if 'exif' in img.info:
-			    exif = img.info['exif']
+				exif = img.info['exif']
 			width_percent = (basewidth/float(img.size[0]))
 			height_size = int((float(img.size[1])*float(width_percent)))
 			img = img.resize((basewidth, height_size), PIL.Image.ANTIALIAS)
@@ -52,13 +52,36 @@ class Organization(models.Model):
 			output = BytesIO()
 			# save the resized file to our IO ouput with the correct format and EXIF data ;-)
 			if exif:
-			    img.save(output, format='JPEG', exif=exif, quality=100)
+				img.save(output, format='JPEG', exif=exif, quality=100)
 			else:
-			    img.save(output, format='JPEG', quality=100)
+				img.save(output, format='JPEG', quality=100)
 			output.seek(0)
 			self.src_file = InMemoryUploadedFile(output, 'ImageField', "%s.jpg" % self.src_file.name, 'image/jpeg', output.getbuffer().nbytes, None)
 
 		super(Organization, self).save(*args, **kwargs)
+
+class Invitation(models.Model):
+	max_uses = models.IntegerField('Maximum Uses', help_text="What is the maximum number of times this invitation can be used? Leave blank for unlimited", null = True, blank = True, validators=[MinValueValidator(1), MaxValueValidator(100)])
+	uses = models.IntegerField(null = True, blank = True)
+	organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null = True) #invitations are paired with an organization
+	expiration = models.DateTimeField(help_text='after this date, this link will no longer be valid', blank=True, null=True) #invitations can expire after a certain date
+	valid = models.BooleanField(default=True) #invitations can be set to invalid, in which case they no longer work
+	token = models.CharField(max_length=5) #token is the uniqueness part
+
+	def save(self, *args, **kwargs):
+		if not self.token:
+			self.token = create_token() #set the token on save
+		return super(Invitation, self).save(*args, **kwargs)
+	def create_token():
+		chars = string.ascii_lowercase+string.ascii_uppercase+string.digits
+		token = ''.join(random.choice(chars) for _ in range(5))
+		token_list = Invitation.objects.filter(token=token, valid=True)
+		while token_list:
+			token = ''.join(random.choice(chars) for _ in range(5))
+			token_list = Invitation.objects.filter(token=token, valid=True)
+		#this while loop makes sure that if the token is found inside a list of current tokens (a duplicate token), then just keep on refreshing. Ensures uniquness
+		return token
+
 
 class Goal(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, null = True, blank = True) #goal is applied to a specific user

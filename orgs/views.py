@@ -13,8 +13,8 @@ from django.contrib import messages
 # Create your views here.
 from cal.models import Calendar
 
-from .models import Organization, Goal, Textp
-from .forms import OrganizationForm, TransferLeadership, GoalForm
+from .models import Organization, Goal, Textp, Invitation
+from .forms import OrganizationForm, TransferLeadership, GoalForm, InvitationForm
 
 class IndexView(generic.ListView):
 	template_name = 'orgs/index.html'
@@ -82,6 +82,27 @@ class OrgDetailView(generic.DetailView):
 		context['calendar'] = Calendar.objects.get(organization=self.object.id)
 		return context
 
+class CreateInvitation(LoginRequiredMixin, CreateView):
+	model = Invitation
+	form_class = InvitationForm
+	template_name = 'orgs/inv/invitation_form.html'
+	def get_success_url(self):
+		return reverse('orgs:detail', kwargs={'slug' : self.object.organization.slug})
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['organization'] = get_object_or_404(Organization, slug=self.kwargs['organization'])#pass the organization data to the createview so it can use it for auto form stuff
+		return context
+	def form_valid(self, form):
+		invitation = form.save(commit=False)
+		invitation.organization = get_object_or_404(Organization, slug=self.kwargs['organization'])
+		user_temp_var = form.cleaned_data.get('user') #this gets the user data
+		invitation.save() #saves the object, sets the id
+
+		invitation.user.set(user_temp_var) #saves the previous tag data after the id is created
+		invitation.save()
+		self.object = invitation
+
+		return HttpResponseRedirect(self.get_success_url())
 
 '''class AddNonView(LoginRequiredMixin, CreateView):
 	model = Nonprofit

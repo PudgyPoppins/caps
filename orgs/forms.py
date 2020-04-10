@@ -5,7 +5,7 @@ from django.forms import ModelForm
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from .models import Organization, Goal
+from .models import Organization, Goal, Invitation
 #help_texts = {'lat': _('Please enter the latitude of the location, or leave it blank to auto-generate one via the address'), 'lon': _('Please enter the longitude of the location, or leave it blank to auto-generate one via the address')}
 class OrganizationForm(ModelForm):
 	class Meta:
@@ -21,7 +21,7 @@ class OrganizationForm(ModelForm):
 		image = self.cleaned_data.get('src_file', False)
 		if image:
 			if image._size > 2.5*1024*1024:
-				raise ValidationError("Image file too large ( > 2.5MB )")
+				raise ValidationError(_("Image file too large ( > 2.5MB )"))
 		return image
 
 	def clean(self):
@@ -49,3 +49,23 @@ class GoalForm(ModelForm):
 				raise ValidationError(_("The ending date must be after the starting time"))
 			if self.cleaned_data['end'] - self.cleaned_data['start'] < datetime.timedelta(days=1):
 				raise ValidationError(_("The ending date must at least one day ahead of the starting date"))
+
+class InvitationForm(ModelForm):
+	class Meta:
+		model = Invitation
+		fields = ['max_uses', 'expiration']
+		labels = {'expiration': _('Link Expiration Date'),}
+		widgets = {'expiration': forms.HiddenInput(),}
+
+	def clean_max_uses(self):
+		max_uses = self.cleaned_data['max_uses']
+		if max_uses is not None:
+			if max_uses > 100 or max_uses < 0:
+				raise ValidationError(_("Maximum Uses field must be between 0 and 100"))
+		return max_uses
+	def clean_expiration(self):
+		expiration = self.cleaned_data['expiration']
+		if expiration is not None:
+			if expiration < datetime.now():
+				raise ValidationError(_("The expiration date cannot be in the past"))
+		return expiration
