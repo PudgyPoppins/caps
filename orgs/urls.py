@@ -11,6 +11,7 @@ urlpatterns = [
     path('<slug:slug>/', views.OrgDetailView.as_view(), name='detail'), #shows organizations in more detail
 
     path('<slug:organization>/generate_invite/', views.CreateInvitation.as_view(), name='geninvite'), #generate an invitation
+    path('join/<token>', views.join, name='join'), #join an organization
 
     #path('<slug:network>/add/', views.AddNonView.as_view(), name='addnon'), #add a nonprofit
     #path('<slug:network>/<slug:slug>/', views.NonDetailView.as_view(), name='detailnon'), #nonprofit detail view

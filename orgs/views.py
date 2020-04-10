@@ -8,6 +8,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 # Create your views here.
@@ -95,14 +96,43 @@ class CreateInvitation(LoginRequiredMixin, CreateView):
 	def form_valid(self, form):
 		invitation = form.save(commit=False)
 		invitation.organization = get_object_or_404(Organization, slug=self.kwargs['organization'])
-		user_temp_var = form.cleaned_data.get('user') #this gets the user data
 		invitation.save() #saves the object, sets the id
-
-		invitation.user.set(user_temp_var) #saves the previous tag data after the id is created
-		invitation.save()
 		self.object = invitation
 
 		return HttpResponseRedirect(self.get_success_url())
+
+@login_required
+def join(request, token):
+	token = Invitation.objects.filter(token=token, valid=True)
+	if token:
+		token = token[0] # Replace queryset with model instance
+		if token.max_uses:#token invalid case 1: too many uses
+			if token.uses >= token.max_uses:
+				token.valid = False
+				token.save()
+				messages.error(request, "This invitation link is no longer valid!")
+				return HttpResponseRedirect(reverse('orgs:index'))
+		if token.expiration: #token invalid case 2: it's expired
+			if timezone.now() > token.expiration:
+				token.valid = False
+				token.save()
+				messages.error(request, "This invitation link is no longer valid!")
+				return HttpResponseRedirect(reverse('orgs:index'))
+		#Otherwise, it's valid, continue as planned
+		organization = Organization.objects.get(id=token.organization.id)
+		#If they're already a part of the organization
+		if request.user in organization.member.all() or request.user in organization.moderator.all() or request.user in organization.leader.all():
+			messages.info(request, "You're already a part of this organization!")
+			return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : token.organization.slug}))
+		organization.member.add(request.user) #add the user as a member now! Yay, they joined!
+		organization.save()
+		token.uses += 1
+		token.save()
+		messages.success(request, "You've successfully joined this organization!")
+		return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : token.organization.slug}))
+	else:
+		messages.error(request, "That invitation link doesn't exist!")
+		return HttpResponseRedirect(reverse('orgs:index'))
 
 '''class AddNonView(LoginRequiredMixin, CreateView):
 	model = Nonprofit

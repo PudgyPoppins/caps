@@ -1,8 +1,10 @@
 {% extends "base.html" %}
+{% load tz %}
 
 {% block title %}{{ organization.title }}{% endblock %}
 
 {% block content %}
+
 <h1>{{ organization.title }}</h1>
 <h3>{{ organization.description }}</h3>
 
@@ -20,10 +22,22 @@
     <li>Members: {% for mem in organization.member.all %} {{ mem }} {% endfor %}</li>
 </ul>
 
+{% if not organization.public and request.user in organization.leader.all or request.user in organization.moderator.all and not organization.public %}
+
+<h3>Active Invites:</h3>
+{% for i in organization.invitation_set.all %}
+{% if i.valid and i.is_not_expired %}
+<p>Link: <a href="{% url 'orgs:join' token=i.token %}">{{ i.token }}</a> | Expiration: {{ i.expiration }} | Max Uses: {{ i.max_uses}} | Uses: {{ i.uses }}</p>
+{% endif %}
+{% endfor %}
+
+{% endif %}
+
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
 {% else %}
 <p>Request Access</p>
 <p>This is a private organization! If you believe that you should have access to this organization, make sure that you're <a href="{% url 'login' %}">logged in</a>.</p>
 {% endif %}
+
 {% endblock %}

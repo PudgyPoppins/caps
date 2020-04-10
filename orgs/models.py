@@ -60,19 +60,7 @@ class Organization(models.Model):
 
 		super(Organization, self).save(*args, **kwargs)
 
-class Invitation(models.Model):
-	max_uses = models.IntegerField('Maximum Uses', help_text="What is the maximum number of times this invitation can be used? Leave blank for unlimited", null = True, blank = True, validators=[MinValueValidator(1), MaxValueValidator(100)])
-	uses = models.IntegerField(null = True, blank = True)
-	organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null = True) #invitations are paired with an organization
-	expiration = models.DateTimeField(help_text='after this date, this link will no longer be valid', blank=True, null=True) #invitations can expire after a certain date
-	valid = models.BooleanField(default=True) #invitations can be set to invalid, in which case they no longer work
-	token = models.CharField(max_length=5) #token is the uniqueness part
-
-	def save(self, *args, **kwargs):
-		if not self.token:
-			self.token = create_token() #set the token on save
-		return super(Invitation, self).save(*args, **kwargs)
-	def create_token():
+def create_token():
 		chars = string.ascii_lowercase+string.ascii_uppercase+string.digits
 		token = ''.join(random.choice(chars) for _ in range(5))
 		token_list = Invitation.objects.filter(token=token, valid=True)
@@ -81,6 +69,29 @@ class Invitation(models.Model):
 			token_list = Invitation.objects.filter(token=token, valid=True)
 		#this while loop makes sure that if the token is found inside a list of current tokens (a duplicate token), then just keep on refreshing. Ensures uniquness
 		return token
+
+class Invitation(models.Model):
+	max_uses = models.IntegerField('Maximum Uses', help_text="What is the maximum number of times this invitation can be used? Leave blank for unlimited", null = True, blank = True, validators=[MinValueValidator(1), MaxValueValidator(100)])
+	uses = models.IntegerField(default=0)
+	organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null = True) #invitations are paired with an organization
+	expiration = models.DateTimeField(help_text='after this date, this link will no longer be valid', blank=True, null=True) #invitations can expire after a certain date
+	valid = models.BooleanField(default=True) #invitations can be set to invalid, in which case they no longer work
+	token = models.CharField(max_length=5) #token is the uniqueness part
+
+	@property
+	def is_not_expired(self):
+		if self.expiration:
+			return timezone.now() < self.expiration
+		else:
+			return True
+
+	def __str__(self):
+		return format(self.token)
+
+	def save(self, *args, **kwargs):
+		if not self.token:
+			self.token = create_token() #set the token on save
+		return super(Invitation, self).save(*args, **kwargs)
 
 
 class Goal(models.Model):

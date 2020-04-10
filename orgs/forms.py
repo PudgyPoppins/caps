@@ -1,4 +1,5 @@
 import datetime
+from django.utils import timezone
 
 from django import forms
 from django.forms import ModelForm
@@ -66,6 +67,6 @@ class InvitationForm(ModelForm):
 	def clean_expiration(self):
 		expiration = self.cleaned_data['expiration']
 		if expiration is not None:
-			if expiration < datetime.now():
+			if expiration < timezone.now():
 				raise ValidationError(_("The expiration date cannot be in the past"))
 		return expiration

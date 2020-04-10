@@ -1,4 +1,5 @@
-from django.shortcuts import render
+import pytz
+from django.shortcuts import render, redirect
 from django.views.generic.base import TemplateView
 # Create your views here.
 from django.http import HttpResponse
@@ -17,6 +18,14 @@ def main(request):
 def index(request):
 	context = {}
 	return render(request, 'home/index.html', context)
+
+def set_timezone(request):
+    if request.method == 'POST':
+        request.session['django_timezone'] = request.POST['timezone']
+        return redirect('home:main')
+    else:
+        return render(request, 'home/time.html', {'timezones': pytz.common_timezones})
+
 
 def handler403(request, *args, **argv):
 	response = render(request, 'home/403.html')
