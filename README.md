@@ -41,14 +41,12 @@ This might come in handy for providing back links: <a href="javascript:history.g
 	* generate a json to use with the calendar (possibly with django rest framework?) Rather than having all of the events in the template
 
 * ##Organizations
+	* need to have a way to leave the organization, or to have leaders and moderators be able to kick users
+	* show the email of the leader so that they could be contacted
 	* if an organization owner gets deleted, then the first moderator becomes the new owner
-	* invitations:
-		* When you want to join a private organization, you can request access. Moderators and Leaders can see a view on the organization page that has a list of requests (the username, displayname, and request message (optional)). They can approve or deny each person here.
-		* Moderators and Leaders can get a link that they can send (via email or whatever) to others. This takes the user to a join view, where they can choose to accept or decline the invitation.
 
 	* Organizations are a way for groups of users to connect to specific nonprofits and networks
 		* Organizations can pin nonprofits or networks to their page
-	* Organizations need to have their own calendars, so their own calendar views and urls in cal.urls.py, and their own model in cal.models.py, and probably some stuff in the admin site, too
 	* Organizations have leaderboards where they sort who has the most hours in their logging (verified plus verified and unverified scores)
 * ##Logging
 	* When a user signs up for an event, after the event has happened, then the nonprofit representative can verify that they helped out
@@ -108,3 +106,4 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 3/28 Did a LOT of work adding organizations, and a bit of calendar stuff (which I have to complete).
 * 4/9 Added the invitation model and started the create view. I need to see how I'll store dates for ALL of my stuff, including calendar. I installed moment.js so I can easily convert to different timezones. I'm not sure if I should store dates in American/Denver time (the default time for the server), or in UTC :shrug:
 * 4/10 Invitations are now mostly added (create / join). I might next move on to requests (requesting to join an organization), or calendar subscriptions. Times are stored in UTC, and get converted on the fly. Middleware tries to detect user's timezone, but the user can override that in a form (home:set_timezone). Next, I should also show the timezone in all of the times from now on, and do utc time for forms like the event form where you enter the time in manually.
+* 4/14 Allowed users to request to join, and mods/leaders can approve/deny this.

@@ -15,7 +15,7 @@ from django.contrib import messages
 from cal.models import Calendar
 
 from .models import Organization, Goal, Textp, Invitation
-from .forms import OrganizationForm, TransferLeadership, GoalForm, InvitationForm
+from .forms import * #honestly, I'm gonna use all of them, just import 'em all
 
 class IndexView(generic.ListView):
 	template_name = 'orgs/index.html'
@@ -81,6 +81,14 @@ class OrgDetailView(generic.DetailView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		context['calendar'] = Calendar.objects.get(organization=self.object.id)
+		if self.request.user.is_authenticated:
+			user_requests = Request.objects.filter(user=self.request.user, approved=False, organization=self.object.id)
+			if len(user_requests) > 0:
+				context['has_made_request'] = True
+			else:
+				context['has_made_request'] = False
+		else:
+			context['has_made_request'] = False
 		return context
 
 class CreateInvitation(LoginRequiredMixin, CreateView):
@@ -133,6 +141,78 @@ def join(request, token):
 	else:
 		messages.error(request, "That invitation link doesn't exist!")
 		return HttpResponseRedirect(reverse('orgs:index'))
+
+class CreateRequest(LoginRequiredMixin, CreateView):
+	model = Request
+	form_class = RequestForm
+	template_name = 'orgs/req/request_form.html'
+	success_message = "You've successfully requested to join %(organization)s"
+	def get_success_message(self, cleaned_data):
+		organization = get_object_or_404(Organization, slug=self.kwargs['organization'])
+		return self.success_message % dict(
+			cleaned_data,
+			organization=organization,
+		)
+
+	def dispatch(self, request, *args, **kwargs):
+		organization = get_object_or_404(Organization, slug=self.kwargs['organization'])
+		user_requests = Request.objects.filter(user=request.user, approved=False, organization=organization)
+		if len(user_requests) > 0:
+			messages.error(request, "You've already made a request to join this organization!")
+			return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : organization.slug}))
+		if request.user in organization.member.all() or request.user in organization.leader.all() or request.user in organization.moderator.all():
+			messages.error(request, "You're already in this organization!")
+			return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : organization.slug}))
+		return super(CreateRequest, self).dispatch(request, *args, **kwargs)
+
+	def get_success_url(self):
+		return reverse('orgs:detail', kwargs={'slug' : self.object.organization.slug})
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['organization'] = get_object_or_404(Organization, slug=self.kwargs['organization'])#pass the organization data to the createview so it can use it for auto form stuff
+		return context
+	def form_valid(self, form):
+		request = form.save(commit=False)
+		request.organization = get_object_or_404(Organization, slug=self.kwargs['organization'])
+		request.user = self.request.user
+		if not request.request_message or len(request.request_message) < 3:
+			request.request_message = "I'd like to join this organization, please!"
+		request.save() #saves the object, sets the id
+		self.object = request
+		return HttpResponseRedirect(self.get_success_url())
+
+@login_required
+def approve_request(request, organization, token):
+	req = Request.objects.filter(token=token, approved=False)
+	organization = get_object_or_404(Organization, slug=organization)
+	if request.user in organization.leader.all() or request.user in organization.moderator.all():
+		if req:
+			req = req[0]
+			req.approved = True
+			req.save()
+			organization.member.add(req.user) #add the user as a member now! Yay, they joined!
+			organization.save()
+			messages.success(request, "%s was added to %s successfully!" %(request.user.username, organization.title))
+		else:
+			messages.error(request, "This request doesn't exist!")
+	else:
+		messages.error(request, "You don't have permission to approve this request!")
+	return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : organization.slug}))
+
+@login_required
+def deny_request(request, organization, token):
+	req = Request.objects.filter(token=token, approved=False)
+	organization = get_object_or_404(Organization, slug=organization)
+	if request.user in organization.leader.all() or request.user in organization.moderator.all():
+		if req:
+			req = req[0]
+			req.delete()
+			messages.success(request, "You've successfully denied %s's request to join %s!" %(request.user.username, organization.title))
+		else:
+			messages.error(request, "This request doesn't exist!")
+	else:
+		messages.error(request, "You don't have permission to deny this request!")
+	return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : organization.slug}))
 
 '''class AddNonView(LoginRequiredMixin, CreateView):
 	model = Nonprofit

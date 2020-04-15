@@ -6,7 +6,7 @@ from django.forms import ModelForm
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from .models import Organization, Goal, Invitation
+from .models import Organization, Goal, Invitation, Request
 #help_texts = {'lat': _('Please enter the latitude of the location, or leave it blank to auto-generate one via the address'), 'lon': _('Please enter the longitude of the location, or leave it blank to auto-generate one via the address')}
 class OrganizationForm(ModelForm):
 	class Meta:
@@ -70,3 +70,9 @@ class InvitationForm(ModelForm):
 			if expiration < timezone.now():
 				raise ValidationError(_("The expiration date cannot be in the past"))
 		return expiration
+
+class RequestForm(ModelForm):
+	class Meta:
+		model = Request
+		fields = ['request_message']
+		widgets = {'request_message': forms.Textarea(),}

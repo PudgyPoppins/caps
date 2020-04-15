@@ -31,12 +31,21 @@
 {% endif %}
 {% endfor %}
 
+<h3>Active Requests:</h3>
+{% for r in organization.request_set.all %}
+{% if r.is_not_approved %}
+<p><a href="{% url 'orgs:appreq' token=r.token organization=organization.slug %}">Approve {{ r.user }}</a> | <a href="{% url 'orgs:delreq' token=r.token organization=organization.slug %}">Deny request to join</a> | Message: {{ r.request_message }}</p>
+{% endif %}
+{% endfor %}
+
 {% endif %}
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
 {% else %}
-<p>Request Access</p>
+{% if not has_made_request %}<p><a href="{% url 'orgs:reqorg' organization.slug %}">Request Access</a></p>
+{% else %} <p>Your request to join this organization is pending. If you wish to speed this up, you could contact the organization leaders?</p>
+{% endif %}
 <p>This is a private organization! If you believe that you should have access to this organization, make sure that you're <a href="{% url 'login' %}">logged in</a>.</p>
 {% endif %}
 
