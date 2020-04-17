@@ -137,12 +137,13 @@ class Goal(models.Model):
 	start = models.DateTimeField('only hours after this time will count to this goal', blank=True, null=True)
 	end = models.DateTimeField('only hours before this time will count to this goal', blank=True, null=True)
 
-class Textp(models.Model): #stands for text post, pretty much a comment
+class TextPost(models.Model): #pretty much a comment / announcement
 	title = models.CharField(max_length=75, help_text="", blank=True, null=True)
 	message = models.CharField(max_length=1000, help_text="", default="")
 	pub_date = models.DateTimeField('date published', default=timezone.now)
 	parent = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank = True, related_name="child")
 	created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True)
+	allows_children = models.BooleanField(default=True) #if you're a nonprofit, you might not want to have comments underneath something
 
 	def __str__(self):
 		if self.title:

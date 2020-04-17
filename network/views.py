@@ -56,7 +56,7 @@ class DeleteNetView(LoginRequiredMixin, DeleteView):
 
 	def dispatch(self, request, *args, **kwargs):
 		if not self.user_passes_test(request):
-			messages.error(request, "You do not have permission to delete this network")
+			messages.error(request, "You do not have permission to delete this network!")
 			return HttpResponseRedirect(reverse('network:detail', kwargs={'slug' : self.object.slug}))
 		return super(DeleteNetView, self).dispatch(request, *args, **kwargs)
 
@@ -139,7 +139,7 @@ class DeleteNonView(LoginRequiredMixin, DeleteView):
 
 	def dispatch(self, request, *args, **kwargs):
 		if not self.user_passes_test(request):
-			messages.error(request, "You do not have permission to delete this nonprofit")
+			messages.error(request, "You do not have permission to delete this nonprofit!")
 			return HttpResponseRedirect(reverse('network:detailnon', kwargs={'network': self.object.network.slug, 'slug' : self.object.slug}))
 		return super(DeleteNonView, self).dispatch(request, *args, **kwargs)
 

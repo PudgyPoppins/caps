@@ -5,9 +5,10 @@ from . import views
 app_name = 'orgs'
 urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
+    
     path('add/', views.AddOrgView.as_view(), name='addorg'), #add an organization
-    #path('<slug:slug>/delete/', views.DeleteNetView.as_view(), name='deletenet'), #delete a network
-    #path('<slug:slug>/update/', views.UpdateNetView.as_view(), name='updatenet'), #update a network
+    path('<slug:slug>/delete/', views.DeleteOrgView.as_view(), name='deleteorg'), #delete an organization
+    path('<slug:slug>/update/', views.UpdateOrgView.as_view(), name='updateorg'), #update an organization
     path('<slug:slug>/', views.OrgDetailView.as_view(), name='detail'), #shows organizations in more detail
 
     path('<slug:organization>/generate_invite/', views.CreateInvitation.as_view(), name='geninvite'), #generate an invitation
@@ -15,6 +16,11 @@ urlpatterns = [
     path('<slug:organization>/request_access/', views.CreateRequest.as_view(), name='reqorg'), #request to join an organization
     path('<slug:organization>/<token>/approve', views.approve_request, name='appreq'), #approve request
     path('<slug:organization>/<token>/deny', views.deny_request, name='delreq'), #deny request
+
+    path('<slug:organization>/<username>/kick', views.kick_user, name='kick'), #kick user
+    path('<slug:organization>/<username>/add', views.add_user, name='add'), #add user
+    path('<slug:organization>/<username>/promote', views.promote_user, name='promote'), #promote user
+    path('<slug:organization>/<username>/demote', views.demote_user, name='demote'), #demote user
 
     #path('<slug:network>/add/', views.AddNonView.as_view(), name='addnon'), #add a nonprofit
     #path('<slug:network>/<slug:slug>/', views.NonDetailView.as_view(), name='detailnon'), #nonprofit detail view

@@ -3,12 +3,11 @@
 {% block title %}Update {{ object.title }}{% endblock %}
 
 {% block content %}
-<a href="{% url 'network:detail' object.slug %}">back to detail view</a>
+<a href="{% url 'orgs:detail' object.slug %}">back to detail view</a>
 
-<h1>Update network information</h1>
+<h1>Update organization information</h1>
 <form method="post">{% csrf_token %}
     {{ form.as_p }}
-    {% include 'network/snippets/network_map.html' %}
     <input type="submit" value="Update">
 </form>
 {% endblock %}

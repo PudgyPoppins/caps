@@ -5,7 +5,7 @@
 
 {% block content %}
 <h1>{{ nonprofit.title }}</h1>
-{% if nonprofit.created_by %}<h3>created by <a href="{% url 'accounts:profile' nonprofit.created_by %}">{{ nonprofit.created_by }}</a></h3>
+{% if nonprofit.created_by %}<h3>created by <a href="{% url 'accounts:profile' nonprofit.created_by.username %}">{{ nonprofit.created_by }}</a></h3>
 {% else %}<h3>created by a deleted user</h3>
 {% endif %}
 <h3>Coords: {{ nonprofit.lat|floatformat:3 }} {{ nonprofit.lon|floatformat:3 }}</h3>

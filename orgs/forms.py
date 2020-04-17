@@ -12,7 +12,7 @@ class OrganizationForm(ModelForm):
 	class Meta:
 		model = Organization
 		#fields = ['title', 'src_link', 'src_file', 'leader', 'moderator', 'public']
-		exclude = ('slug', 'leader', 'member', 'moderator')
+		exclude = ('slug', 'leader', 'member', 'moderator', 'pub_date')
 		labels = {'src_link': _('Image Url'), 'src_file': _('Image File')}
 		widgets = {
 			'description': forms.Textarea(),

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if request.user == object %}Update your account
+{% else %}Update {{ object.username }}'s account
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if request.user == object %}<h1>Update your account</h1>
+{% else %}<h1>Update {{ object.username }}'s account</h1>
+{% endif %}
+<form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Update">
+</form>
+<p>To change your password, go to the <a href="{% url 'password_change' %}">password change form</a></p>
+{% endblock %}

@@ -1,5 +1,5 @@
 {% load custom_filters %}
-<div class="navbar flex">
+<nav class="navbar flex">
     <h1><a href="{% url 'home:main' %}">SITENAME</a></h1>
     <div class="navLinks flex">
         <!--If you're logged in, show this-->
@@ -7,10 +7,14 @@
             <a href="{% url 'network:addnet' %}" {% if request.path == "/network/add/" %}class="active"{% endif %}">create a network</a>
         {% endif %}
         
-        <!--If you're logged in, show this-->
+        <!--If you're logged in, and on the network detail page, show this-->
         {% if user.is_authenticated and is_on_detail_page %} <a href="{% url 'network:addnon' network.slug %}">add a nonprofit</a>
         <!--Show this if you're not on the detail page-->
         {% else %} <a href="{% url 'network:index' %}" {% if request.path == "/network/" %}class="active"{% endif %}>find a network</a>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+            <a href="{% url 'orgs:index' %}">organizations</a>
         {% endif %}
         
         <!--If you're NOT logged in, show this-->
@@ -30,4 +34,4 @@
             <a id="userLink" href="{% url 'accounts:current_profile' %}"> <img src="{{ user.email|gravatar_url }}" class="userIcon" alt="gravitar user icon" title="{{ user }}"/></a>
         {% endif %}
     </div>
-</div>
+</nav>

@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 #from django.contrib.auth.forms import UserCreationForm
-from .forms import CustomUserCreationForm
+from django.db.models import Q
+from .forms import *
 from .models import User
 from django.urls import reverse_lazy, reverse
 from django.http import HttpResponseRedirect
@@ -15,6 +16,7 @@ from django.views.decorators.cache import never_cache
 
 from cal.models import Calendar, Event
 from network.models import Network, Nonprofit
+from orgs.models import Organization
 
 from datetime import datetime
 from datetime import timedelta
@@ -54,7 +56,6 @@ class SignUp(generic.CreateView):
 		else:
 			return super().dispatch(*args, **kwargs)
 
-
 class Login(LoginView):
 	redirect_authenticated_user = True #overrided the class so that now logging in automatically redirects back to main
 	@method_decorator(sensitive_post_parameters())
@@ -78,10 +79,12 @@ def get_profile(request, username):
 		return HttpResponseRedirect(reverse('accounts:current_profile'))
 	created_networks = Network.objects.filter(created_by=user)
 	created_nonprofits = Nonprofit.objects.filter(created_by=user)
+	joined_organizations = Organization.objects.filter(Q(member=user) | Q(leader=user) | Q(moderator=user))
 	context = {
 		'profile': user,
 		'created_networks': created_networks,
 		'created_nonprofits': created_nonprofits,
+		'joined_organizations': joined_organizations,
 	}
 	return render(request, 'accounts/profile.html', context) #I'm passing this info through as profile instead of user because if the profile is not the user's own, I want them to be able to see their stuff still
 
@@ -92,11 +95,13 @@ def current_profile(request):
 	user = request.user
 	created_networks = Network.objects.filter(created_by=user)
 	created_nonprofits = Nonprofit.objects.filter(created_by=user)
+	joined_organizations = Organization.objects.filter(Q(member=user) | Q(leader=user) | Q(moderator=user))
 	calendar = Calendar.objects.get(user=user)
 	context = {
 		'profile': user,
 		'created_networks': created_networks,
 		'created_nonprofits': created_nonprofits,
+		'joined_organizations': joined_organizations,
 		'calendar' : calendar,
 	}
 	return render(request, 'accounts/profile.html', context)
@@ -105,8 +110,8 @@ def current_profile(request):
 def delete_user(request, username): 
 	obj = get_object_or_404(User, username=username)
 
-	if not (request.user.username == username or request.user.has_perm('accounts.delete_user')):
-		messages.error(request, "You do not have permission to delete this user")
+	if not (request.user.username == obj.username or request.user.has_perm('accounts.delete_user')):
+		messages.error(request, "You do not have permission to delete this user!")
 		return HttpResponseRedirect(reverse('accounts:profile', kwargs={'username' : username}))
 	else:
 		if request.method =="POST": 
@@ -119,4 +124,21 @@ def delete_user(request, username):
 			else:
 				return reverse('login')
   
-	return render(request, "accounts/user_confirm_delete.html", {"object": obj}) 
+	return render(request, "accounts/user_confirm_delete.html", {"object": obj})
+
+@login_required
+def update_user(request, username):
+	context ={}
+	obj = get_object_or_404(User, username=username)
+	context["object"] = obj 
+
+	if not (request.user.username == obj.username or request.user.has_perm('accounts.update_user')):
+		messages.error(request, "You do not have permission to edit this user!")
+		return HttpResponseRedirect(reverse('accounts:profile', kwargs={'username' : username}))
+	else:
+		form = UpdateUser(request.POST or None, instance = obj)
+		if form.is_valid(): 
+			form.save() 
+			return HttpResponseRedirect(reverse('accounts:profile', kwargs={'username' : obj.username}))
+		context["form"] = form 
+	return render(request, "accounts/user_update_form.html", context)

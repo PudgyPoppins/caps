@@ -9,6 +9,7 @@ This might come in handy for providing back links: <a href="javascript:history.g
 # TODO:
 * see image issue
 * ## Network / Nonprofits
+	* add announcements (TextPost model in organization) to nonprofits so that they can make them.
 	* maybe a success message on creation/update? | https://docs.djangoproject.com/en/3.0/ref/contrib/messages/#adding-messages-in-class-based-views
 	* soft deleting as an option (a moderator could recover a deleted object up to 2 weeks later or so) | https://medium.com/@adriennedomingus/soft-deletion-in-django-e4882581c340 | this one is probably better: https://blog.khophi.co/soft-delete-django-quickly/
 	* ### Forms
@@ -41,7 +42,9 @@ This might come in handy for providing back links: <a href="javascript:history.g
 	* generate a json to use with the calendar (possibly with django rest framework?) Rather than having all of the events in the template
 
 * ##Organizations
-	* need to have a way to leave the organization, or to have leaders and moderators be able to kick users
+	* add transfer ownership functionality
+	* add invite to moderator links?
+	* add goals to user profiles when they get created, if they're in an organization
 	* show the email of the leader so that they could be contacted
 	* if an organization owner gets deleted, then the first moderator becomes the new owner
 
@@ -107,3 +110,4 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 4/9 Added the invitation model and started the create view. I need to see how I'll store dates for ALL of my stuff, including calendar. I installed moment.js so I can easily convert to different timezones. I'm not sure if I should store dates in American/Denver time (the default time for the server), or in UTC :shrug:
 * 4/10 Invitations are now mostly added (create / join). I might next move on to requests (requesting to join an organization), or calendar subscriptions. Times are stored in UTC, and get converted on the fly. Middleware tries to detect user's timezone, but the user can override that in a form (home:set_timezone). Next, I should also show the timezone in all of the times from now on, and do utc time for forms like the event form where you enter the time in manually.
 * 4/14 Allowed users to request to join, and mods/leaders can approve/deny this.
+* 4/16 Added a copy to clipboard function for the invite links and fixed some validity issues. Added organizations to navbar. Made it so that remaining uses for join links show up instead of used uses. Added an update form for the user. Added the "display_name" field to the user forms. Added joined organizations to the user profile page. Made it so now leaders and moderators can add and kick members, and leaders can promote and demote users. Added update and delete views for the organization. I'll probably add the transfer ownership functionality next?

@@ -1,11 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}Delete {{ object }}?{% endblock %}
+{% block title %}
+{% if request.user == object %}Delete your account?
+{% else %}Delete {{ object.username }}'s account?
+{% endif %}
+{% endblock %}
 
 {% block content %}
-<h1>Delete this User</h1>
+{% if request.user == object %}<h1>Delete your account</h1>
+{% else %}<h1>Delete {{ object.username }}'s account</h1>
+{% endif %}
 <form method="post">{% csrf_token %}
-    <p>Are you sure you want to delete the user "{{ object }}"?</p>
+    {% if request.user == object %}<p>Are you sure you want to delete your account?</p>
+	{% else %}<p>Are you sure you want to delete the user "{{ object }}"?</p>
+	{% endif %}
     <p><b>This action cannot be undone!</b></p>
     <input type="submit" value="Confirm">
 </form>

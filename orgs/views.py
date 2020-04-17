@@ -10,11 +10,13 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils.safestring import mark_safe
 
 # Create your views here.
 from cal.models import Calendar
+from accounts.models import User
 
-from .models import Organization, Goal, Textp, Invitation
+from .models import Organization, Goal, TextPost, Invitation
 from .forms import * #honestly, I'm gonna use all of them, just import 'em all
 
 class IndexView(generic.ListView):
@@ -40,7 +42,6 @@ class AddOrgView(LoginRequiredMixin, CreateView):
 		organization.save() #saves the object, sets the id
 
 		organization.leader.add(self.request.user) #sets the leader user to the current one
-		organization.save()
 
 		self.object = organization
 
@@ -48,32 +49,43 @@ class AddOrgView(LoginRequiredMixin, CreateView):
 		organization_cal.save()
 		return HttpResponseRedirect(self.get_success_url())
 
-'''class DeleteNetView(LoginRequiredMixin, DeleteView):
-	model = Network
-	success_url = reverse_lazy('network:index')
-	template_name = 'network/net/network_confirm_delete.html'
+class DeleteOrgView(LoginRequiredMixin, DeleteView):
+	model = Organization
+	success_url = reverse_lazy('orgs:index')
+	template_name = 'orgs/orgs/organization_confirm_delete.html'
 
 	def user_passes_test(self, request):
 		if request.user.is_authenticated:
 			self.object = self.get_object()
-			return (self.object.created_by == request.user or request.user.has_perm('network.delete_network')) #return whether or not the current user created this object, or if they have explicit permission to delete networks
+			return (request.user in self.object.leader.all() or request.user.has_perm('network.delete_organization')) #return whether or not the current user is a leader, or if they have explicit permission to delete networks
 		return False
 
 	def dispatch(self, request, *args, **kwargs):
 		if not self.user_passes_test(request):
-			messages.error(request, "You do not have permission to delete this network")
-			return HttpResponseRedirect(reverse('network:detail', kwargs={'slug' : self.object.slug}))
-		return super(DeleteNetView, self).dispatch(request, *args, **kwargs)
+			messages.error(request, "You do not have permission to delete this organization!")
+			return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : self.object.slug}))
+		return super(DeleteOrgView, self).dispatch(request, *args, **kwargs)
 
-class UpdateNetView(LoginRequiredMixin, UpdateView):
+class UpdateOrgView(LoginRequiredMixin, UpdateView):
 	slug_url_kwarg = 'slug'
-	model = Network
-	form_class = NetworkForm
-	template_name = 'network/net/network_update_form.html'
+	model = Organization
+	form_class = OrganizationForm
+	template_name = 'orgs/orgs/organization_update_form.html'
 	def get_success_url(self):
-		return reverse('network:detail', kwargs={'slug' : self.object.slug})
+		return reverse('orgs:detail', kwargs={'slug' : self.object.slug})
 
-'''
+	def user_passes_test(self, request):
+		if request.user.is_authenticated:
+			self.object = self.get_object()
+			return (request.user in self.object.leader.all() or request.user in self.object.moderator.all() or request.user.has_perm('network.update_organization')) #return whether or not the current user is a leader, or if they have explicit permission to delete networks
+		return False
+
+	def dispatch(self, request, *args, **kwargs):
+		if not self.user_passes_test(request):
+			messages.error(request, "You do not have permission to update this organization!")
+			return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : self.object.slug}))
+		return super(UpdateOrgView, self).dispatch(request, *args, **kwargs)
+
 class OrgDetailView(generic.DetailView):
 	model = Organization
 	slug_url_kwarg: 'slug'
@@ -133,9 +145,11 @@ def join(request, token):
 			messages.info(request, "You're already a part of this organization!")
 			return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : token.organization.slug}))
 		organization.member.add(request.user) #add the user as a member now! Yay, they joined!
-		organization.save()
 		token.uses += 1
 		token.save()
+		if token.uses >= token.max_uses:
+				token.valid = False
+				token.save()
 		messages.success(request, "You've successfully joined this organization!")
 		return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : token.organization.slug}))
 	else:
@@ -191,8 +205,7 @@ def approve_request(request, organization, token):
 			req.approved = True
 			req.save()
 			organization.member.add(req.user) #add the user as a member now! Yay, they joined!
-			organization.save()
-			messages.success(request, "%s was added to %s successfully!" %(request.user.username, organization.title))
+			messages.success(request, "%s was added to %s successfully" %(request.user.username, organization.title))
 		else:
 			messages.error(request, "This request doesn't exist!")
 	else:
@@ -207,11 +220,91 @@ def deny_request(request, organization, token):
 		if req:
 			req = req[0]
 			req.delete()
-			messages.success(request, "You've successfully denied %s's request to join %s!" %(request.user.username, organization.title))
+			messages.success(request, "You've successfully denied %s's request to join %s" %(req.user, organization.title))
 		else:
 			messages.error(request, "This request doesn't exist!")
 	else:
 		messages.error(request, "You don't have permission to deny this request!")
+	return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : organization.slug}))
+
+@login_required
+def kick_user(request, organization, username):
+	organization = get_object_or_404(Organization, slug=organization)
+	user = get_object_or_404(User, username=username)
+
+	undo_link = reverse('orgs:add', kwargs={'organization': organization.slug, 'username': user.username})
+
+	if request.user in organization.leader.all(): #leaders can only kick moderators if they're demoted first
+		if user in organization.member.all():
+			organization.member.remove(user) #removing member
+			messages.success(request, mark_safe("You've successfully kicked %s from %s. <a href='%s'>Undo?</a>" %(user, organization.title, undo_link)))
+		elif user in organization.moderator.all():
+			demote_link = reverse('orgs:demote', kwargs={'organization': organization.slug, 'username': user.username})
+			messages.error(request, mark_safe("You have to <a href='%s'>demote this user</a> first!" %(demote_link))) #demote ask
+		elif user in organization.leader.all():
+			messages.error(request, "Leaders can't be deleted")
+		else:
+			messages.error(request, "Couldn't find a user with the username %s in this organization" %(user))
+	elif request.user in organization.moderator.all(): #moderators can only kick basic members
+		if user in organization.member.all():
+			organization.member.remove(user) #removing member
+			messages.success(request, mark_safe("You've successfully kicked %s from %s. <a href='%s'>Undo?</a>" %(user, organization.title, undo_link)))
+		elif user in organization.moderator.all():
+			messages.error(request, "You don't have permission to kick other helpers!")
+		elif user in organization.leader.all():
+			messages.error(request, "You don't have permission to kick a leader!")
+		else:
+			messages.error(request, "Couldn't find a user with the username %s in this organization" %(user))
+	else:
+		messages.error(request, "You don't have permission to perform this action!")
+	return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : organization.slug}))
+
+@login_required
+def add_user(request, organization, username):
+	organization = get_object_or_404(Organization, slug=organization)
+	user = get_object_or_404(User, username=username)
+	if request.user in organization.leader.all() or request.user in organization.moderator.all():
+		organization.member.add(user)
+		undo_link = reverse('orgs:kick', kwargs={'organization': organization.slug, 'username': user.username})
+		messages.success(request, mark_safe("You've successfully added %s to %s. <a href='%s'>Undo?</a>" %(user, organization.title, undo_link)))
+	else:
+		messages.error(request, "You don't have permission to perform this action!")
+	return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : organization.slug}))
+
+@login_required
+def promote_user(request, organization, username):
+	organization = get_object_or_404(Organization, slug=organization)
+	user = get_object_or_404(User, username=username)
+	if request.user in organization.leader.all(): #only leaders can promote
+		if user in organization.member.all():
+			organization.member.remove(user)
+			organization.moderator.add(user)
+			undo_link = reverse('orgs:demote', kwargs={'organization': organization.slug, 'username': user.username})
+			messages.success(request, mark_safe("You've successfully promoted %s to moderator. <a href='%s'>Undo?</a>" %(user, undo_link)))
+		elif user in organization.moderator.all() or user in organization.leader.all():
+			messages.error(request, "This user can't be promoted!")
+		else:
+			messages.error(request, "Couldn't find a user with the username %s in this organization" %(user))
+	else:
+		messages.error(request, "You don't have permission to perform this action!")
+	return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : organization.slug}))
+
+@login_required
+def demote_user(request, organization, username):
+	organization = get_object_or_404(Organization, slug=organization)
+	user = get_object_or_404(User, username=username)
+	if request.user in organization.leader.all(): #only leaders can demote
+		if user in organization.moderator.all():
+			organization.moderator.remove(user)
+			organization.member.add(user)
+			undo_link = reverse('orgs:promote', kwargs={'organization': organization.slug, 'username': user.username})
+			messages.success(request, mark_safe("You've successfully demoted %s from moderator. <a href='%s'>Undo?</a>" %(user, undo_link)))
+		elif user in organization.member.all() or user in organization.leader.all():
+			messages.error(request, "This user can't be demoted!")
+		else:
+			messages.error(request, "Couldn't find a user with the username %s in this organization" %(user))
+	else:
+		messages.error(request, "You don't have permission to perform this action!")
 	return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : organization.slug}))
 
 '''class AddNonView(LoginRequiredMixin, CreateView):

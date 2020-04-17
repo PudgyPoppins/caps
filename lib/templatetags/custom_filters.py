@@ -32,3 +32,7 @@ def duration(start_time, end_time):
 	minutes, seconds = divmod(remainder, 60)
 
 	return '{:02}:{:02}:{:02}'.format(int(hours), int(minutes), int(seconds))
+
+@register.filter
+def subtract(value, arg):
+    return value - arg

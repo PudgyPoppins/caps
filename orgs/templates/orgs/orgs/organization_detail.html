@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load tz %}
+{% load custom_filters %}
 
 {% block title %}{{ organization.title }}{% endblock %}
 
@@ -9,27 +9,48 @@
 <h3>{{ organization.description }}</h3>
 
 <a href="{% url 'orgs:index' %}">back to index view</a>
+{% if user.is_authenticated and user in organization.leader.all or user.is_authenticated and user in organization.moderator.all %}
+<a href="{% url 'orgs:updateorg' organization.slug %}">update organization</a>
+{% endif %}
+{% if user.is_authenticated and user in organization.leader.all %}
+<a href="{% url 'orgs:deleteorg' organization.slug %}">delete organization</a>
+{% endif %}
 
 {% if organization.src_file%}<br><img src="{{ network.src_file.url }}"><br>{% endif %}
 {% if network.src_link%}<br><img src="{{ network.src_link }}"><br>{% endif %}
 
-{% if organization.public or user.is_authenticated and user in organization.member.all or user in organization.moderator.all or user in organization.leader.all %}
+{% if organization.public or user.is_authenticated and user in organization.member.all or user.is_authenticated and user in organization.moderator.all or user.is_authenticated and user in organization.leader.all %}
 {% include "cal/snippets/calendar.html" with type="organization" %}
 
 <ul>
     <li>Leaders: {% for leader in organization.leader.all %} {{ leader }} {% endfor %}</li>
-    <li>Helpers: {% for mod in organization.moderator.all %} {{ mod }} {% endfor %}</li>
-    <li>Members: {% for mem in organization.member.all %} {{ mem }} {% endfor %}</li>
+    <li> Helpers:
+    	<ul>
+    		{% for mod in organization.moderator.all %}
+        <li>{{ mod }} | <a href="{% url 'orgs:demote' organization.slug mod.username %}">Demote</a> | <a href="{% url 'orgs:kick' organization.slug mod.username %}">Kick</a></li>
+        {% endfor %}
+    	</ul>
+	</li>
+    <li> Members:
+    	<ul>
+    		{% for mem in organization.member.all %}
+        <li>{{ mem }} | <a href="{% url 'orgs:promote' organization.slug mem.username %}">Promote</a> | <a href="{% url 'orgs:kick' organization.slug mem.username %}">Kick</a></li>
+        {% endfor %}
+    	</ul>
+	</li>
 </ul>
 
 {% if not organization.public and request.user in organization.leader.all or request.user in organization.moderator.all and not organization.public %}
 
+<p><a href="{% url 'orgs:geninvite' organization.slug %}">Generate Invite</a></p>
 <h3>Active Invites:</h3>
+<ul>
 {% for i in organization.invitation_set.all %}
 {% if i.valid and i.is_not_expired %}
-<p>Link: <a href="{% url 'orgs:join' token=i.token %}">{{ i.token }}</a> | Expiration: {{ i.expiration }} | Max Uses: {{ i.max_uses}} | Uses: {{ i.uses }}</p>
+<li>Link: <a onclick="copyToClipboard(this, '{{ request.get_host }}{% url 'orgs:join' token=i.token %}')" data-tooltip="Copy link to clipboard">{{ i.token }}</a>| Expiration: {{ i.expiration }} | Max Uses: {{ i.max_uses}} | Uses Remaining: {{ i.max_uses|subtract:i.uses }}</li>
 {% endif %}
 {% endfor %}
+</ul>
 
 <h3>Active Requests:</h3>
 {% for r in organization.request_set.all %}
@@ -48,5 +69,23 @@
 {% endif %}
 <p>This is a private organization! If you believe that you should have access to this organization, make sure that you're <a href="{% url 'login' %}">logged in</a>.</p>
 {% endif %}
+
+<script>
+function copyToClipboard(link, str) {
+  const el = document.createElement('textarea');
+  el.value = str;
+  el.setAttribute('readonly', '');
+  el.style.position = 'absolute';
+  el.style.left = '-9999px';
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+  link.setAttribute("data-tooltip", "Copied!");
+  setTimeout(function(){
+    link.setAttribute("data-tooltip", "Copy link to clipboard");
+}, 2000);
+};
+</script>
 
 {% endblock %}
