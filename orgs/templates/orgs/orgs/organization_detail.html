@@ -6,14 +6,19 @@
 {% block content %}
 
 <h1>{{ organization.title }}</h1>
-<h3>{{ organization.description }}</h3>
+{% if organization.description %}<h3>{{ organization.description }}</h3>{% endif %}
 
 <a href="{% url 'orgs:index' %}">back to index view</a>
+<br>
+{% if user.is_authenticated and user in organization.member.all or user.is_authenticated and user in organization.moderator.all or user.is_authenticated and user in organization.leader.all %}
+<a href="{% url 'orgs:leave' organization.slug %}">leave organization</a> |
+{% endif %}
 {% if user.is_authenticated and user in organization.leader.all or user.is_authenticated and user in organization.moderator.all %}
-<a href="{% url 'orgs:updateorg' organization.slug %}">update organization</a>
+<a href="{% url 'orgs:updateorg' organization.slug %}">update organization</a> |
 {% endif %}
 {% if user.is_authenticated and user in organization.leader.all %}
-<a href="{% url 'orgs:deleteorg' organization.slug %}">delete organization</a>
+<a href="{% url 'orgs:deleteorg' organization.slug %}">delete organization</a> |
+<a href="{% url 'orgs:transfer' organization.slug %}">transfer ownership</a>
 {% endif %}
 
 {% if organization.src_file%}<br><img src="{{ network.src_file.url }}"><br>{% endif %}
@@ -47,14 +52,20 @@
 <ul>
 {% for i in organization.invitation_set.all %}
 {% if i.valid and i.is_not_expired %}
-<li>Link: <a onclick="copyToClipboard(this, '{{ request.get_host }}{% url 'orgs:join' token=i.token %}')" data-tooltip="Copy link to clipboard">{{ i.token }}</a>| Expiration: {{ i.expiration }} | Max Uses: {{ i.max_uses}} | Uses Remaining: {{ i.max_uses|subtract:i.uses }}</li>
+<li>Link: <a onclick="copyToClipboard(this, '{{ request.get_host }}{% url 'orgs:join' token=i.token %}')" data-tooltip="Copy link to clipboard">{{ i.token }}</a> | 
+  {% if i.expiration %}Expiration: {{ i.expiration }} |{% endif %}
+  {% if i.max_uses %}Max Uses: {{ i.max_uses}} | Uses Remaining: {{ i.max_uses|subtract:i.uses }}
+  {% else %}Used: {{ i.uses }} times |
+  <a href="{% url 'orgs:delinvite' i.token %}">Delete</a>
+  {% endif %}
+</li>
 {% endif %}
 {% endfor %}
 </ul>
 
 <h3>Active Requests:</h3>
 {% for r in organization.request_set.all %}
-{% if r.is_not_approved %}
+{% if r.is_not_approved and r.user not in organization.member.all and r.user not in organization.moderator.all and r.user not in organization.leader.all %}
 <p><a href="{% url 'orgs:appreq' token=r.token organization=organization.slug %}">Approve {{ r.user }}</a> | <a href="{% url 'orgs:delreq' token=r.token organization=organization.slug %}">Deny request to join</a> | Message: {{ r.request_message }}</p>
 {% endif %}
 {% endfor %}
@@ -64,10 +75,10 @@
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
 {% else %}
+<p>This is a private organization!{% if not user.is_authenticated %} If you believe that you should have access to this organization, make sure that you're <a href="{% url 'login' %}">logged in</a>.{% endif %}</p>
 {% if not has_made_request %}<p><a href="{% url 'orgs:reqorg' organization.slug %}">Request Access</a></p>
-{% else %} <p>Your request to join this organization is pending. If you wish to speed this up, you could contact the organization leaders?</p>
+{% else %} <p>Your request to join this organization is pending. If you wish to speed this up, you could contact the organization leader?</p>
 {% endif %}
-<p>This is a private organization! If you believe that you should have access to this organization, make sure that you're <a href="{% url 'login' %}">logged in</a>.</p>
 {% endif %}
 
 <script>

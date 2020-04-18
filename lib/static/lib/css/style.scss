@@ -1,0 +1,141 @@
+/*The server must be restarted for css changes to take effect*/
+
+/*All map stuff*/
+.marker{
+	background-image: url("../../images/marker.svg");
+	background-size: cover;
+	background-position: center center;
+	width: 33px;
+	height: 42px;
+}
+.addressWrapper{}
+#map{width:640px; height:360px;}
+#id_address{display:none;}
+.mapboxgl-popup {
+  max-width: 200px;
+}
+.mapboxgl-popup-content {
+  text-align: center;
+}
+/*End map stuff*/
+
+*{box-sizing: border-box;}
+
+*:not(.flickity-slider):not(.carousel-cell):not(.mapboxgl-marker){
+	transition:0.2s ease-in;
+}
+h1, h2, h3, h4, h5, h6, p, a, li, ul, ol, input, label, button{
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+  font-weight:400;
+}
+
+
+head, body{
+  width:100%; height:100%;
+  padding:0; margin:0;
+}
+h1{font-weight:500;}
+a, a:not(.dropdown-item):visited{
+  color:#25D;
+  text-decoration: none;
+  cursor:pointer;
+}
+a:hover, a:focus{
+  color: darken(#25d, 7.5%);
+  text-decoration: underline;
+}
+a.dropdown-item:hover, a.dropdown-item:focus{
+  text-decoration: none;
+}
+.alt-a, .alt-a:visited{color:#5c5f6f;}
+.alt-a:hover, .alt-a:focus{color:#7f8292;}
+.float-right{float:right;}
+
+.flex{
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  flex-flow:row wrap;
+}
+
+.navbar{
+  position:sticky;
+  position:-webkit-sticky;
+  top:0;
+  padding:0 50px;
+  background:white;
+  box-shadow: 0 5px 10px 0 rgba(0,0,0,0.1);
+  z-index:5;
+}
+.navbar h1, .navbar h1 a, .navbar h1 a:hover, .navbar h1 a:focus, .navbar h1 a:visited{
+  font-size:25px;
+  padding:0; margin:0;
+  text-decoration: none;
+  color:black;
+}
+.navLinks{margin-left:auto; padding-right:57.5px;} //47.5 is enough space for the image to go in, + 10 for the padding
+.navLinks a{display:block; text-decoration:none; padding:15px 7.5px; border-bottom:2.5px solid transparent;}
+.navLinks a:hover{border-bottom:2.5px solid #25D; background-color:darken(white, 2.5%)}
+.navLinks a.active{background-color:darken(white, 2.5%);}
+#userLink{
+  padding:5px;
+  position: absolute; right:50px;
+}
+#userLink:hover{background-color:darken(white, 5%)}
+.userIcon{
+  width:40px;
+  height:40px;
+  border-radius:100%;
+  vertical-align: middle;
+}
+
+.modal{
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 5; /* Sit on top */
+  left: 0; top: 0; bottom:0; right:0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+.modal-content {
+  background-color: white;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+  animation-name: animatetop;
+  animation-duration: 0.4s;
+  -webkit-animation-name: animatetop;
+  -webkit-animation-duration: 0.4s;
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+@keyframes animatetop {
+  from {margin-top: -300px; opacity: 0}
+  to {margin-top: 5%; opacity: 1}
+}
+@-webkit-keyframes animatetop {
+  from {margin-top: -300px; opacity: 0}
+  to {margin-top: 5%; opacity: 1}
+}
+
+.hidden{display:none;}
+.dropdown .button{
+  font-size:0.8rem;
+}

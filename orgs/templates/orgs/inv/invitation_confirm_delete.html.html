@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Delete invitation {{ object }}?{% endblock %}
+
+{% block content %}
+<h1>Delete invitation to {{ object.organization }}</h1>
+<form method="post">{% csrf_token %}
+    <p>Are you sure you want to delete the invitation {{ object }} to {{ object.organization }}?</p>
+    {% if object.max_uses and object.max_uses > object.uses %}<p>This invitation still has {{ object.max_uses|subtract:object.uses }} uses remaining</p>{% endif %}
+    {% if object.expiration and object.expiration > now %}<p>This invitation is still valid until {{ object.expiration|timeuntil }} uses remaining</p>{% endif %}
+    <input type="submit" value="Confirm">
+</form>
+{% endblock %}

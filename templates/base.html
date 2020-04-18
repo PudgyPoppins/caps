@@ -17,9 +17,12 @@
 	<title>{% block title %}SITENAME{% endblock %}</title>
 
 	{% compress css %}
-    <link type="text/x-scss" href="{% static 'style.scss' %}" rel="stylesheet">
+	<link type="text/x-sass" href="{% static 'lib/css/bulma.sass' %}" rel="stylesheet">
+    <link type="text/x-scss" href="{% static 'lib/css/style.scss' %}" rel="stylesheet">
 	{% endcompress %}
-	<link type="text/css" href="{% static 'tooltip.css' %}" rel="stylesheet">
+	<link type="text/css" href="{% static 'lib/css/tooltip.css' %}" rel="stylesheet">
+
+	<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 </head>
 
 <body>

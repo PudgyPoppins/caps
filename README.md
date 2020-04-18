@@ -42,11 +42,11 @@ This might come in handy for providing back links: <a href="javascript:history.g
 	* generate a json to use with the calendar (possibly with django rest framework?) Rather than having all of the events in the template
 
 * ##Organizations
-	* add transfer ownership functionality
+	* change the add link so that it sends an invite to the respective user, and they have to accept
+	* orgs can pin nonprofits and networks to their page
 	* add invite to moderator links?
 	* add goals to user profiles when they get created, if they're in an organization
 	* show the email of the leader so that they could be contacted
-	* if an organization owner gets deleted, then the first moderator becomes the new owner
 
 	* Organizations are a way for groups of users to connect to specific nonprofits and networks
 		* Organizations can pin nonprofits or networks to their page
@@ -111,3 +111,4 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 4/10 Invitations are now mostly added (create / join). I might next move on to requests (requesting to join an organization), or calendar subscriptions. Times are stored in UTC, and get converted on the fly. Middleware tries to detect user's timezone, but the user can override that in a form (home:set_timezone). Next, I should also show the timezone in all of the times from now on, and do utc time for forms like the event form where you enter the time in manually.
 * 4/14 Allowed users to request to join, and mods/leaders can approve/deny this.
 * 4/16 Added a copy to clipboard function for the invite links and fixed some validity issues. Added organizations to navbar. Made it so that remaining uses for join links show up instead of used uses. Added an update form for the user. Added the "display_name" field to the user forms. Added joined organizations to the user profile page. Made it so now leaders and moderators can add and kick members, and leaders can promote and demote users. Added update and delete views for the organization. I'll probably add the transfer ownership functionality next?
+* 4/17 Added bulma, which may or may not stay. Fixed an error where users could still be added via a request or /add, even if they were already in the organization. Now, if users try to kick themselves they get sent to a leave link. Finished adding the leave functionality and transfer ownership functionality. If a user is the only member of an organization, and they leave, then the organization gets delete (no more members). Made it so that only mods/leaders of an organization can create invitation links. Invite links can only be created if they belong to a private organization. Got really close to getting a deleteview for invitations. 

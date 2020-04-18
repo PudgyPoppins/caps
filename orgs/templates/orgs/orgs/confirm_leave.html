@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Leave {{ organization }}?{% endblock %}
+
+{% block content %}
+<h1>Leave this organization</h1>
+
+{% if user in organization.leader.all and not organization.member.all and not organization.moderator.all and organization.leader.all|length == 1 %}
+
+<p>As you are the only member in the organization {{ organization }}, leaving it will permenantly delete it.</p>
+<form method="post">{% csrf_token %}
+	<input type="submit" id="submit" value="Confirm?">
+</form>
+
+{% else %}
+<a href="{% url 'orgs:detail' organization.slug %}">back to detail view</a>
+<p>Are you sure you want to leave the organization "{{ organization }}"?</p>
+{% if not organization.public %}<p>This organization is private, you'll have to be approved to join again.</p>{% endif %}
+
+<form method="post">{% csrf_token %}
+    {% include 'orgs/snippets/new_leader_dropdown.html' with type="leave" %}
+    {% if user not in organization.leader.all %}<input type="submit" id="submit" value="Leave organization">{% endif %}
+</form>
+{% endif %}
+
+{% endblock %}

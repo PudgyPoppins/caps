@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Transfer Ownership?{% endblock %}
+
+{% block content %}
+<h1>Transfer ownership of {{ organization }}</h1>
+
+<a href="{% url 'orgs:detail' organization.slug %}">back to detail view</a>
+<p>Are you sure you want to transfer ownership of the organization "{{ organization }}"?</p>
+<p>After this action, you will become a helper.</p>
+
+<form method="post">{% csrf_token %}
+    {% include 'orgs/snippets/new_leader_dropdown.html' with type="transfer" %}
+</form>
+{% endblock %}

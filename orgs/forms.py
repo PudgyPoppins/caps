@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from .models import Organization, Goal, Invitation, Request
+from accounts.models import User
 #help_texts = {'lat': _('Please enter the latitude of the location, or leave it blank to auto-generate one via the address'), 'lon': _('Please enter the longitude of the location, or leave it blank to auto-generate one via the address')}
 class OrganizationForm(ModelForm):
 	class Meta:
@@ -34,8 +35,12 @@ class OrganizationForm(ModelForm):
 class TransferLeadership(ModelForm):
 	class Meta:
 		model = Organization
-		fields = ['leader']
+		fields = ['leader',]
 		labels = {'leader': _('Transfer leadership of this organization to another user'),}
+
+	def clean_leader(self):
+		data = self.cleaned_data['leader']
+		return data
 
 class GoalForm(ModelForm):
 	class Meta:

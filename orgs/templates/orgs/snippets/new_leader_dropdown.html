@@ -1,0 +1,39 @@
+{% if user in organization.leader.all %}
+<div class="select is-small">
+    <select id="id_leader" name="leader">
+	    {% for u in organization.moderator.all %}
+	    <option value="{{u.username}}">
+	    	&#9734; {{ u }}
+	    </option>
+	    {% endfor %}
+	    {% for u in organization.member.all %}
+	    <option value="{{u.username}}">
+	    	{{ u }}
+	    </option>
+	    {% endfor %}
+	</select>
+</div>
+<label for="id_leader">Select a user to become the new leader. {% if organization.moderator.all %}Starred users are moderators.{% endif %}</label>
+<br>
+<input type="submit" id="submit" value="Leave organization">
+
+<script>
+
+	var button = document.getElementById('submit');
+	var select = document.getElementById('id_leader');
+	updateButton();
+
+	function toggle(){
+		dropdown.classList.toggle("is-active");
+	}
+	function updateButton(){
+		{% if type == "leave" %}button.setAttribute("value", 'Leave {{ organization }} and set "' + select.value + '" as the new leader')
+		{% else %}button.setAttribute("value", 'Transfer ownership of {{ organization }} and set "' + select.value + '" as the new leader')
+		{% endif %}
+	}
+    select.addEventListener("blur", function(){
+    	updateButton();
+    }); 
+
+</script>
+{% endif %}
