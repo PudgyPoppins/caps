@@ -10,6 +10,8 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * see image issue
 * ## Network / Nonprofits
 	* add announcements (TextPost model in organization) to nonprofits so that they can make them.
+		* only nonprofit representatives can create announcements
+	* add a way to do nonprofit representatives, with a proof / application system
 	* maybe a success message on creation/update? | https://docs.djangoproject.com/en/3.0/ref/contrib/messages/#adding-messages-in-class-based-views
 	* soft deleting as an option (a moderator could recover a deleted object up to 2 weeks later or so) | https://medium.com/@adriennedomingus/soft-deletion-in-django-e4882581c340 | this one is probably better: https://blog.khophi.co/soft-delete-django-quickly/
 	* ### Forms
@@ -20,6 +22,7 @@ This might come in handy for providing back links: <a href="javascript:history.g
 
 	* create groups | https://docs.djangoproject.com/en/3.0/ref/contrib/auth/#django.contrib.auth.models.Group
 	* if you're a moderator or nonprofit representative, this'll show up on your user profile
+		* nonprofit representatives are attatched to a nonprofit in a model. However, I should still add them all to a group, so that way, I can get who they are, then set their home:main view to their nonprofit.
 	* ### Reporting System
 		* If a nonprofit is flagged true, then send an email with the reason | https://docs.djangoproject.com/en/3.0/topics/email/#send-mass-mail
 			* scratch that... first, add a many to many field of reasons, similar to tags, to nonprofits and networks. Then, if they have a reason, it will automatically pop up as flagged in the template view.
@@ -27,30 +30,32 @@ This might come in handy for providing back links: <a href="javascript:history.g
 		* when a user gets their own account reported, they see a warning message in the top of their profile, and their background image in the navbar turns red | https://docs.djangoproject.com/en/3.0/ref/contrib/messages/#expiration-of-messages
 			* how about we send an email instead?
 * ## Calendar
-	* add some way to have a created_by attribute to events. If you created a network event, or if you are a nonprofit rep, or if it's your personal user event that you created, then add "editable" in fullcalendar
-		* Scratch the editable part, I don't want someone to be able to go into inspect element and edit events. Make it a form again, that's the best way!
+	* add a way to filter events shown on the calendar. Validity filtration is a must. Maybe also nonprofit filtration?
+	* make a regex for an RRULE (and for that matter, a user-friendly field for the RRULE)
 	* since I have sign up events, I'll have to somehow adjust the repeating thing, because you could sign up on one week, but the next week, you would be still be signed up which is bad. Or, easy route, sign ups are incompatable with repeating events!
 		* Scratch that! Ok, so, events are created the same way that they usually are. Sign ups are enabled. However, as son as a user signs up to an event, this causes the event to split from the main, repeating one, and create its own one-time-occurence. 
+
 	* Users can 'subscribe' to network calendars and nonprofit calendars, adding all of these events to their calendar. They can also just add specific events to their cals
-	* In the javascript for the event update/create, I'm going to have to override some things; the calendar will be determined by an html created dropdown that has the values for the other nonprofits in the network, and their own user calendar. When this dropdown value changes, it automatically redirects them to the respective createview/update view of that calendar.
-	* create views and forms
-		* events and calendars will all have crud views. Events will have detail views.
-		* Finish adding sign-ups to Events. Users can sign up (many users can sign up to one calendar event, so like a reverse fk), but you can also sign up without an account, you just leave your name and email. Furthermore, sign-up event creators can add
 	
-	* import events from a google cal
+	* In the javascript for the event update/create, I'm going to have to override some things; the calendar will be determined by an html created dropdown that has the values for the other nonprofits in the network, and their own user calendar. When this dropdown value changes, it automatically redirects them to the respective createview/update view of that calendar.
+		* I might not do this, actually
+	* create views and forms
+		* Finish adding sign-ups to Events. Users can sign up (many users can sign up to one calendar event, so like a reverse fk), but you can also sign up without an account, you just leave your name and email.
+	
+	* import events from a google cal | https://fullcalendar.io/docs/v3/google-calendar
 	* rss feeds
-	* generate a json to use with the calendar (possibly with django rest framework?) Rather than having all of the events in the template
 
 * ##Organizations
+	* goals and text posts
 	* change the add link so that it sends an invite to the respective user, and they have to accept
 	* orgs can pin nonprofits and networks to their page
 	* add invite to moderator links?
 	* add goals to user profiles when they get created, if they're in an organization
-	* show the email of the leader so that they could be contacted
 
 	* Organizations are a way for groups of users to connect to specific nonprofits and networks
 		* Organizations can pin nonprofits or networks to their page
 	* Organizations have leaderboards where they sort who has the most hours in their logging (verified plus verified and unverified scores)
+
 * ##Logging
 	* When a user signs up for an event, after the event has happened, then the nonprofit representative can verify that they helped out
 	* Nonprofit representatives can also add a log for a user without an event
@@ -76,11 +81,8 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * original big image doesn't get delted after resizing happens
 
 # Brainstorming
-* Forms on the calendar view:
-		* Add event form, update event form, delete event form, sign up for event form
 * Handling exceptions:
-	* Easiest way I can think of: When a user edits an event, there's a split. The original event will have an exception in its rrule, and another event gets created that doesn't have an rrule.
-	* Another way: There's another model called event exception that's related to the events. 
+	* Easiest way I can think of: When a user edits an event, there's a split. Another event gets created that doesn't have an rrule (one time), and is a child of the original. An exception day gets added to the original.
 
 # What was done
 * 12/30 added tests, static files, tagging, the flagged attribute to both network and nonprofit, and changed the admin site
@@ -112,3 +114,11 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 4/14 Allowed users to request to join, and mods/leaders can approve/deny this.
 * 4/16 Added a copy to clipboard function for the invite links and fixed some validity issues. Added organizations to navbar. Made it so that remaining uses for join links show up instead of used uses. Added an update form for the user. Added the "display_name" field to the user forms. Added joined organizations to the user profile page. Made it so now leaders and moderators can add and kick members, and leaders can promote and demote users. Added update and delete views for the organization. I'll probably add the transfer ownership functionality next?
 * 4/17 Added bulma, which may or may not stay. Fixed an error where users could still be added via a request or /add, even if they were already in the organization. Now, if users try to kick themselves they get sent to a leave link. Finished adding the leave functionality and transfer ownership functionality. If a user is the only member of an organization, and they leave, then the organization gets delete (no more members). Made it so that only mods/leaders of an organization can create invitation links. Invite links can only be created if they belong to a private organization. Got really close to getting a deleteview for invitations. 
+* 4/18 Delete view for invitations works now. Added some more fields to organizations for contact information. No mapbox stuff for the address, tho. Added this information to the detail view. Added tokens to calendar events, and an ExcludedDates model. Now, events can be found with a unique token rather than a counted pk. Added a detail view for events. Events have a created_by attribute, and now, it's nonprofits that have a nonprofit_reps attribute. Made a total_attending integer field on event model so that non-signed in users can still sign up for events. Made a basic outline for the edit_event view, which still needs split functionality. Now don't allow the event_type "Account Anniversary" on the EventForm. Fixed a problem where events weren't being added correctly. Added an rrule regex validator that doesn't really work to the model field for that. FINALLY added the JSON view for events, rather than cramming everything into one, unsecure script.
+
+
+MAKE A FUNCTION ON EVENT MODEL THAT RETURNS ITS TYPE, AND ANOTHER ONE THAT RETURNS A SUCCESS URL FOR CREATION / EDIT
+
+
+Time is still busted, dates are being stored in UTC (invitation), but they aren't be converted to local time.
+TIME SOLUTION: Dates AREN'T being stored in UTC, they're being converted to utc by moment (correct so far), then being converted to utc again by the database that thinks it got handed an American/Mountain time. I have to remove the .utc() from the moment time thing, and I have to have a little thing say what the current timezone is. I should also add a timezone field to the User model, I really should.

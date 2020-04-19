@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Delete event {{ event.title }}{% endblock %}
+
+{% block content %}
+<h1>Delete an event</h1>
+
+{% if c.user and user.is_authenticated and user == c.user %}
+<a href="{% url 'cal:usercal' c.user.username %}">back to user calendar</a>
+{% elif c.nonprofit %}
+<a href="{% url 'cal:nonprofitcal' c.nonprofit.network.slug c.nonprofit.slug %}">back to nonprofit calendar</a> |
+<a href="{% url 'cal:networkcal' c.nonprofit.network.slug %}">back to network calendar</a>
+{% elif c.network %}
+<a href="{% url 'cal:orgcal' c.network.slug %}">back to network calendar</a>
+{% elif c.organization %}
+<a href="{% url 'cal:networkcal' c.organization.slug %}">back to organization calendar</a>
+{% endif %}
+
+<p>Are you sure you want to delete the event {{ event }}?</p>
+
+<form method="post">{% csrf_token %}
+    <input type="deleteAll" value="Delete">
+    <input type="deleteOne" value="Delete just this date">
+</form>
+{% endblock %}

@@ -19,51 +19,51 @@
 
 <h3>Created Networks</h3>
 {% if created_networks %}
-    <ul>
-    {% for n in created_networks %}
-        <li>
-        	<a href="{% url 'network:detail' n.slug %}">{{ n.title }}</a>
-        	{% if n.src_link%}<img src="{{ n.src_link }}" width="100px;">{% endif %}
-        	{% if n.src_file%}<img src="{{ n.src_file.url }}" width="100px;">{% endif %}
-        	{% if user.username == profile.username %}| <a href="{% url 'network:updatenet' n.slug %}">update</a> | <a href="{% url 'network:deletenet' n.slug %}">delete</a>{% endif %}
-        </li>
-    {% endfor %}
-    </ul>
+	<ul>
+	{% for n in created_networks %}
+		<li>
+			<a href="{% url 'network:detail' n.slug %}">{{ n.title }}</a>
+			{% if n.src_link%}<img src="{{ n.src_link }}" width="100px;">{% endif %}
+			{% if n.src_file%}<img src="{{ n.src_file.url }}" width="100px;">{% endif %}
+			{% if user.username == profile.username %}| <a href="{% url 'network:updatenet' n.slug %}">update</a> | <a href="{% url 'network:deletenet' n.slug %}">delete</a>{% endif %}
+		</li>
+	{% endfor %}
+	</ul>
 {% else %}
-    {% if user.username == profile.username %}<p>You haven't created any networks yet.</p>
-    {% else %}<p>This user hasn't created any networks yet.</p>
-    {% endif %}
+	{% if user.username == profile.username %}<p>You haven't created any networks yet.</p>
+	{% else %}<p>This user hasn't created any networks yet.</p>
+	{% endif %}
 {% endif %}
 
 <h3>Created Nonprofits</h3>
 {% if created_nonprofits %}
-    <ul>
-    {% for non in created_nonprofits %}
-        <li>
-        	<a href="{% url 'network:detailnon' non.network.slug non.slug %}">{{ non.title }}</a>
-        	{% if non.src_link%}<img src="{{ non.src_link }}" width="100px;">{% endif %}
-        	{% if non.src_file%}<img src="{{ non.src_file.url }}" width="100px;">{% endif %}
-        	{% if user.username == profile.username %}| <a href="{% url 'network:updatenon' non.network.slug non.slug %}">update</a> | <a href="{% url 'network:deletenon' non.network.slug non.slug %}">delete</a>{% endif %}
-        </li>
-    {% endfor %}
-    </ul>
+	<ul>
+	{% for non in created_nonprofits %}
+		<li>
+			<a href="{% url 'network:detailnon' non.network.slug non.slug %}">{{ non.title }}</a>
+			{% if non.src_link%}<img src="{{ non.src_link }}" width="100px;">{% endif %}
+			{% if non.src_file%}<img src="{{ non.src_file.url }}" width="100px;">{% endif %}
+			{% if user.username == profile.username %}| <a href="{% url 'network:updatenon' non.network.slug non.slug %}">update</a> | <a href="{% url 'network:deletenon' non.network.slug non.slug %}">delete</a>{% endif %}
+		</li>
+	{% endfor %}
+	</ul>
 {% else %}
-    {% if user.username == profile.username %}<p>You haven't created any nonprofits yet.</p>
-    {% else %}<p>This user hasn't created any nonprofits yet.</p>
-    {% endif %}
+	{% if user.username == profile.username %}<p>You haven't created any nonprofits yet.</p>
+	{% else %}<p>This user hasn't created any nonprofits yet.</p>
+	{% endif %}
 {% endif %}
 
 <h3>Joined Organizations</h3>
 {% if joined_organizations %}
-    <ul>
-    {% for j in joined_organizations %}
-        {% if user.username == profile.username or j.public %}<li><a href="{% url 'orgs:detail' j.slug %}">{{ j.title }}</a></li>{% endif %}
-    {% endfor %}
-    </ul>
+	<ul>
+	{% for j in joined_organizations %}
+		{% if user.username == profile.username or j.public %}<li><a href="{% url 'orgs:detail' j.slug %}">{{ j.title }}</a></li>{% endif %}
+	{% endfor %}
+	</ul>
 {% else %}
-    {% if user.username == profile.username %}<p>You haven't joined any organizations yet!</p>
-    {% else %}<p>This user may not have joined any organizations yet. Private organization membership is hidden.</p>
-    {% endif %}
+	{% if user.username == profile.username %}<p>You haven't joined any organizations yet!</p>
+	{% else %}<p>This user may not have joined any organizations yet. Private organization membership is hidden.</p>
+	{% endif %}
 {% endif %}
 
 {% if user.username == profile.username %}{% include "cal/snippets/calendar.html" with type="user" %}{% endif %}

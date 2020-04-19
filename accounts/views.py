@@ -43,9 +43,8 @@ class SignUp(generic.CreateView):
 		pattern = rrule(freq=YEARLY, dtstart=today)
 
 		description = "On this day in " + str(today.year) + ", your account was created!"
-		aa_event = Event(recurrence=pattern, all_day=True, start_time=today, end_time=today + timedelta(days=1), event_type='AA', title="Account Anniversary", description=description)
-		aa_event.save()
-		aa_event.calendar.set([user_cal])
+		aa_event = Event(rrule=pattern, all_day=True, start_time=today, end_time=today + timedelta(days=1), event_type='AA', title="Account Anniversary", description=description)
+		aa_event.calendar = user_cal
 		aa_event.save()
 		return HttpResponseRedirect(self.get_success_url())
 

@@ -32,7 +32,7 @@
     	{% endif %}
         {% if non.src_file%}<br><img src="{{ non.src_file.url }}" width="100px"><br>{% endif %}
         {% if non.src_link%}<br><img src="{{ non.src_link }}" width="100px"><br>{% endif %}
-    	{% if user.is_authenticated and user.username == non.created_by.username or perms.network.delete_nonprofit %}| <a href="{% url 'network:deletenon' network.slug non.slug %}">delete</a>{% endif %}
+    	{% if user.is_authenticated and user.username == non.created_by.username or user.is_authenticaed and perms.network.delete_nonprofit or user.is_authenticated and user in non.nonprofit_rep.all %}| <a href="{% url 'network:deletenon' network.slug non.slug %}">delete</a>{% endif %}
     	| <a href="{% url 'network:updatenon' network.slug non.slug %}">update</a>
     	| <a href="{% url 'network:detailnon' network.slug non.slug %}">detail view</a>
     	<ul>

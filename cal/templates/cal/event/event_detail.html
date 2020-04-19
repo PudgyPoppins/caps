@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Event {{ event.title }}{% endblock %}
+
+{% block content %}
+
+<h1>Event {{ event.title }}</h1>
+{% if event.description %}<h3>{{ event.description }}</h3>{% endif %}
+
+{% if c.user and user.is_authenticated and user == c.user %}
+<a href="{% url 'cal:usercal' c.user.username %}">back to user calendar</a> |
+{% elif c.nonprofit %}
+<a href="{% url 'cal:nonprofitcal' c.nonprofit.network.slug c.nonprofit.slug %}">back to nonprofit calendar</a> |
+<a href="{% url 'cal:networkcal' c.nonprofit.network.slug %}">back to network calendar</a> |
+{% elif c.network %}
+<a href="{% url 'cal:orgcal' c.network.slug %}">back to network calendar</a> |
+{% elif c.organization %}
+<a href="{% url 'cal:networkcal' c.organization.slug %}">back to organization calendar</a> |
+{% endif %}
+
+{% if user.is_authenticated and event.created_by.username == user.username or event.calendar.nonprofit and user.is_authenticated and user in event.calendar.nonprofit.nonprofit_reps.all %}
+<a href="{% url 'cal:editevent' event.token %}">edit event</a> |
+<a href="{% url 'cal:deleteevent' event.token %}">delete event</a> |
+{% endif %}
+
+<a href="{% url 'cal:signup' event.token %}">sign up for event</a> |
+
+{% endblock %}

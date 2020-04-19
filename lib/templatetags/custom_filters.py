@@ -36,3 +36,7 @@ def duration(start_time, end_time):
 @register.filter
 def subtract(value, arg):
     return value - arg
+
+@register.filter
+def multiply(value, arg):
+    return value * arg

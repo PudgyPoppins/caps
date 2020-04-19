@@ -96,6 +96,7 @@ class Nonprofit(models.Model):
 
 	flagged = models.BooleanField(default=False)
 	created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True)
+	nonprofit_reps = models.ManyToManyField(User, blank = True, related_name="nonprofit_rep")
 
 	slug = models.SlugField(max_length=100, blank=True)
 

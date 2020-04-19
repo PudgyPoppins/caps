@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
+{% load tz %}
 
 {% block title %}Generate an Invitation Link{% endblock %}
 
 {% block content %}
-<script src="{% static 'moment.js' %}"></script>
-<script src="{% static 'moment-timezone-with-data.js' %}"></script>
+<script src="{% static 'lib/js/moment.js' %}"></script>
+<script src="{% static 'lib/js/moment-timezone-with-data.js' %}"></script>
 
 <a href="{% url 'orgs:detail' organization.slug %}">back to detail view</a>
 

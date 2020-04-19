@@ -44,21 +44,19 @@ class NetworkFilter(NotNullFilter):
 	parameter_name = "network"
 
 class EventInline(admin.TabularInline):
-	model = Event.calendar.through
+	model = Event
 	extra = 1
 
 class CalendarAdmin(admin.ModelAdmin):
-	inlines = [EventInline,]
+	#inlines = [EventInline,]
 	list_filter = (UserFilter, OrganizationFilter, NonprofitFilter, NetworkFilter)
 	form = CalendarAdminForm
-	list_display = ('user', 'organization', 'nonprofit', 'network', 'isGlobal')
-	search_fields = ('user', 'organization', 'nonprofit', 'network', 'isGlobal')
+	list_display = ('token', 'user', 'organization', 'nonprofit', 'network', 'isGlobal')
+	search_fields = ('user', 'organization', 'nonprofit', 'network')
 
 class EventAdmin(admin.ModelAdmin):
 	form = EventAdminForm
-	list_display = ('title', 'get_calendars', 'start_time', 'end_time', 'recurrence')
-	def get_calendars(self, obj):
-		return ", ".join([calendar.__str__() for calendar in obj.calendar.all()])
+	list_display = ('title', 'token', 'calendar', 'start_time', 'end_time', 'rrule')
 	search_fields = ['title']
 
 admin.site.register(Calendar, CalendarAdmin)

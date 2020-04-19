@@ -20,6 +20,8 @@
 <a href="{% url 'cal:addevent' nonprofit.network.slug nonprofit.slug %}">add an event</a>
 {% elif type == "network" %}
 <a href="{% url 'cal:addevent' network.slug %}">add an event</a>
+{% elif type == "organization" %}
+<a href="{% url 'cal:add_event_org' organization.slug %}">add an event</a>
 {% endif %}
 
 <div id="calendar"></div>
@@ -47,58 +49,14 @@
 		  modal.style.display = "block";
 		  document.getElementById("modalTitle").innerHTML = eventObj.title;
 		  document.getElementById("modalDescription").innerHTML = eventObj.extendedProps.description;
+		  document.getElementById("modalDetail").setAttribute("href", "{% url 'cal:eventdetail' %}" + eventObj.extendedProps.token);
 		  if(! eventObj.allDay){document.getElementById("modalTime").innerHTML = eventObj.start.toLocaleDateString("en-US", dateFormat) + " - " + eventObj.end.toLocaleDateString("en-US", dateFormat);}
 		  else{document.getElementById("modalTime").innerHTML = "This is an all day event.";}
 		},
-
-		events: [
-			{% if type == "network" %}
-			{% for noncal in calendar.networkcal.all %}
-			{% for i in noncal.event_set.all %}
-			{
-				title: "{{ i.title}}",
-				{% if i.event_type == "AA" %}backgroundColor: 'red',
-				{% elif i.event_type == "CE" %}backgroundColor: 'yellow',
-				{% elif i.event_type == "NV" %}backgroundColor: 'gray',
-				{% endif %}
-
-				{% if i.all_day %}allDay: true,{% endif %}
-				{% if i.recurrence %}
-					rrule: '{{ i.recurrence }}',
-					{% if not i.all_day %}duration: '{{ i.start_time|duration:i.end_time }}',{% endif %}
-				{% else %}
-					start: '{{ i.start_time|date:"Y-m-d" }}',
-					end: '{{ i.end_time|date:"Y-m-d" }}',
-				{% endif %}
-				extendedProps: {description: '{{ i.description }}',},
-
-			},
-			{% endfor %}
-			{% endfor %}
-			{% endif %}
-
-			{% for i in calendar.event_set.all %}
-			{
-				title: "{{ i.title}}",
-				{% if i.event_type == "AA" %}backgroundColor: 'red',
-				{% elif i.event_type == "CE" %}backgroundColor: 'yellow',
-				{% elif i.event_type == "NV" %}backgroundColor: 'gray',
-				{% endif %}
-
-				{% if i.all_day %}allDay: true,{% endif %}
-				{% if i.recurrence %}
-					rrule: '{{ i.recurrence }}',
-					{% if not i.all_day %}duration: '{{ i.start_time|duration:i.end_time }}',{% endif %}
-				{% else %}
-					start: '{{ i.start_time|date:"Y-m-d" }}',
-					end: '{{ i.end_time|date:"Y-m-d" }}',
-				{% endif %}
-				extendedProps: {description: '{{ i.description }}',},
-
-			},
-			{% endfor %}
-			
-		]
+		events: {
+			url: '{% url "cal:caljson" calendar.token %}',
+		    cache: true
+		}
 	});
 
 	calendar.render();
@@ -113,6 +71,7 @@
     <h1 id="modalTitle">Event title</h1>
     <p id="modalTime">Time</p>
     <p id="modalDescription">Description</p>
+    <a id="modalDetail" href="">More information</a>
   </div>
 </div>
 

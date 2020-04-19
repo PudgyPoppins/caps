@@ -7,6 +7,10 @@
 
 <h1>{{ organization.title }}</h1>
 {% if organization.description %}<h3>{{ organization.description }}</h3>{% endif %}
+{% if organization.website %}<p>Website: <a href="{{ organization.website }}">{{ organization.title }}</a></p>{% endif %}
+{% if organization.phone %}<p>Phone: {{ organization.phone }}</p>{% endif %}
+{% if organization.address %}<p>Address: {{ organization.address }}</p>{% endif %}
+{% if organization.email %}<p>Email: <a href="mailto:{{ organization.email }}">{{ organization.email }}</a></p>{% endif %}
 
 <a href="{% url 'orgs:index' %}">back to index view</a>
 <br>
@@ -77,7 +81,7 @@
 {% else %}
 <p>This is a private organization!{% if not user.is_authenticated %} If you believe that you should have access to this organization, make sure that you're <a href="{% url 'login' %}">logged in</a>.{% endif %}</p>
 {% if not has_made_request %}<p><a href="{% url 'orgs:reqorg' organization.slug %}">Request Access</a></p>
-{% else %} <p>Your request to join this organization is pending. If you wish to speed this up, you could contact the organization leader?</p>
+{% else %} <p>Your request to join this organization is pending. {% if organization.email %}If you wish to speed this up, you could <a href="mailto:{{ organization.email }}">contact the organization</a>?{% endif %}</p>
 {% endif %}
 {% endif %}
 

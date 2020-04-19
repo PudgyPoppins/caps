@@ -20,21 +20,21 @@ class CalendarAdminForm(ModelForm):
 		user = self.cleaned_data['user']
 		nonprofit = self.cleaned_data['nonprofit']
 		network = self.cleaned_data['network']
+		organization = self.cleaned_data['organization']
 		try:
 			global_cal = Calendar.objects.get(isGlobal=True) #global was found
 			exclude=('isGlobal',)
 		except:
 			global_cal = None#global not found
-		if not(user or nonprofit or network) and global_cal is not None:#there has to be at least one of these forms
+		if not(user or nonprofit or network or organization) and global_cal is not None:#there has to be at least one of these forms
 			raise ValidationError(_('You must fill out one of these fields (user, nonprofit, or network)'))
-		if user and (nonprofit or network) or nonprofit and (user or network) or network and (user or nonprofit):
+		if user and (nonprofit or network or organization) or nonprofit and (user or network or organization) or network and (user or nonprofit or organization) or organization and (user or nonprofit or network):
 			raise ValidationError(_('Only one of these fields can be filled out (user, nonprofit, network)'))
 
 class EventAdminForm(ModelForm):
 	class Meta:
 		model = Event
 		exclude = ()
-		#labels = {'start_time': _('Start Time'), }
 		widgets = {
 			#'calendar': CheckboxSelectMultiple(), #this ended up being too long
 			'description': forms.Textarea(), #we want that dummy thicc box for entering an entire description
@@ -82,4 +82,15 @@ class EventAdminForm(ModelForm):
 class EventForm(EventAdminForm):
 	def __init__(self, *args, **kwargs):
 		super(EventForm, self).__init__(*args, **kwargs)
-		self.fields['calendar'].widget = forms.HiddenInput()
+		self.fields.pop('calendar')
+		self.fields.pop('token')
+		self.fields.pop('created_by')
+		self.fields.pop('excluded_dates')
+		self.fields.pop('parent')
+		self.fields.pop('verified')
+		self.fields.pop('attendees')
+		self.fields.pop('total_attending')
+
+		limited_choices = [(choice[0], choice[1]) for choice in self.fields['event_type'].choices if choice[0] != "AA"]
+		self.fields['event_type'] = forms.ChoiceField(choices=limited_choices)# make event_type required, and limit the choices in there so Account Anniversary isn't selectable
+		self.fields['event_type'].required = True

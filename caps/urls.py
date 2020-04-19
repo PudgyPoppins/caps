@@ -24,15 +24,8 @@ from django.views.i18n import JavaScriptCatalog
 from django.conf import settings
 from django.views.generic import RedirectView
 
-import cal.views
-router = routers.DefaultRouter()
-router.register(r'events', cal.views.EventViewSet)
-
 urlpatterns = [
 	path('', include('home.urls')),
-
-	path('api/', include(router.urls)),
-	path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
 	path('network/', include('network.urls')),
 	#path('networks/', RedirectView.as_view(url='/network/')), #redirect

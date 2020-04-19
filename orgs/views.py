@@ -120,7 +120,7 @@ class CreateInvitation(LoginRequiredMixin, CreateView):
 			messages.error(request, "You do not have permission to create an invitation here!")
 			return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : org.slug}))
 		if org.public:
-			messages.error(request, "You can't create an invitation to a public organization")
+			messages.error(request, "You can't create an invitation to a public organization!")
 			return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : org.slug}))
 		return super(CreateInvitation, self).dispatch(request, *args, **kwargs)
 
@@ -142,15 +142,19 @@ def delete_invitation(request, token):
 	token = Invitation.objects.filter(token=token, valid=True)
 	if token:
 		token = token[0]
-		if request.user in token.organization.leader() or request.user in token.moderator.leader():
+		if request.user in token.organization.leader.all() or request.user in token.organization.moderator.all():
+			org = token.organization
 			if not token.valid: #insta delete if not valid 
 				token.delete()
+				messages.success(request, "Successfully deleted invitation")
+				return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug': org.slug}))
 			else:
-				if request.method =="POST": 
-					obj.delete()
-					return reverse('orgs:detail', kwargs={'slug' : self.object.organization.slug})
+				if request.method =="POST":
+					token.delete()
+					messages.success(request, "Successfully deleted invitation")
+					return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug': org.slug}))
 		else:
-			messages.error(request, "That invitation link doesn't exist, or you don't have permission to delete it!")
+			messages.error(request, "Thatf invitation link doesn't exist, or you don't have permission to delete it!")
 			return HttpResponseRedirect(reverse('orgs:index'))
 	else:
 		messages.error(request, "That invitation link doesn't exist, or you don't have permission to delete it!")

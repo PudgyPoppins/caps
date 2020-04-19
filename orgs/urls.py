@@ -12,7 +12,7 @@ urlpatterns = [
     path('<slug:slug>/', views.OrgDetailView.as_view(), name='detail'), #shows organizations in more detail
 
     path('<slug:organization>/generate_invite/', views.CreateInvitation.as_view(), name='geninvite'), #generate an invitation
-    path('/token/<token>/delete/', views.delete_invitation, name='delinvite'), #generate an invitation
+    path('token/<token>/delete/', views.delete_invitation, name='delinvite'), #generate an invitation
     path('join/<token>', views.join, name='join'), #join an organization
     path('<slug:organization>/request_access/', views.CreateRequest.as_view(), name='reqorg'), #request to join an organization
     path('<slug:organization>/<token>/approve/', views.approve_request, name='appreq'), #approve request

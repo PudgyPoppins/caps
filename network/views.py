@@ -134,7 +134,7 @@ class DeleteNonView(LoginRequiredMixin, DeleteView):
 	def user_passes_test(self, request):
 		if request.user.is_authenticated:
 			self.object = self.get_object()
-			return (self.object.created_by == request.user or request.user.has_perm('network.delete_nonprofit'))
+			return (self.object.created_by == request.user or request.user.has_perm('network.delete_nonprofit') or request.user in self.object.nonprofit_rep.all())
 		return False
 
 	def dispatch(self, request, *args, **kwargs):

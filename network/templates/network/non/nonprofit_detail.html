@@ -10,7 +10,7 @@
 {% endif %}
 <h3>Coords: {{ nonprofit.lat|floatformat:3 }} {{ nonprofit.lon|floatformat:3 }}</h3>
 
-{% if user.is_authenticated and user.username == nonprofit.created_by.username or perms.network.delete_nonprofit %}
+{% if user.is_authenticated and user.username == nonprofit.created_by.username or user.is_authenticaed and perms.network.delete_nonprofit or user.is_authenticated and user in nonprofit.nonprofit_rep.all %}
 <a href="{% url 'network:deletenon' nonprofit.network.slug nonprofit.slug %}">delete</a>
 {% endif %}
 <a href="{% url 'network:updatenon' nonprofit.network.slug nonprofit.slug %}">update</a>

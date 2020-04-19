@@ -1,0 +1,54 @@
+{% load custom_filters %}
+[
+  {% if calendar.networkcal.all %}
+  {% for noncal in calendar.networkcal.all %}
+  {% for i in noncal.event.all %}
+  {
+    "title": "{{ i.title|escapejs }}",
+    {% if i.event_type == "AA" %}"backgroundColor": "red",
+	{% elif i.event_type == "CE" %}"backgroundColor": "yellow",
+	"textColor": "#000000",
+	{% elif i.event_type == "NV" %}"backgroundColor": "gray",
+	"textColor": "#000000",
+	{% endif %}
+	"allDay": {{ i.all_day|lower }},
+
+    {% if i.rrule %}
+    "rrule": "{{ i.rrule }}",
+    {% if not i.all_day %}"duration": "{{ i.start_time|duration:i.end_time }}",{% endif %}
+
+    {% else %}
+    "start": "{{ i.start_time|date:"Y-m-d" }}T{{ i.start_time|date:"H:m:s" }}",
+    "end": "{{ i.end_time|date:"Y-m-d" }}T{{ i.end_time|date:"H:m:s" }}",
+    {% endif %}
+    "extendedProps": { "description": "{{ i.description|escapejs }}", "token": "{{ i.token }}" }
+  }{% if forloop.counter != noncal.event.count|multiply:calendar.networkcal.count and calendar.event.all %},{% endif %}
+  {% endfor %}
+  {% endfor %}
+  {% endif %}
+
+  {% if calendar.event.all %}
+  {% for i in calendar.event.all %}
+  {
+    "title": "{{ i.title|escapejs }}",
+    {% if i.event_type == "AA" %}"backgroundColor": "red",
+	{% elif i.event_type == "CE" %}"backgroundColor": "yellow",
+	"textColor": "#000000",
+	{% elif i.event_type == "NV" %}"backgroundColor": "gray",
+	"textColor": "#000000",
+	{% endif %}
+	"allDay": {{ i.all_day|lower }},
+
+    {% if i.rrule %}
+    "rrule": "{{ i.rrule }}",
+    {% if not i.all_day %}"duration": "{{ i.start_time|duration:i.end_time }}",{% endif %}
+
+    {% else %}
+    "start": "{{ i.start_time|date:"Y-m-d" }}T{{ i.start_time|date:"H:m:s" }}",
+    "end": "{{ i.end_time|date:"Y-m-d" }}T{{ i.end_time|date:"H:m:s" }}",
+    {% endif %}
+    "extendedProps": { "description": "{{ i.description|escapejs }}", "token": "{{ i.token }}" }
+  }{% if forloop.counter != calendar.event.count  %},{% endif %}
+  {% endfor %}
+  {% endif %}
+]

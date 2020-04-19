@@ -13,12 +13,20 @@ from PIL import Image
 from io import StringIO, BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
+from network.models import Nonprofit
+
 # Create your models here.
 
 class Organization(models.Model):
 	title = models.CharField(max_length=75, help_text="What is the name of this organization?", unique=True, default="")
-	description = models.CharField(max_length=500, help_text="A short description", blank=True, null=True)
+	description = models.CharField(max_length=500, help_text="A short description. This could be a mission statement, or something else.", blank=True, null=True)
 	pub_date = models.DateTimeField('date published', default=timezone.now)
+
+	#Unlike nonprofits, none of these are required
+	website = models.URLField(max_length=200, help_text="If this organization has a website different from here, enter if applicable", null=True, blank=True)
+	phone = models.CharField(max_length=12, help_text="Enter a phone number in the format 111-111-1111, if applicable", null=True, blank=True) #for now, I'm using a charfield but in the future I should use a phonenumber field from a library
+	address = models.CharField(max_length=100, help_text="If this organization has a physical address, enter if applicable", null=True, blank=True)
+	email = models.EmailField(max_length=254, help_text="Enter a relevant email to contact this organization, if applicable", null = True, blank=True)
 
 	src_link = models.URLField(max_length=200, help_text="Enter a url for an image representing the organization", blank=True)	
 	src_file = models.ImageField(upload_to='network_images', help_text = "Submit a file for an image representing the organization", height_field=None, width_field=None, max_length=100, blank=True)
@@ -145,8 +153,11 @@ class TextPost(models.Model): #pretty much a comment / announcement
 	created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True)
 	allows_children = models.BooleanField(default=True) #if you're a nonprofit, you might not want to have comments underneath something
 
+	organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null = True, blank = True)
+	nonprofit = models.ForeignKey(Nonprofit, on_delete=models.CASCADE, null = True, blank = True)
+
 	def __str__(self):
 		if self.title:
 			return format(self.title)
 		else:
-			return format(self.title[:5])#first five chars of message
+			return format(self.message[:5])#first five chars of message
