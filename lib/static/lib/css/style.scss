@@ -35,7 +35,7 @@ head, body{
   padding:0; margin:0;
 }
 h1{font-weight:500;}
-a, a:not(.dropdown-item):visited{
+a, a::visited{
   color:#25D;
   text-decoration: none;
   cursor:pointer;
@@ -44,9 +44,9 @@ a:hover, a:focus{
   color: darken(#25d, 7.5%);
   text-decoration: underline;
 }
-a.dropdown-item:hover, a.dropdown-item:focus{
+/*a.dropdown-item:hover, a.dropdown-item:focus{
   text-decoration: none;
-}
+}*/
 .alt-a, .alt-a:visited{color:#5c5f6f;}
 .alt-a:hover, .alt-a:focus{color:#7f8292;}
 .float-right{float:right;}
@@ -73,7 +73,8 @@ a.dropdown-item:hover, a.dropdown-item:focus{
   text-decoration: none;
   color:black;
 }
-.navLinks{margin-left:auto; padding-right:57.5px;} //47.5 is enough space for the image to go in, + 10 for the padding
+.navLinks{margin-left:auto;}
+.navLinks.loggedin {padding-right:57.5px;} //47.5 is enough space for the image to go in, + 10 for the padding
 .navLinks a{display:block; text-decoration:none; padding:15px 7.5px; border-bottom:2.5px solid transparent;}
 .navLinks a:hover{border-bottom:2.5px solid #25D; background-color:darken(white, 2.5%)}
 .navLinks a.active{background-color:darken(white, 2.5%);}
@@ -135,7 +136,7 @@ a.dropdown-item:hover, a.dropdown-item:focus{
   to {margin-top: 5%; opacity: 1}
 }
 
-.hidden{display:none;}
+/*.hidden{display:none;}
 .dropdown .button{
   font-size:0.8rem;
-}
+}*/

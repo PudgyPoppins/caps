@@ -21,7 +21,7 @@
     "start": "{{ i.start_time|date:"Y-m-d" }}T{{ i.start_time|date:"H:m:s" }}",
     "end": "{{ i.end_time|date:"Y-m-d" }}T{{ i.end_time|date:"H:m:s" }}",
     {% endif %}
-    "extendedProps": { "description": "{{ i.description|escapejs }}", "token": "{{ i.token }}" }
+    "extendedProps": { {% if i.rrule %}"rrule": "true", {% endif %}"description": "{{ i.description|escapejs }}", "token": "{{ i.token }}" }
   }{% if forloop.counter != noncal.event.count|multiply:calendar.networkcal.count and calendar.event.all %},{% endif %}
   {% endfor %}
   {% endfor %}

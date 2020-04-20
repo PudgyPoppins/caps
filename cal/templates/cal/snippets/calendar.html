@@ -13,6 +13,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'cal/timegrid.css' %}">
 
 <script src="{% static 'cal/rrulefullcalendar.js' %}"></script>
+<script src="{% static 'lib/js/moment.js' %}"></script>
 
 {% if type == "user" %}
 <a href="{% url 'cal:addevent' profile.username %}">add an event</a>
@@ -48,8 +49,11 @@
 		  var eventObj = info.event;
 		  modal.style.display = "block";
 		  document.getElementById("modalTitle").innerHTML = eventObj.title;
-		  document.getElementById("modalDescription").innerHTML = eventObj.extendedProps.description;
-		  document.getElementById("modalDetail").setAttribute("href", "{% url 'cal:eventdetail' %}" + eventObj.extendedProps.token);
+		  if(eventObj.extendedProps.description){document.getElementById("modalDescription").innerHTML = eventObj.extendedProps.description;}
+
+		  if(eventObj.extendedProps.rrule){document.getElementById("modalDetail").setAttribute("href", "{% url 'cal:eventdetail' %}" + eventObj.extendedProps.token + "?d=" + moment(eventObj.start).format('YYYY-MM-DD'));}
+
+		  else{document.getElementById("modalDetail").setAttribute("href", "{% url 'cal:eventdetail' %}" + eventObj.extendedProps.token);}
 		  if(! eventObj.allDay){document.getElementById("modalTime").innerHTML = eventObj.start.toLocaleDateString("en-US", dateFormat) + " - " + eventObj.end.toLocaleDateString("en-US", dateFormat);}
 		  else{document.getElementById("modalTime").innerHTML = "This is an all day event.";}
 		},

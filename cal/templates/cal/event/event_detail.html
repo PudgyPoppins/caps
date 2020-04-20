@@ -7,6 +7,8 @@
 <h1>Event {{ event.title }}</h1>
 {% if event.description %}<h3>{{ event.description }}</h3>{% endif %}
 
+{{ d }}
+
 {% if c.user and user.is_authenticated and user == c.user %}
 <a href="{% url 'cal:usercal' c.user.username %}">back to user calendar</a> |
 {% elif c.nonprofit %}

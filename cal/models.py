@@ -1,5 +1,7 @@
 from django.db import models
 
+from django.urls import reverse
+
 import datetime, random, string
 from django.utils import timezone
 import datetime
@@ -89,7 +91,7 @@ class Event(models.Model):
 
 		#Network events: CE, NV
 		#Nonprofit events: CE, NV, VO
-		#User events: CE, NV, NO
+		#User events: CE, NV, VO
 
 	event_type = models.CharField(
 		help_text="What type of event will this be?",
@@ -107,7 +109,38 @@ class Event(models.Model):
 	attendees = models.ManyToManyField(User, blank = True, related_name="attendees")
 	total_attending = models.IntegerField(default="0", validators=[MinValueValidator(0), MaxValueValidator(100)])
 
-	parent = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank = True, related_name="instances") #relates to itself
+	parent = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank = True, related_name="instance") #relates to itself
+
+	@property
+	def cal_type(self):
+		if self.calendar:
+			if self.calendar.nonprofit:
+				return "nonprofit"
+			elif self.calendar.network:
+				return "network"
+			elif self.calendar.organization:
+				return "organization"
+			elif self.calendar.user:
+				return "user"
+		else:
+			return None
+
+	@property
+	def cal_url(self):
+		if self.calendar:
+			if self.calendar.nonprofit:
+				return reverse('network:detailnon', kwargs={'network' : self.calendar.nonprofit.network.slug, 'slug' : self.calendar.nonprofit.slug}) + "#calendar"
+			elif self.calendar.network:
+				return reverse('network:detail', kwargs={'slug' : self.calendar.network.slug}) + "#calendar"
+			elif self.calendar.organization:
+				return reverse('organization:detail', kwargs={'slug' : self.calendar.organization.slug}) + "#calendar"
+			elif self.calendar.user:
+				return reverse('accounts:profile') + "#calendar"
+			else:
+				return reverse('home:main')
+		else:
+			return None
+
 
 	class Meta: 
 		ordering = ['-start_time']

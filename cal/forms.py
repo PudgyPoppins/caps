@@ -94,3 +94,8 @@ class EventForm(EventAdminForm):
 		limited_choices = [(choice[0], choice[1]) for choice in self.fields['event_type'].choices if choice[0] != "AA"]
 		self.fields['event_type'] = forms.ChoiceField(choices=limited_choices)# make event_type required, and limit the choices in there so Account Anniversary isn't selectable
 		self.fields['event_type'].required = True
+class EventFormNetwork(EventForm):
+	def __init__(self, *args, **kwargs):
+		super(EventForm, self).__init__(*args, **kwargs)
+		limited_choices = [(choice[0], choice[1]) for choice in self.fields['event_type'].choices if choice[0] != "AA" and choice[0] != "VO"]
+		self.fields['event_type'] = forms.ChoiceField(choices=limited_choices)# limit choices further

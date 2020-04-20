@@ -5,6 +5,8 @@ from django.views import generic
 from django.utils import timezone
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
+from dateutil.rrule import *
+from datetime import datetime
 
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
@@ -71,33 +73,28 @@ def add_event_org(request, organization): #this is so that the computer doesn't 
 def add_event(request, username=None, nonprofit=None, network=None, organization=None):
 	calendar = Calendar.objects.get(isGlobal=True)
 	calendar_name = "the global calendar"
-	success_url = reverse('home:main')
 	if username:
 		user = get_object_or_404(User, username=username)
 		calendar = Calendar.objects.get(user=user)
 		calendar_name = "your user calendar"
-		success_url = reverse('accounts:get_profile')
 	elif nonprofit and network:
 		network = get_object_or_404(Network, slug=network)
 		nonprofit = get_object_or_404(Nonprofit, slug=nonprofit, network=network)
 		calendar = Calendar.objects.get(nonprofit=nonprofit)
 		calendar_name = "the " + nonprofit.title + " nonprofit calendar"
-		success_url = reverse('network:detailnon', kwargs={'network' : nonprofit.network.slug, 'slug' : nonprofit.slug})
 	elif network:
 		network = get_object_or_404(Network, slug=network)
 		calendar = Calendar.objects.get(network=network)
 		calendar_name = "the " + network.title + " network calendar"
-		success_url = reverse('network:detail', kwargs={'slug' : network.slug})
 	elif organization:
 		organization = get_object_or_404(Organization, slug=organization)
 		calendar = Calendar.objects.get(organization=organization)
 		calendar_name = "the " + organization.title + " organization calendar"
-		success_url = reverse('organization:detail', kwargs={'slug' : organization.slug})
 	else:
 		messages.error(request, "That wasn't a valid url for creating an event")
 		raise Http404("Couldn't find this calendar")
 
-	form = EventForm()
+	form = EventForm() #EventFormNetwork
 	if request.method == "POST":
 			form = EventForm(request.POST)
 			if form.is_valid():
@@ -108,18 +105,28 @@ def add_event(request, username=None, nonprofit=None, network=None, organization
 					event.verified = request.user
 				event.save()
 				messages.success(request, "Successfully added an event to %s!" %(calendar_name))
-				return HttpResponseRedirect(success_url + "#calendar")
+				return HttpResponseRedirect(event.cal_url)
 	return render(request, 'cal/event/event_form.html', {"form" : form, "c": calendar})
 
 def event_detail(request, token):
 	event = Event.objects.filter(token=token)
 	if event:
 		event = event[0]
-
+		if event.rrule:
+			try:
+				d = request.GET['d']
+				date = datetime.datetime.strptime(d, '%Y-%m-%d')
+				rrule = rrulestr(event.rrule.replace('\\n', '\n'))
+				if rrule.after(date, inc = True) != date:
+					return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token})) #if the date's not in the first 50 rrule dates, then just give up
+			except:
+				d = None
+		else:
+			d = None
 	else:
 		messages.error(request, "That event doesn't exist!")
 		return HttpResponseRedirect(reverse('home:main'))
-	return render(request, "cal/event/event_detail.html", {"event": event, 'c': event.calendar})
+	return render(request, "cal/event/event_detail.html", {"event": event, 'c': event.calendar, 'd': d})
 
 @login_required
 def edit_event(request, token):
@@ -137,8 +144,7 @@ def edit_event(request, token):
 						event.verified = request.user
 					event.save()
 					messages.success(request, "Successfully added an event to %s!" %(calendar_name))
-					#MAKE A FUNCTION ON EVENT MODEL THAT RETURNS ITS TYPE, AND ANOTHER ONE THAT RETURNS A SUCCESS URL FOR CREATION / EDIT
-					#USE THAT FUNCTIONALITY ABOVE IN THE ADD_EVENT VIEW
+					return HttpResponseRedirect(event.cal_url)
 		else:
 			messages.error(request, "You don't have permission to edit this event!")
 			return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
