@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Event {{ event.title }}{% endblock %}
+{% block title %}{{ event }}{% endblock %}
 
 {% block content %}
 
-<h1>Event {{ event.title }}</h1>
-{% if event.description %}<h3>{{ event.description }}</h3>{% endif %}
-
-{{ d }}
+<h1>{{ event }}</h1>
+{% if event.description %}<h3>{{ event.description }}</h3>{% elif event.parent.description %}<h3>{{ event.parent.description }}</h3>{% endif %}
 
 {% if c.user and user.is_authenticated and user == c.user %}
 <a href="{% url 'cal:usercal' c.user.username %}">back to user calendar</a> |
@@ -25,6 +23,19 @@
 <a href="{% url 'cal:deleteevent' event.token %}">delete event</a> |
 {% endif %}
 
-<a href="{% url 'cal:signup' event.token %}">sign up for event</a> |
+{% if event.rrule and d or not event.rrule %}
+<a href="{% url 'cal:signup' event.token %}{% if d %}?d={{ d }} {% endif %}">sign up for event</a> |
+{% endif %}
+
+{% if next_repeat and not d %}<p>The next time this event repeats is on <a href="{% url 'cal:eventdetail' event.token %}?d={{ next_repeat }}">{{ next_repeat }}</a>.</p>{% endif %}
+
+{% if not event.rrule and event.attendee.all %}
+<h2>Attendees</h2>
+<ul>
+	{% for a in event.attendee.all %}
+	<li>{{ a }}</li>
+	{% endfor %}
+</ul>
+{% endif %}
 
 {% endblock %}

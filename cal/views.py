@@ -5,6 +5,7 @@ from django.views import generic
 from django.utils import timezone
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
+import pytz
 from dateutil.rrule import *
 from datetime import datetime
 
@@ -18,7 +19,7 @@ from accounts.models import User
 from orgs.models import Organization
 
 from .models import *
-from .forms import EventForm
+from .forms import EventForm, AttendeeForm
 
 def index(request):
 	return HttpResponse("This is where the global calendar would go.")
@@ -36,7 +37,8 @@ def redirect_usercal(request, username):
 
 def orgcal(request, organization):
 	org = get_object_or_404(Organization, slug=organization)
-	if org.public or (request.user.is_authenticated and request.user in org.member.all() or request.user in org.leader.all() or request.user in org.moderator.all()): #the organization is public or the user is a part of the organization
+	if org.public or (request.user.is_authenticated and request.user in org.member.all() or request.user in org.leader.all() or request.user in org.moderator.all()): 
+	#the organization is public or the user is a part of the organization
 		return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : org.slug}) + '#calendar')
 	else: 
 		messages.error(request, "You don't have permission to view this organization's calendar!")
@@ -96,37 +98,55 @@ def add_event(request, username=None, nonprofit=None, network=None, organization
 
 	form = EventForm() #EventFormNetwork
 	if request.method == "POST":
-			form = EventForm(request.POST)
-			if form.is_valid():
-				event = form.save()
-				event.calendar = calendar
-				event.created_by = request.user
-				if calendar.nonprofit and request.user in calendar.nonprofit.nonprofit_reps.all(): #automatically sest valid if the user is a nonprofit rep for that calendar
-					event.verified = request.user
-				event.save()
-				messages.success(request, "Successfully added an event to %s!" %(calendar_name))
-				return HttpResponseRedirect(event.cal_url)
+		form = EventForm(request.POST)
+		if form.is_valid():
+			event = form.save()
+			event.calendar = calendar
+			event.created_by = request.user
+			if calendar.nonprofit and request.user in calendar.nonprofit.nonprofit_reps.all(): #automatically sest valid if the user is a nonprofit rep for that calendar
+				event.verified = request.user
+			event.save()
+			messages.success(request, "Successfully added an event to %s!" %(calendar_name))
+			return HttpResponseRedirect(event.cal_url)
 	return render(request, 'cal/event/event_form.html', {"form" : form, "c": calendar})
 
 def event_detail(request, token):
 	event = Event.objects.filter(token=token)
 	if event:
 		event = event[0]
+		context = {"event": event}
+		if event.calendar:
+			context['c'] = event.calendar
+		elif event.parent.calendar:
+			context['c'] = event.parent.calendar
 		if event.rrule:
+
+			rrule = rrulestr(event.rrule.replace('\\n', '\n'))
+			next_repeat = str(rrule.after(datetime.datetime.now(), inc = True).date())
+			context['next_repeat'] = next_repeat
+
 			try:
-				d = request.GET['d']
+				d, context['d'] = request.GET['d'], request.GET['d']
 				date = datetime.datetime.strptime(d, '%Y-%m-%d')
-				rrule = rrulestr(event.rrule.replace('\\n', '\n'))
+				print(d)
 				if rrule.after(date, inc = True) != date:
-					return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token})) #if the date's not in the first 50 rrule dates, then just give up
+					messages.error(request, "This event does not repeat on this date")
+					return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
+				if len(ExcludedDates.objects.filter(date=date.date())) > 0:
+					try:
+						event = Event.objects.filter(parent=event, start_time__gte=date, start_time__lt=date + datetime.timedelta(days=1))[0]
+						return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
+					except:
+						messages.error(request, "This event does not repeat on this date")
+						return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
 			except:
-				d = None
+				context['d'] = None
 		else:
-			d = None
+			context['d'] = None
 	else:
 		messages.error(request, "That event doesn't exist!")
 		return HttpResponseRedirect(reverse('home:main'))
-	return render(request, "cal/event/event_detail.html", {"event": event, 'c': event.calendar, 'd': d})
+	return render(request, "cal/event/event_detail.html", context)
 
 @login_required
 def edit_event(request, token):
@@ -134,13 +154,15 @@ def edit_event(request, token):
 	if event:
 		event = event[0]
 
-		if (event.created_by and event.created_by == request.user) or (event.calendar.nonprofit and request.user in event.calendar.nonprofit.nonprofit_reps.all()): #user permission to edit cases
+		if (event.created_by and event.created_by == request.user) or (event.calendar.nonprofit and request.user in event.calendar.nonprofit.nonprofit_reps.all()): 
+		#user permission to edit cases
 			form = EventForm(instance = event)
 			if request.method == "POST":
 				form = EventForm(request.POST)
 				if form.is_valid():
 					event = form.save()
-					if calendar.nonprofit and request.user in calendar.nonprofit.nonprofit_reps.all(): #automatically sets valid if the user is a nonprofit rep for that calendar
+					if calendar.nonprofit and request.user in calendar.nonprofit.nonprofit_reps.all(): 
+					#automatically sets valid if the user is a nonprofit rep for that calendar
 						event.verified = request.user
 					event.save()
 					messages.success(request, "Successfully added an event to %s!" %(calendar_name))
@@ -164,6 +186,84 @@ def delete_event(request, token):
 		return HttpResponseRedirect(reverse('home:main'))
 	return render(request, "cal/event/event_update_form.html", {"event": event, 'c': event.calendar})
 
-@login_required
 def event_sign_up(request, token):
-	print("x")
+	event = Event.objects.filter(token=token)
+	if event:
+		event = event[0]
+		if event.rrule: #if it has an rrule, then it needs to be split
+			try:
+				d = request.GET['d']
+				date = datetime.datetime.strptime(d, '%Y-%m-%d')
+				rrule = rrulestr(event.rrule.replace('\\n', '\n'))
+				if rrule.after(date, inc = True) != date:
+					messages.error(request, "This event does not repeat on this date")
+					return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
+				
+				date = pytz.utc.localize(date)
+				#By this point, we've successfully confirmed that this date is valid for this event
+				if len(Event.objects.filter(parent=event, start_time__gte=date, start_time__lte=date + datetime.timedelta(days=1))) >= 1:
+					#This condition is met when the initial event was already split up on this date, so this just finds it again and sets it to that
+					#Maybe the user is using an outdated link for their sign up or is just being cheeky; this makes sure that they don't unnecessarily create a new event
+					event = Event.objects.filter(parent=event, start_time__gte=date, start_time__lt=date + datetime.timedelta(days=1))[0]
+				else:
+					if len(ExcludedDates.objects.filter(date=date.date())) >= 1:
+						ed = ExcludedDates.objects.filter(date=date.date())[0]
+					else:
+						ed = ExcludedDates(date = date.date())
+						ed.save()
+					event.excluded_dates.add(ed)
+					event.save()
+					#^add this date instance as an excluded date
+					event = Event(parent=event)
+					event.start_time = event.parent.start_time.replace(year=date.year, month=date.month, day=date.day)
+					event.save()
+					event.end_time = event.start_time + (event.parent.end_time - event.parent.start_time)
+					event.save()
+					#create a new event with a new start_time and end_time
+			except:
+				messages.error(request, "You must sign up for this event on a specific date")
+				return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
+		#At this point, we either have a split event, or an event that didn't need splitting
+		if (event.sign_up_slots is not None and event.attendee.count() < event.sign_up_slots) or (event.sign_up_slots is None and event.attendee.count() < event.parent.sign_up_slots):
+			#this conditional confirms that there is enough sign up spaces left in the event
+			if request.user.is_authenticated:
+				if len(Attendee.objects.filter(user=request.user, event=event)) >= 1:
+					messages.error(request, "You're already signed up for this event!")
+				else:
+					a = Attendee(user=request.user, event=event)
+					a.save()
+					messages.success(request, "You've successfully signed up for this event!")
+				return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
+				##^This code block is responsible for signing up the user for that event, or giving them an error
+			else:
+				form = AttendeeForm()
+				if request.method == 'POST':
+					form = AttendeeForm(request.POST)
+					if form.is_valid():
+						a = form.save(commit=False)
+						a.event = event
+						a.save()
+						messages.success(request, "You've successfully signed up for this event!")
+						return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
+				return render(request, 'cal/event/sign_up.html', {'form': form, 'event': event})
+
+
+		else:
+			messages.error(request, "This event is already full! No sign up spaces left.")
+			return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
+		#TODO: see if the event has enough spaces left for sign ups, see if the user is logged in, etc
+	else:
+		messages.error(request, "That event doesn't exist!")
+		return HttpResponseRedirect(reverse('home:main'))
+	return HttpResponse('bepis')
+
+
+'''
+* Verify that the event doesn't already have any children. If it does have children, then it's already been split before
+
+
+* if the event is an rrule event, then get d, and add d to ExcludedDates
+* Create a new event, with the parent as the original event, that has no rrule.
+* If the user is logged in, search for an attendee for them, create a new one if it doesn't exist, and then add that attendee to the new event.
+* If the user isn't logged in, give them a simple name form, then sign them up
+'''

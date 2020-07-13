@@ -5,7 +5,7 @@ from django.forms import ModelForm#, CheckboxSelectMultiple
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from .models import Calendar, Event
+from .models import Calendar, Event, Attendee
 
 #The calendar form is ONLY used on the admin site, otherwise calendars are generated automatically
 class CalendarAdminForm(ModelForm):
@@ -99,3 +99,8 @@ class EventFormNetwork(EventForm):
 		super(EventForm, self).__init__(*args, **kwargs)
 		limited_choices = [(choice[0], choice[1]) for choice in self.fields['event_type'].choices if choice[0] != "AA" and choice[0] != "VO"]
 		self.fields['event_type'] = forms.ChoiceField(choices=limited_choices)# limit choices further
+
+class AttendeeForm(ModelForm):
+	class Meta:
+		model = Attendee
+		fields = ['name']

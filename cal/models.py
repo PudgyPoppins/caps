@@ -59,7 +59,7 @@ class Calendar(models.Model):
 		return super(Calendar, self).save(*args, **kwargs)
 
 class ExcludedDates(models.Model):
-	date = models.DateField('excluded date', default=timezone.now)
+	date = models.DateField('excluded date', default=datetime.date.today)
 
 def create_token_event():
 	chars = string.ascii_lowercase+string.ascii_uppercase+string.digits
@@ -76,9 +76,9 @@ class Event(models.Model):
 
 	created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True, related_name="created_by")
 
-	start_time = models.DateTimeField('starting time', default=timezone.now)
-	end_time = models.DateTimeField('ending time', default=timezone.now)
-	all_day = models.BooleanField('all day?', help_text="will this event last the entire day", default=False)
+	start_time = models.DateTimeField('starting time', default=timezone.now, null=True)
+	end_time = models.DateTimeField('ending time', default=timezone.now, null=True)
+	all_day = models.BooleanField('all day?', help_text="will this event last the entire day", default=False, null=True)
 	rrule = models.CharField(help_text="Will this event ever repeat?", null = True, blank = True, max_length=700, validators=[rruleValidator])
 	
 	excluded_dates = models.ManyToManyField(ExcludedDates, blank = True, related_name="excluded")
@@ -106,8 +106,6 @@ class Event(models.Model):
 	calendar = models.ForeignKey(Calendar, on_delete=models.CASCADE, null = True, blank = True, related_name="event")
 
 	sign_up_slots = models.IntegerField(help_text="How many sign up slots are being offered?", null = True, blank = True, validators=[MinValueValidator(1), MaxValueValidator(100)])
-	attendees = models.ManyToManyField(User, blank = True, related_name="attendees")
-	total_attending = models.IntegerField(default="0", validators=[MinValueValidator(0), MaxValueValidator(100)])
 
 	parent = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank = True, related_name="instance") #relates to itself
 
@@ -146,17 +144,22 @@ class Event(models.Model):
 		ordering = ['-start_time']
 
 	def __str__(self):
-		return format(self.title)
+		if (self.title):
+			return format(self.title)
+		elif self.parent and self.parent.title:
+			return format(self.parent.title)
 
 	def save(self, *args, **kwargs):
 		if not self.token:
 			self.token = create_token_event() #set the token on save
 		return super(Event, self).save(*args, **kwargs)
 
-'''class SignUp(models.Model):
-	event = models.ForeignKey(Event, on_delete=models.CASCADE)
-
-	sign_up_slots = models.IntegerField(help_text="What is the maximum number of people that will be at this event?", null = True, blank = True, validators=[MinValueValidator(1), MaxValueValidator(100)])
-	attendees = models.ManyToManyField(User, blank = True, related_name="attendees")
+class Attendee(models.Model):
+	name = models.CharField(max_length=50)
+	user = models.ForeignKey(User, on_delete=models.CASCADE, null = True, blank = True)
+	event = models.ForeignKey(Event, on_delete=models.CASCADE, null = True, related_name="attendee")
 	def __str__(self):
-		return format(self.event + " sign up")'''
+		if self.user:
+			return format(self.user)
+		elif self.name:
+			return format(self.name)
