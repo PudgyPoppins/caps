@@ -1,0 +1,204 @@
+/*The server must be restarted for css changes to take effect*/
+/*All map stuff*/
+/* line 4, static/lib/css/style.scss */
+.marker {
+  background-image: url("/static/lib/css/images/marker.svg");
+  background-size: cover;
+  background-position: center center;
+  width: 33px;
+  height: 42px; }
+
+/* line 12, static/lib/css/style.scss */
+#map {
+  width: 640px;
+  height: 360px; }
+
+/* line 13, static/lib/css/style.scss */
+#id_address {
+  display: none; }
+
+/* line 14, static/lib/css/style.scss */
+.mapboxgl-popup {
+  max-width: 200px; }
+
+/* line 17, static/lib/css/style.scss */
+.mapboxgl-popup-content {
+  text-align: center; }
+
+/*End map stuff*/
+/* line 22, static/lib/css/style.scss */
+* {
+  box-sizing: border-box; }
+
+/* line 24, static/lib/css/style.scss */
+*:not(.flickity-slider):not(.carousel-cell):not(.mapboxgl-marker) {
+  transition: 0.2s ease-in; }
+
+/* line 27, static/lib/css/style.scss */
+h1, h2, h3, h4, h5, h6, p, a, li, ul, ol, input, label {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+  font-weight: 400; }
+
+/* line 33, static/lib/css/style.scss */
+head, body {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0; }
+
+/* line 37, static/lib/css/style.scss */
+h1 {
+  font-weight: 500; }
+
+/* line 38, static/lib/css/style.scss */
+a, a:visited {
+  color: #25D;
+  text-decoration: none;
+  cursor: pointer; }
+
+/* line 43, static/lib/css/style.scss */
+a:hover, a:focus {
+  color: #1d48bc;
+  text-decoration: underline; }
+
+/* line 47, static/lib/css/style.scss */
+.alt-a, .alt-a:visited {
+  color: #5c5f6f; }
+
+/* line 48, static/lib/css/style.scss */
+.alt-a:hover, .alt-a:focus {
+  color: #7f8292; }
+
+/* line 49, static/lib/css/style.scss */
+.float-right {
+  float: right; }
+
+/* line 51, static/lib/css/style.scss */
+.flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-flow: row wrap; }
+
+/* line 58, static/lib/css/style.scss */
+.navbar {
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0;
+  padding: 0 50px;
+  background: white;
+  box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.1);
+  z-index: 5; }
+
+/* line 67, static/lib/css/style.scss */
+.navbar h1, .navbar h1 a, .navbar h1 a:hover, .navbar h1 a:focus {
+  font-size: 25px;
+  padding: 0;
+  margin: 0;
+  text-decoration: none;
+  color: black; }
+
+/* line 73, static/lib/css/style.scss */
+.navLinks {
+  margin-left: auto;
+  padding-right: 57.5px; }
+
+/* line 74, static/lib/css/style.scss */
+.navLinks a {
+  display: block;
+  text-decoration: none;
+  padding: 15px 7.5px;
+  border-bottom: 2.5px solid transparent; }
+
+/* line 75, static/lib/css/style.scss */
+.navLinks a:hover {
+  border-bottom: 2.5px solid #25D;
+  background-color: #f9f9f9; }
+
+/* line 76, static/lib/css/style.scss */
+.navLinks a.active {
+  background-color: #f9f9f9; }
+
+/* line 77, static/lib/css/style.scss */
+#userLink {
+  padding: 5px;
+  position: absolute;
+  right: 50px; }
+
+/* line 81, static/lib/css/style.scss */
+#userLink:hover {
+  background-color: #f2f2f2; }
+
+/* line 82, static/lib/css/style.scss */
+.userIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 100%;
+  vertical-align: middle; }
+
+/* line 89, static/lib/css/style.scss */
+.modal {
+  display: none;
+  /* Hidden by default */
+  position: fixed;
+  /* Stay in place */
+  z-index: 5;
+  /* Sit on top */
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  /* Full width */
+  height: 100%;
+  /* Full height */
+  overflow: auto;
+  /* Enable scroll if needed */
+  background-color: black;
+  /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4);
+  /* Black w/ opacity */ }
+
+/* line 100, static/lib/css/style.scss */
+.modal-content {
+  background-color: white;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  /* Could be more or less, depending on screen size */
+  animation-name: animatetop;
+  animation-duration: 0.4s;
+  -webkit-animation-name: animatetop;
+  -webkit-animation-duration: 0.4s; }
+
+/* The Close Button */
+/* line 113, static/lib/css/style.scss */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold; }
+
+/* line 120, static/lib/css/style.scss */
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer; }
+
+@keyframes animatetop {
+  from {
+    margin-top: -300px;
+    opacity: 0; }
+  to {
+    margin-top: 5%;
+    opacity: 1; } }
+
+@-webkit-keyframes animatetop {
+  from {
+    margin-top: -300px;
+    opacity: 0; }
+  to {
+    margin-top: 5%;
+    opacity: 1; } }
