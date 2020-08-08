@@ -35,8 +35,37 @@ def duration(start_time, end_time):
 
 @register.filter
 def subtract(value, arg):
-    return value - arg
+	return value - arg
 
 @register.filter
 def multiply(value, arg):
-    return value * arg
+	return value * arg
+
+
+@register.filter
+def getLongDate(value):
+	try:
+		long_date = datetime.datetime.strptime(value, '%Y-%m-%d').date()
+		long_date_str = long_date.strftime('%b %-d, %Y')
+		return long_date_str
+	except:
+		return value
+
+@register.filter
+def rruleExdate(value, dates):
+	if len(dates) > 0:
+		if value.find("EXDATE:") != -1: #there already is a valid EXDATE, let's insert this right after it
+			empty = ""
+			for i in range(len(dates)):
+				empty += str(dates[i]) + ","
+			x = value[:value.find("EXDATE:")] + empty + value[value.find("EXDATE:"):]
+		else: #there is no EXDATE, let's create one
+			value += "\\" + "nEXDATE:" #hacky way to add string without newline
+			for i in range(len(dates)):
+				value += str(dates[i])
+				if i != len(dates) - 1:
+					value += ","
+			x = value
+	else:
+		x = value
+	return x

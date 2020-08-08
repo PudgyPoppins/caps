@@ -1,0 +1,19 @@
+{% load custom_filters %}
+"title": "{{ i.s_title|escapejs }}",
+{% if i.s_event_type == "AA" %}"backgroundColor": "red",
+{% elif i.s_event_type == "CE" %}"backgroundColor": "yellow",
+"textColor": "#000000",
+{% elif i.s_event_type == "NV" %}"backgroundColor": "gray",
+"textColor": "#000000",
+{% endif %}
+"allDay": {{ i.s_all_day|lower }},
+
+{% if i.rrule %}
+"rrule": "{{ i.rrule|rruleExdate:i.excluded_dates.all }}",
+{% if not i.all_day %}"duration": "{{ i.start_time|duration:i.end_time }}",{% endif %}
+
+{% else %}
+"start": "{{ i.s_start_time|date:"Y-m-d" }}T{{ i.s_start_time|date:"H:m:s" }}",
+"end": "{{ i.s_end_time|date:"Y-m-d" }}T{{ i.s_end_time|date:"H:m:s" }}",
+{% endif %}
+"extendedProps": { {% if i.rrule %}"rrule": "true", {% endif %}"description": "{{ i.s_description|escapejs }}", "token": "{{ i.token }}" }

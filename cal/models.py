@@ -60,6 +60,8 @@ class Calendar(models.Model):
 
 class ExcludedDates(models.Model):
 	date = models.DateField('excluded date', default=datetime.date.today)
+	def __str__(self):
+		return self.date.strftime('%Y%m%d')
 
 def create_token_event():
 	chars = string.ascii_lowercase+string.ascii_uppercase+string.digits
@@ -110,6 +112,69 @@ class Event(models.Model):
 	parent = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank = True, related_name="instance") #relates to itself
 
 	@property
+	def s_title(self): #the s stands for smart, it automatically does a check so I don't have to
+		if self.title:
+			return self.title
+		elif self.parent:
+			return self.parent.title
+		else:
+			return "uh oh, this shouldn't be read"
+	@property
+	def s_event_type(self):
+		if self.event_type:
+			return self.event_type
+		elif self.parent:
+			return self.parent.event_type
+		else:
+			return "uh oh, this shouldn't be read"
+	@property
+	def s_start_time(self):
+		if self.start_time:
+			return self.start_time
+		elif self.parent:
+			return self.parent.start_time
+		else:
+			return "uh oh, this shouldn't be read"
+	@property
+	def s_end_time(self):
+		if self.end_time:
+			return self.end_time
+		elif self.parent:
+			return self.parent.end_time
+		else:
+			return "uh oh, this shouldn't be read"
+	@property
+	def s_created_by(self):
+		if self.created_by:
+			return self.created_by
+		elif self.parent:
+			return self.parent.created_by
+		else:
+			return "uh oh, this shouldn't be read"
+	@property
+	def s_description(self):
+		if self.description:
+			return self.description
+		elif self.parent and self.parent.description:
+			return self.parent.description
+	@property
+	def s_calendar(self):
+		if self.calendar:
+			return self.calendar
+		elif self.parent:
+			return self.parent.calendar
+		else:
+			return "uh oh, this shouldn't be read"
+	@property
+	def s_all_day(self):
+		if self.all_day is not None:
+			return self.all_day
+		elif self.parent:
+			return self.parent.all_day
+		else:
+			return "uh oh, this shouldn't be read"
+
+	@property
 	def cal_type(self):
 		if self.calendar:
 			if self.calendar.nonprofit:
@@ -144,10 +209,7 @@ class Event(models.Model):
 		ordering = ['-start_time']
 
 	def __str__(self):
-		if (self.title):
-			return format(self.title)
-		elif self.parent and self.parent.title:
-			return format(self.parent.title)
+		return format(self.s_title)
 
 	def save(self, *args, **kwargs):
 		if not self.token:

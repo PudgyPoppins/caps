@@ -25,7 +25,7 @@ with open('SECRET_KEY.text') as f:
 with open('DEBUG.text') as f:
 	DEBUG = f.read().strip() != 'False'
 
-ALLOWED_HOSTS = ['192.168.0.180', 'localhost', '174.52.169.151', 'www.174.52.169.151' ]
+ALLOWED_HOSTS = ['192.168.0.180', 'localhost', '127.0.0.1',  '174.52.169.151', 'www.174.52.169.151' ]
 
 
 # Application definition

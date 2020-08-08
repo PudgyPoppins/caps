@@ -1,11 +1,12 @@
 {% extends "base.html" %}
+{% load custom_filters %}
 
 {% block title %}{{ event }}{% endblock %}
 
 {% block content %}
 
-<h1>{{ event }}</h1>
-{% if event.description %}<h3>{{ event.description }}</h3>{% elif event.parent.description %}<h3>{{ event.parent.description }}</h3>{% endif %}
+<h1>{{ event }} on {% if d %}{{ d|getLongDate }}{% else %}{{ event.start_time|date:"M j, Y" }}{% endif %}</h1>
+<h3>{{ event.s_description }}</h3>
 
 {% if c.user and user.is_authenticated and user == c.user %}
 <a href="{% url 'cal:usercal' c.user.username %}">back to user calendar</a> |

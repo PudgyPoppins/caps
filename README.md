@@ -1,4 +1,5 @@
 # WHENEVER YOU WANT TO START THE VIRTUAL DEV: source ~/.virtualenvs/caps/bin/activate
+# source env/bin/activate
 
 This project doesn't really require a readme (yet), but I'm just keeping this to track progress and see what I need to do...
 
@@ -117,10 +118,8 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 4/18 Delete view for invitations works now. Added some more fields to organizations for contact information. No mapbox stuff for the address, tho. Added this information to the detail view. Added tokens to calendar events, and an ExcludedDates model. Now, events can be found with a unique token rather than a counted pk. Added a detail view for events. Events have a created_by attribute, and now, it's nonprofits that have a nonprofit_reps attribute. Made a total_attending integer field on event model so that non-signed in users can still sign up for events. Made a basic outline for the edit_event view, which still needs split functionality. Now don't allow the event_type 'Account Anniversary' on the EventForm. Fixed a problem where events weren't being added correctly. Added an rrule regex validator that doesn't really work to the model field for that. FINALLY added the JSON view for events, rather than cramming everything into one, unsecure script.
 * 4/19 Pass a date to the event detail view, if it's an rrule event, with "d?=". Also verify that the date is part of the rrule, with a method that's now speedy fast! Added a way to return a success url for an event based on its calendar (model method), and used it on the event detail/update views.
 * 7/12 I'm back. Added some git stuff and settings stuff for security. Made progress on the event sign_up. Altered some models to make things easier. Event sign up is completely done unless something horrible happens. It splits the event (if needed), it adds the excluded date, creates an attendee on the new event, etc. I should probably take a lot of the splitting stuff and getting the new event stuff and add it to a method, because what I plan on doing next is update the delete event view/edit event view to see if the user wants to update ALL of them or just the one. I also need to make sure these events show up / don't show up on the detail view properly.
+* 8/7 I need more motivation :(. Anyways, put the date on the event detail view, made it easier to call model values (like event.title) with a property so I don't have to do a ton of if else statements to detect event children or not, successfully got exclusion dates working in the calendar, successfully got child events to show up in the calendar. Fixed a bug where an existing excluded date wouldn't let any events show up on that date.
 
-
-* Make sure that the new events can be seen on the calendar detail views.
-* Make sure that the old events with the excluded dates exclude their dates.
 
 Time is still busted, dates are being stored in UTC (invitation), but they aren't be converted to local time.
 TIME SOLUTION: Dates AREN'T being stored in UTC, they're being converted to utc by moment (correct so far), then being converted to utc again by the database that thinks it got handed an American/Mountain time. I have to remove the .utc() from the moment time thing, and I have to have a little thing say what the current timezone is. I should also add a timezone field to the User model, I really should.

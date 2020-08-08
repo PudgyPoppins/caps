@@ -65,7 +65,7 @@ def calendar_json(request, token):
 	else:
 		messages.error(request, "That calendar doesn't exist, or you don't have permission to see it!")
 		return HttpResponseRedirect(reverse('home:main'))
-	return render(request, 'cal/cal/calendar_json.json', {"calendar" : calendar})
+	return render(request, 'cal/cal/calendar_json.json', {"calendar" : calendar}, content_type="application/json")
 
 #Event Views
 @login_required
@@ -115,10 +115,7 @@ def event_detail(request, token):
 	if event:
 		event = event[0]
 		context = {"event": event}
-		if event.calendar:
-			context['c'] = event.calendar
-		elif event.parent.calendar:
-			context['c'] = event.parent.calendar
+		context['c'] = event.s_calendar
 		if event.rrule:
 
 			rrule = rrulestr(event.rrule.replace('\\n', '\n'))
@@ -128,11 +125,11 @@ def event_detail(request, token):
 			try:
 				d, context['d'] = request.GET['d'], request.GET['d']
 				date = datetime.datetime.strptime(d, '%Y-%m-%d')
-				print(d)
 				if rrule.after(date, inc = True) != date:
 					messages.error(request, "This event does not repeat on this date")
 					return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
-				if len(ExcludedDates.objects.filter(date=date.date())) > 0:
+				if len(ExcludedDates.objects.filter(date=date.date(), excluded=event)) > 0: #if date.date() in event.excluded_dates.all():
+					print(date.date())
 					try:
 						event = Event.objects.filter(parent=event, start_time__gte=date, start_time__lt=date + datetime.timedelta(days=1))[0]
 						return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
