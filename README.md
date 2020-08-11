@@ -31,17 +31,34 @@ This might come in handy for providing back links: <a href="javascript:history.g
 		* when a user gets their own account reported, they see a warning message in the top of their profile, and their background image in the navbar turns red | https://docs.djangoproject.com/en/3.0/ref/contrib/messages/#expiration-of-messages
 			* how about we send an email instead?
 * ## Calendar
+	* add a way to unsignup for events. Signed in users can only unsign-up themselves (or the nonprofit representative).
+	* email users a day before their event?
+
+	* deletes for recurring:
+		* this event: split the event (new excluded date), then delete it
+		* this and following events:
+			* do a filter search for children events that have a start_time after this event. Delete them
+			* On the recurring event, change the RRULE; either add an UNTIL field with the date at that point, or modify the until (shortening it) to be at that point
+		* all events: search for children, delete them, then delete the parent
+	* updates for recurring:
+		* this event: split the event, then update it
+		* this and following events:
+			* On the recurring event, change the RRULE; either add an UNTIL field with the date at that point, or modify the until (shortening it) to be at that point
+			* Then, create a new recurring event with the same RRULE (save for the changed until value, and the changed dtstart), and apply the updates to it
+			* do a filter search for children events that have a start_time after the original recurring event. For loop through 'em, apply the update, change the parent, then save
+		* all events: search for the children, apply the updates, then update the parent
+
+	* important note: if an event is updated for "this and following events", then somebody goes back and edits "all events", then this just doesn't work.
+		* the fix: modify code to allow parents to have multiple generations of children. We're going to have grandkids. Then, use some sort of recursive method to get all of the children of the original.
+
 	* add a way to filter events shown on the calendar. Validity filtration is a must. Maybe also nonprofit filtration?
 	* make a regex for an RRULE (and for that matter, a user-friendly field for the RRULE)
-	* since I have sign up events, I'll have to somehow adjust the repeating thing, because you could sign up on one week, but the next week, you would be still be signed up which is bad. Or, easy route, sign ups are incompatable with repeating events!
-		* Scratch that! Ok, so, events are created the same way that they usually are. Sign ups are enabled. However, as soon as a user signs up to an event, this causes the event to split from the main, repeating one, and create its own one-time-occurence. 
 
 	* Users can 'subscribe' to network calendars and nonprofit calendars, adding all of these events to their calendar. They can also just add specific events to their cals
 	
 	* In the javascript for the event update/create, I'm going to have to override some things; the calendar will be determined by an html created dropdown that has the values for the other nonprofits in the network, and their own user calendar. When this dropdown value changes, it automatically redirects them to the respective createview/update view of that calendar.
 		* I might not do this, actually
 	* create views and forms
-		* Finish adding sign-ups to Events. Users can sign up (many users can sign up to one calendar event, so like a reverse fk), but you can also sign up without an account, you just leave your name and email.
 	
 	* import events from a google cal | https://fullcalendar.io/docs/v3/google-calendar
 	* rss feeds
@@ -119,7 +136,8 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 4/19 Pass a date to the event detail view, if it's an rrule event, with "d?=". Also verify that the date is part of the rrule, with a method that's now speedy fast! Added a way to return a success url for an event based on its calendar (model method), and used it on the event detail/update views.
 * 7/12 I'm back. Added some git stuff and settings stuff for security. Made progress on the event sign_up. Altered some models to make things easier. Event sign up is completely done unless something horrible happens. It splits the event (if needed), it adds the excluded date, creates an attendee on the new event, etc. I should probably take a lot of the splitting stuff and getting the new event stuff and add it to a method, because what I plan on doing next is update the delete event view/edit event view to see if the user wants to update ALL of them or just the one. I also need to make sure these events show up / don't show up on the detail view properly.
 * 8/7 I need more motivation :(. Anyways, put the date on the event detail view, made it easier to call model values (like event.title) with a property so I don't have to do a ton of if else statements to detect event children or not, successfully got exclusion dates working in the calendar, successfully got child events to show up in the calendar. Fixed a bug where an existing excluded date wouldn't let any events show up on that date.
-8/7 I'm writing this again really just to test if ssh'ing is working. Here's another file change to test signing commits.
+* 8/7 I'm writing this again really just to test if ssh'ing is working. Here's another file change to test signing commits.
+* 8/10 Made some more progress on deleting events. Fixed a bug where "None" descriptions were showing up. Fixed a problem where times weren't showing up correctly in the json file, then identified a new problem that arised from fixing that. Made a pretty hacky script to add times to the EXDATE thing. Got a real good plan down. Modified s_methods (like s_title) to be recursive to allow for multiple generations of events. Confirmed that UNTIL works in RRULE for fullcalendar, but that it has to go before any \nEXDATES's. Made it so that users can't sign up for a past event.
 
 
 Time is still busted, dates are being stored in UTC (invitation), but they aren't be converted to local time.

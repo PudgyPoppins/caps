@@ -6,7 +6,8 @@
 {% block content %}
 
 <h1>{{ event }} on {% if d %}{{ d|getLongDate }}{% else %}{{ event.start_time|date:"M j, Y" }}{% endif %}</h1>
-<h3>{{ event.s_description }}</h3>
+<h3>{% if event.s_description %}{{ event.s_description }}{% endif %}</h3>
+<h3>{{ event.start_time|date:"P" }} to {{ event.end_time|date:"P" }}</h3>
 
 {% if c.user and user.is_authenticated and user == c.user %}
 <a href="{% url 'cal:usercal' c.user.username %}">back to user calendar</a> |
@@ -19,13 +20,13 @@
 <a href="{% url 'cal:networkcal' c.organization.slug %}">back to organization calendar</a> |
 {% endif %}
 
-{% if user.is_authenticated and event.created_by.username == user.username or event.calendar.nonprofit and user.is_authenticated and user in event.calendar.nonprofit.nonprofit_reps.all %}
-<a href="{% url 'cal:editevent' event.token %}">edit event</a> |
-<a href="{% url 'cal:deleteevent' event.token %}">delete event</a> |
+{% if user.is_authenticated and event.s_created_by.username == user.username or event.calendar.nonprofit and user.is_authenticated and user in event.calendar.nonprofit.nonprofit_reps.all %}
+<a href="{% url 'cal:editevent' event.token %}{% if d %}?d={{ d }}{% endif %}">edit event</a> |
+<a href="{% url 'cal:deleteevent' event.token %}{% if d %}?d={{ d }}{% endif %}">delete event</a> |
 {% endif %}
 
 {% if event.rrule and d or not event.rrule %}
-<a href="{% url 'cal:signup' event.token %}{% if d %}?d={{ d }} {% endif %}">sign up for event</a> |
+<a href="{% url 'cal:signup' event.token %}{% if d %}?d={{ d }}{% endif %}">sign up for event</a> |
 {% endif %}
 
 {% if next_repeat and not d %}<p>The next time this event repeats is on <a href="{% url 'cal:eventdetail' event.token %}?d={{ next_repeat }}">{{ next_repeat }}</a>.</p>{% endif %}

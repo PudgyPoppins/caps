@@ -51,9 +51,9 @@
 		  document.getElementById("modalTitle").innerHTML = eventObj.title;
 		  if(eventObj.extendedProps.description){document.getElementById("modalDescription").innerHTML = eventObj.extendedProps.description;}
 
-		  if(eventObj.extendedProps.rrule){document.getElementById("modalDetail").setAttribute("href", "{% url 'cal:eventdetail' %}" + eventObj.extendedProps.token + "?d=" + moment(eventObj.start).format('YYYY-MM-DD'));}
+		  if(eventObj.extendedProps.rrule){document.getElementById("moreInformation").setAttribute("href", "{% url 'cal:eventdetail' %}" + eventObj.extendedProps.token + "?d=" + moment(eventObj.start).format('YYYY-MM-DD'));}
 
-		  else{document.getElementById("modalDetail").setAttribute("href", "{% url 'cal:eventdetail' %}" + eventObj.extendedProps.token);}
+		  else{document.getElementById("moreInformation").setAttribute("href", "{% url 'cal:eventdetail' %}" + eventObj.extendedProps.token);}
 		  if(! eventObj.allDay){document.getElementById("modalTime").innerHTML = eventObj.start.toLocaleDateString("en-US", dateFormat) + " - " + eventObj.end.toLocaleDateString("en-US", dateFormat);}
 		  else{document.getElementById("modalTime").innerHTML = "This is an all day event.";}
 		},
@@ -74,8 +74,8 @@
     <span class="close">&times;</span>
     <h1 id="modalTitle">Event title</h1>
     <p id="modalTime">Time</p>
-    <p id="modalDescription">Description</p>
-    <a id="modalDetail" href="">More information</a>
+    <p id="modalDescription">This event has no description</p>
+    <a id="moreInformation" href="">More information</a>
   </div>
 </div>
 

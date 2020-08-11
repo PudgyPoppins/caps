@@ -116,7 +116,7 @@ class Event(models.Model):
 		if self.title:
 			return self.title
 		elif self.parent:
-			return self.parent.title
+			return self.parent.s_title
 		else:
 			return "uh oh, this shouldn't be read"
 	@property
@@ -124,7 +124,7 @@ class Event(models.Model):
 		if self.event_type:
 			return self.event_type
 		elif self.parent:
-			return self.parent.event_type
+			return self.parent.s_event_type
 		else:
 			return "uh oh, this shouldn't be read"
 	@property
@@ -132,15 +132,23 @@ class Event(models.Model):
 		if self.start_time:
 			return self.start_time
 		elif self.parent:
-			return self.parent.start_time
+			return self.parent.s_start_time
 		else:
 			return "uh oh, this shouldn't be read"
+	@property
+	def s_sign_up_slots(self):
+		if self.sign_up_slots:
+			return self.sign_up_slots
+		elif self.parent:
+			return self.parent.s_sign_up_slots
+		else:
+			return None
 	@property
 	def s_end_time(self):
 		if self.end_time:
 			return self.end_time
 		elif self.parent:
-			return self.parent.end_time
+			return self.parent.s_end_time
 		else:
 			return "uh oh, this shouldn't be read"
 	@property
@@ -148,21 +156,23 @@ class Event(models.Model):
 		if self.created_by:
 			return self.created_by
 		elif self.parent:
-			return self.parent.created_by
+			return self.parent.s_created_by
 		else:
-			return "uh oh, this shouldn't be read"
+			return None
 	@property
 	def s_description(self):
 		if self.description:
 			return self.description
 		elif self.parent and self.parent.description:
-			return self.parent.description
+			return self.parent.s_description
+		else:
+			return None
 	@property
 	def s_calendar(self):
 		if self.calendar:
 			return self.calendar
 		elif self.parent:
-			return self.parent.calendar
+			return self.parent.s_calendar
 		else:
 			return "uh oh, this shouldn't be read"
 	@property
@@ -170,7 +180,7 @@ class Event(models.Model):
 		if self.all_day is not None:
 			return self.all_day
 		elif self.parent:
-			return self.parent.all_day
+			return self.parent.s_all_day
 		else:
 			return "uh oh, this shouldn't be read"
 

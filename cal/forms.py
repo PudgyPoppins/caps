@@ -60,7 +60,6 @@ class EventAdminForm(ModelForm):
 	def clean_sign_up_slots(self):
 		sign_up_slots = self.cleaned_data['sign_up_slots']
 		event_type = self.cleaned_data.get('event_type')
-		print(sign_up_slots)
 		if sign_up_slots and event_type != "VO":
 			raise ValidationError(_('Only events with the type "Volunteering Opportunity" can have sign ups'))
 		return sign_up_slots
@@ -104,3 +103,17 @@ class AttendeeForm(ModelForm):
 	class Meta:
 		model = Attendee
 		fields = ['name']
+
+
+DELETE_CHOICES= [
+	('t', 'This event'),
+	('f', 'This and following events'),
+	('a', 'This and all events'),
+]
+class DeleteEventForm(forms.Form):
+	delete_type= forms.CharField(label='', required=True, widget=forms.RadioSelect(choices=DELETE_CHOICES))
+	def clean_delete_type(self):
+		delete_type = self.cleaned_data['delete_type']
+		if delete_type != "t" and delete_type != "f" and delete_type != "a":
+			raise ValidationError(_("Please stop trying to XSS the site :(. Just reload your browser page."))
+		return delete_type

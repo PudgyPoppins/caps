@@ -19,7 +19,7 @@ from accounts.models import User
 from orgs.models import Organization
 
 from .models import *
-from .forms import EventForm, AttendeeForm
+from .forms import EventForm, AttendeeForm, DeleteEventForm
 
 def index(request):
 	return HttpResponse("This is where the global calendar would go.")
@@ -129,7 +129,6 @@ def event_detail(request, token):
 					messages.error(request, "This event does not repeat on this date")
 					return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
 				if len(ExcludedDates.objects.filter(date=date.date(), excluded=event)) > 0: #if date.date() in event.excluded_dates.all():
-					print(date.date())
 					try:
 						event = Event.objects.filter(parent=event, start_time__gte=date, start_time__lt=date + datetime.timedelta(days=1))[0]
 						return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
@@ -181,7 +180,14 @@ def delete_event(request, token):
 	else:
 		messages.error(request, "That event doesn't exist!")
 		return HttpResponseRedirect(reverse('home:main'))
-	return render(request, "cal/event/event_update_form.html", {"event": event, 'c': event.calendar})
+
+	form = DeleteEventForm()
+	print(form.as_p())
+	if request.method == 'POST':
+		form = DeleteEventForm(request.POST)
+		if form.is_valid():
+			print(form.cleaned_data)
+	return render(request, "cal/event/event_confirm_delete.html", {"event": event, 'c': event.calendar, 'form': form})
 
 def event_sign_up(request, token):
 	event = Event.objects.filter(token=token)
@@ -203,6 +209,7 @@ def event_sign_up(request, token):
 					#Maybe the user is using an outdated link for their sign up or is just being cheeky; this makes sure that they don't unnecessarily create a new event
 					event = Event.objects.filter(parent=event, start_time__gte=date, start_time__lt=date + datetime.timedelta(days=1))[0]
 				else:
+					#if it wasn't split up already, then do that here
 					if len(ExcludedDates.objects.filter(date=date.date())) >= 1:
 						ed = ExcludedDates.objects.filter(date=date.date())[0]
 					else:
@@ -211,28 +218,44 @@ def event_sign_up(request, token):
 					event.excluded_dates.add(ed)
 					event.save()
 					#^add this date instance as an excluded date
-					event = Event(parent=event)
+					event = Event(parent=event) #start overwriting the event to the new one
 					event.start_time = event.parent.start_time.replace(year=date.year, month=date.month, day=date.day)
 					event.save()
 					event.end_time = event.start_time + (event.parent.end_time - event.parent.start_time)
 					event.save()
-					#create a new event with a new start_time and end_time
+					#^create a new event with a new start_time and end_time
 			except:
 				messages.error(request, "You must sign up for this event on a specific date")
 				return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
 		#At this point, we either have a split event, or an event that didn't need splitting
-		if (event.sign_up_slots is not None and event.attendee.count() < event.sign_up_slots) or (event.sign_up_slots is None and event.attendee.count() < event.parent.sign_up_slots):
+		if event.start_time < timezone.now():
+			messages.error(request, "You can't sign up for a past event!")
+			return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
+		if event.s_sign_up_slots is not None and event.attendee.count() < event.s_sign_up_slots:
 			#this conditional confirms that there is enough sign up spaces left in the event
 			if request.user.is_authenticated:
 				if len(Attendee.objects.filter(user=request.user, event=event)) >= 1:
-					messages.error(request, "You're already signed up for this event!")
+					messages.info(request, "You're already signed up for this event!")
+					#^even though they're already signed up personally, let them sign someone else up, like a friend
+					form = AttendeeForm()
+					if request.method == 'POST':
+						form = AttendeeForm(request.POST)
+						if form.is_valid():
+							a = form.save(commit=False)
+							a.event = event
+							a.save()
+							messages.success(request, "You've successfully signed up for this event!")
+							return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
+					return render(request, 'cal/event/sign_up.html', {'form': form, 'event': event})
 				else:
+					#automatically sign them up if they're logged in
 					a = Attendee(user=request.user, event=event)
 					a.save()
 					messages.success(request, "You've successfully signed up for this event!")
 				return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
 				##^This code block is responsible for signing up the user for that event, or giving them an error
 			else:
+				#give 'em the form if they're not signed in
 				form = AttendeeForm()
 				if request.method == 'POST':
 					form = AttendeeForm(request.POST)
@@ -244,11 +267,12 @@ def event_sign_up(request, token):
 						return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
 				return render(request, 'cal/event/sign_up.html', {'form': form, 'event': event})
 
-
+		elif event.s_sign_up_slots is None or event.s_sign_up_slots == 0:
+			messages.error(request, "This event doesn't allow sign up spaces.")
+			return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
 		else:
 			messages.error(request, "This event is already full! No sign up spaces left.")
 			return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
-		#TODO: see if the event has enough spaces left for sign ups, see if the user is logged in, etc
 	else:
 		messages.error(request, "That event doesn't exist!")
 		return HttpResponseRedirect(reverse('home:main'))
