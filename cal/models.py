@@ -71,6 +71,7 @@ def create_token_event():
 		token = ''.join(random.choice(chars) for _ in range(5))
 		token_list = Event.objects.filter(token=token)
 	return token
+
 class Event(models.Model):
 	title = models.CharField(help_text="What is the name of the event?", max_length=75, blank = True, null = True) #null is true because the children can inherit from the parent
 	description = models.CharField(help_text='Describe the event briefly. What type of work will be done?', max_length=1000, blank = True, null = True)
@@ -78,8 +79,11 @@ class Event(models.Model):
 
 	created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True, related_name="created_by")
 
-	start_time = models.DateTimeField('starting time', default=timezone.now, null=True)
-	end_time = models.DateTimeField('ending time', default=timezone.now, null=True)
+	start_date = models.DateField('starting date', default=datetime.date.today)
+	end_date = models.DateField('ending date', default=datetime.date.today)
+	start_time = models.TimeField('starting time', null=True, blank=True)
+	end_time = models.TimeField('ending time', null=True, blank=True)
+
 	all_day = models.BooleanField('all day?', help_text="will this event last the entire day", default=False, null=True)
 	rrule = models.CharField(help_text="Will this event ever repeat?", null = True, blank = True, max_length=700, validators=[rruleValidator])
 	
@@ -134,7 +138,7 @@ class Event(models.Model):
 		elif self.parent:
 			return self.parent.s_start_time
 		else:
-			return "uh oh, this shouldn't be read"
+			return datetime.time()
 	@property
 	def s_sign_up_slots(self):
 		if self.sign_up_slots:
@@ -150,7 +154,7 @@ class Event(models.Model):
 		elif self.parent:
 			return self.parent.s_end_time
 		else:
-			return "uh oh, this shouldn't be read"
+			return datetime.time()
 	@property
 	def s_created_by(self):
 		if self.created_by:
@@ -186,37 +190,44 @@ class Event(models.Model):
 
 	@property
 	def cal_type(self):
-		if self.calendar:
-			if self.calendar.nonprofit:
+		if self.s_calendar:
+			if self.s_calendar.nonprofit:
 				return "nonprofit"
-			elif self.calendar.network:
+			elif self.s_calendar.network:
 				return "network"
-			elif self.calendar.organization:
+			elif self.s_calendar.organization:
 				return "organization"
-			elif self.calendar.user:
+			elif self.s_calendar.user:
 				return "user"
 		else:
 			return None
 
 	@property
 	def cal_url(self):
-		if self.calendar:
-			if self.calendar.nonprofit:
-				return reverse('network:detailnon', kwargs={'network' : self.calendar.nonprofit.network.slug, 'slug' : self.calendar.nonprofit.slug}) + "#calendar"
-			elif self.calendar.network:
-				return reverse('network:detail', kwargs={'slug' : self.calendar.network.slug}) + "#calendar"
-			elif self.calendar.organization:
-				return reverse('organization:detail', kwargs={'slug' : self.calendar.organization.slug}) + "#calendar"
-			elif self.calendar.user:
+		if self.s_calendar:
+			if self.s_calendar.nonprofit:
+				return reverse('network:detailnon', kwargs={'network' : self.s_calendar.nonprofit.network.slug, 'slug' : self.s_calendar.nonprofit.slug}) + "#calendar"
+			elif self.s_calendar.network:
+				return reverse('network:detail', kwargs={'slug' : self.s_calendar.network.slug}) + "#calendar"
+			elif self.s_calendar.organization:
+				return reverse('organization:detail', kwargs={'slug' : self.s_calendar.organization.slug}) + "#calendar"
+			elif self.s_calendar.user:
 				return reverse('accounts:profile') + "#calendar"
 			else:
 				return reverse('home:main')
 		else:
 			return None
 
+	@property
+	def start_datetime(self):
+		return datetime.datetime.combine(self.start_date, self.s_start_time).replace(tzinfo=timezone.get_current_timezone())
+	@property
+	def end_datetime(self):
+		return datetime.datetime.combine(self.end_date, self.s_end_time).replace(tzinfo=timezone.get_current_timezone())
+
 
 	class Meta: 
-		ordering = ['-start_time']
+		ordering = ['-start_date']
 
 	def __str__(self):
 		return format(self.s_title)
@@ -229,6 +240,7 @@ class Event(models.Model):
 class Attendee(models.Model):
 	name = models.CharField(max_length=50)
 	user = models.ForeignKey(User, on_delete=models.CASCADE, null = True, blank = True)
+	email = models.EmailField(max_length=50, blank = True, null=True)
 	event = models.ForeignKey(Event, on_delete=models.CASCADE, null = True, related_name="attendee")
 	def __str__(self):
 		if self.user:

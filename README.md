@@ -138,6 +138,9 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 8/7 I need more motivation :(. Anyways, put the date on the event detail view, made it easier to call model values (like event.title) with a property so I don't have to do a ton of if else statements to detect event children or not, successfully got exclusion dates working in the calendar, successfully got child events to show up in the calendar. Fixed a bug where an existing excluded date wouldn't let any events show up on that date.
 * 8/7 I'm writing this again really just to test if ssh'ing is working. Here's another file change to test signing commits.
 * 8/10 Made some more progress on deleting events. Fixed a bug where "None" descriptions were showing up. Fixed a problem where times weren't showing up correctly in the json file, then identified a new problem that arised from fixing that. Made a pretty hacky script to add times to the EXDATE thing. Got a real good plan down. Modified s_methods (like s_title) to be recursive to allow for multiple generations of events. Confirmed that UNTIL works in RRULE for fullcalendar, but that it has to go before any \nEXDATES's. Made it so that users can't sign up for a past event.
+* 8/11 Added email field to attendee. Made seperate field for start_date and start_time, etc. Fixed everything to use new end_date and start_date stuff, but realized I probably could've gotten away with keeping just start_time. Fixed a problem with the calendar json (stupid commas). Deletion for non-rrule non-related events works. Completed single deletion (deletion_type=t) for all event types.
+
+TODO: deletion_type folllowing (f) and all (a) next. Good luck on following!
 
 
 Time is still busted, dates are being stored in UTC (invitation), but they aren't be converted to local time.

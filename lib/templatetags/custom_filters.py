@@ -61,12 +61,12 @@ def rruleExdate(value, event):
 		if value.find("EXDATE:") != -1: #there already is a valid EXDATE, let's insert this right after it
 			empty = ""
 			for i in range(len(dates)):
-				empty += str(dates[i]) + event.rrule[16:23] + ","
+				empty += str(dates[i]) + "T" + event.s_start_time.strftime("%H%M00") + ","
 			x = value[:value.find("EXDATE:")] + empty + value[value.find("EXDATE:"):]
 		else: #there is no EXDATE, let's create one
 			value += "\\" + "nEXDATE:" #hacky way to add string without newline
 			for i in range(len(dates)):
-				value += str(dates[i]) + event.rrule[16:23]
+				value += str(dates[i]) + "T" + event.s_start_time.strftime("%H%M00")
 				if i != len(dates) - 1:
 					value += ","
 			x = value

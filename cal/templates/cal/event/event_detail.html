@@ -5,9 +5,9 @@
 
 {% block content %}
 
-<h1>{{ event }} on {% if d %}{{ d|getLongDate }}{% else %}{{ event.start_time|date:"M j, Y" }}{% endif %}</h1>
+<h1>{{ event }} on {% if d %}{{ d|getLongDate }}{% else %}{{ event.start_datetime|date:"M j, Y" }}{% endif %}</h1>
 <h3>{% if event.s_description %}{{ event.s_description }}{% endif %}</h3>
-<h3>{{ event.start_time|date:"P" }} to {{ event.end_time|date:"P" }}</h3>
+<h3>{{ event.start_datetime|date:"P" }} to {{ event.end_datetime|date:"P" }}</h3>
 
 {% if c.user and user.is_authenticated and user == c.user %}
 <a href="{% url 'cal:usercal' c.user.username %}">back to user calendar</a> |

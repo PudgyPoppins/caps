@@ -11,7 +11,7 @@
 <a href="{% url 'cal:nonprofitcal' c.nonprofit.network.slug c.nonprofit.slug %}">back to nonprofit calendar</a> |
 <a href="{% url 'cal:networkcal' c.nonprofit.network.slug %}">back to network calendar</a>
 {% elif c.network %}
-<a href="{% url 'cal:orgcal' c.network.slug %}">back to network calendar</a>
+<a href="{% url 'cal:networkcal' c.network.slug %}">back to network calendar</a>
 {% elif c.organization %}
 <a href="{% url 'cal:networkcal' c.organization.slug %}">back to organization calendar</a>
 {% endif %}
@@ -19,12 +19,12 @@
 <p>Are you sure you want to delete the event {{ event }}?</p>
 
 <form method="post">{% csrf_token %}
-	{% if event.parent or event.instance.all %}
+	{% if event.parent or event.instance.all or event.rrule %}
 	<h3>Delete Recurring Event</h3>
 	<p><ul id="id_delete_type">
 		<li><label for="id_delete_type_0"><input type="radio" name="delete_type" value="t" required id="id_delete_type_0" checked>This event</label></li>
-		<li><label for="id_delete_type_1"><input type="radio" name="delete_type" value="f" required id="id_delete_type_0">This and following events</label></li>
-		<li><label for="id_delete_type_2"><input type="radio" name="delete_type" value="a" required id="id_delete_type_1">All events</label></li>
+		<li><label for="id_delete_type_1"><input type="radio" name="delete_type" value="f" required id="id_delete_type_1">This and following events</label></li>
+		<li><label for="id_delete_type_2"><input type="radio" name="delete_type" value="a" required id="id_delete_type_2">All events</label></li>
 	</ul></p>
 	{% endif %}
 	<button type="submit">Delete</button>

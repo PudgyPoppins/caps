@@ -42,18 +42,23 @@ class EventAdminForm(ModelForm):
 	def clean_end_time(self):
 		end_time = self.cleaned_data['end_time']
 		start_time = self.cleaned_data['start_time']
+		end_date = self.cleaned_data.get('end_date')
+		start_date = self.cleaned_data.get('start_date')
 
-		if end_time <= start_time:
+		if end_time and start_time and datetime.datetime.combine(end_date, end_time) <= datetime.datetime.combine(start_date, start_time):
 			raise ValidationError(_('End time must be after start time'))
-		if end_time - start_time < datetime.timedelta(minutes=10): #if the entire event lasts less than 10 minutes
+		if end_time and start_time and datetime.datetime.combine(end_date, end_time) - datetime.datetime.combine(start_date, start_time) < datetime.timedelta(minutes=10): #if the entire event lasts less than 10 minutes
 			raise ValidationError(_('The event must be at least ten minutes long'))
 		return end_time
 	
 	def clean_event_type(self):
 		end_time = self.cleaned_data.get('end_time')
 		start_time = self.cleaned_data.get('start_time')
+		end_date = self.cleaned_data.get('end_date')
+		start_date = self.cleaned_data.get('start_date')
+
 		event_type = self.cleaned_data.get("event_type")
-		if start_time and end_time and end_time - start_time > datetime.timedelta(days=1) and event_type == "VO": #if the entire event lasts more than 1 day, and it's a volunteering event
+		if start_time and end_time and datetime.datetime.combine(end_date, end_time) - datetime.datetime.combine(start_date, start_time) > datetime.timedelta(days=1) and event_type == "VO": #if the entire event lasts more than 1 day, and it's a volunteering event
 			raise ValidationError(_('A volunteering event cannot last for longer than one day'))
 		return event_type
 
@@ -69,11 +74,14 @@ class EventAdminForm(ModelForm):
 		start_time = self.cleaned_data.get('start_time')
 		end_time = self.cleaned_data.get('end_time')
 
-		if str(start_time.time())[0:5] == "00:00" and start_time + datetime.timedelta(days=1) == end_time:#the event meets all the qualifications of an all_day event
+		end_date = self.cleaned_data.get('end_date')
+		start_date = self.cleaned_data.get('start_date')
+
+		if start_time == datetime.time() and end_time == datetime.time() and start_date + datetime.timedelta(days=1) == end_date:#the event meets all the qualifications of an all_day event
 			instance.all_day = True
 		if self.cleaned_data.get('all_day'): #if this is an all day event, set the hour of the start_time to be 00:00, and the end_time to be one day later
-			instance.start_time = start_time.replace(hour=0, minute=0, second=0)
-			instance.end_time = start_time + datetime.timedelta(days=1)
+			instance.start_time, instance.end_time = datetime.time(), datetime.time()
+			instance.end_date = start_date + datetime.timedelta(days=1)
 		if commit:
 			instance.save()
 		return instance
@@ -102,7 +110,7 @@ class EventFormNetwork(EventForm):
 class AttendeeForm(ModelForm):
 	class Meta:
 		model = Attendee
-		fields = ['name']
+		fields = ['name', 'email']
 
 
 DELETE_CHOICES= [
@@ -111,7 +119,7 @@ DELETE_CHOICES= [
 	('a', 'This and all events'),
 ]
 class DeleteEventForm(forms.Form):
-	delete_type= forms.CharField(label='', required=True, widget=forms.RadioSelect(choices=DELETE_CHOICES))
+	delete_type= forms.CharField(label='', widget=forms.RadioSelect(choices=DELETE_CHOICES))
 	def clean_delete_type(self):
 		delete_type = self.cleaned_data['delete_type']
 		if delete_type != "t" and delete_type != "f" and delete_type != "a":

@@ -3,15 +3,15 @@
 	{% if calendar.networkcal.all %}
 	{% for noncal in calendar.networkcal.all %}
 	{% for i in noncal.event.all %}
-	{
-		{% include 'cal/snippets/snippet.json' with i=i %}
-	}{% if forloop.counter != noncal.event.count|multiply:calendar.networkcal.count and calendar.event.all %},{% endif %}
-
 	{% for j in i.instance.all %}
 	{
 		{% include 'cal/snippets/snippet.json' with i=j %}
-	}{% if forloop.counter != noncal.event.count|multiply:calendar.networkcal.count and calendar.event.all %},{% endif %}
+	},
 	{% endfor %}
+
+	{
+		{% include 'cal/snippets/snippet.json' with i=i %}
+	}{% if forloop.counter != noncal.event.count|multiply:calendar.networkcal.count and calendar.event.all %},{% endif %}
 
 	{% endfor %}
 	{% endfor %}
@@ -19,15 +19,16 @@
 
 	{% if calendar.event.all %}
 	{% for i in calendar.event.all %}
-	{
-		{% include 'cal/snippets/snippet.json' with i=i %}
-	}{% if forloop.counter != calendar.event.count  %},{% endif %}
 
 	{% for j in i.instance.all %}
 	{
 		{% include 'cal/snippets/snippet.json' with i=j %}
-	}{% if forloop.counter != noncal.event.count|multiply:calendar.networkcal.count and calendar.event.all %},{% endif %}
+	},
 	{% endfor %}
+
+	{
+		{% include 'cal/snippets/snippet.json' with i=i %}
+	}{% if forloop.counter != calendar.event.count %},{% endif %}
 
 	{% endfor %}
 	{% endif %}

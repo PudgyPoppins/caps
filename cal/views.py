@@ -125,12 +125,12 @@ def event_detail(request, token):
 			try:
 				d, context['d'] = request.GET['d'], request.GET['d']
 				date = datetime.datetime.strptime(d, '%Y-%m-%d')
-				if rrule.after(date, inc = True) != date:
+				if rrule.after(date, inc = True).date() != date.date():
 					messages.error(request, "This event does not repeat on this date")
 					return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
 				if len(ExcludedDates.objects.filter(date=date.date(), excluded=event)) > 0: #if date.date() in event.excluded_dates.all():
 					try:
-						event = Event.objects.filter(parent=event, start_time__gte=date, start_time__lt=date + datetime.timedelta(days=1))[0]
+						event = Event.objects.filter(parent=event, start_date__gte=date, start_date__lt=date + datetime.timedelta(days=1))[0]
 						return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
 					except:
 						messages.error(request, "This event does not repeat on this date")
@@ -143,6 +143,13 @@ def event_detail(request, token):
 		messages.error(request, "That event doesn't exist!")
 		return HttpResponseRedirect(reverse('home:main'))
 	return render(request, "cal/event/event_detail.html", context)
+
+def get_eldest_event(event):
+	#gets the "eldest" event, the original
+	if event.parent:
+		get_eldest_event(event)
+	else:
+		return event
 
 @login_required
 def edit_event(request, token):
@@ -182,11 +189,40 @@ def delete_event(request, token):
 		return HttpResponseRedirect(reverse('home:main'))
 
 	form = DeleteEventForm()
-	print(form.as_p())
 	if request.method == 'POST':
+		cal_url = event.cal_url #save it here before we delete the event
+		if not event.parent and not event.instance.all() and not event.rrule:
+			#Deletion is simple for single-occurence, non-related events
+			event.delete()
+			messages.success(request, "Successfully deleted event")
+			return HttpResponseRedirect(cal_url)
 		form = DeleteEventForm(request.POST)
 		if form.is_valid():
-			print(form.cleaned_data)
+			#at this point, we have a recurring event that we'd like to do something with
+			if form.cleaned_data.get('delete_type'):
+				x = form.cleaned_data.get('delete_type') #one letter variable, easier to work with
+				if x == "t":#delete just this event
+					if event.rrule: #rrule events get "deleted" on certain days by adding an Excluded Date
+						try:
+							date = datetime.datetime.strptime(request.GET['d'], '%Y-%m-%d')
+							if len(ExcludedDates.objects.filter(date=date.date())) >= 1:
+								ed = ExcludedDates.objects.filter(date=date.date())[0]
+							else:
+								ed = ExcludedDates(date = date.date())
+								ed.save()
+							event.excluded_dates.add(ed)
+							event.save()
+							messages.success(request, "Successfully deleted event")
+							return HttpResponseRedirect(event.cal_url)
+						except:
+							messages.error(request, "You must delete this event on a specific date")
+							return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
+					else:
+						event.delete() #no rrule means it already was a single instance, just delete it
+						messages.success(request, "Successfully deleted event")
+						return HttpResponseRedirect(cal_url)
+			else:
+				messages.error(request, "An error occured. Try refreshing your browser?")
 	return render(request, "cal/event/event_confirm_delete.html", {"event": event, 'c': event.calendar, 'form': form})
 
 def event_sign_up(request, token):
@@ -198,16 +234,16 @@ def event_sign_up(request, token):
 				d = request.GET['d']
 				date = datetime.datetime.strptime(d, '%Y-%m-%d')
 				rrule = rrulestr(event.rrule.replace('\\n', '\n'))
-				if rrule.after(date, inc = True) != date:
+				if rrule.after(date, inc = True).date() != date.date():
 					messages.error(request, "This event does not repeat on this date")
 					return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
 				
 				date = pytz.utc.localize(date)
 				#By this point, we've successfully confirmed that this date is valid for this event
-				if len(Event.objects.filter(parent=event, start_time__gte=date, start_time__lte=date + datetime.timedelta(days=1))) >= 1:
+				if len(Event.objects.filter(parent=event, start_date__gte=date, start_date__lte=date + datetime.timedelta(days=1))) >= 1:
 					#This condition is met when the initial event was already split up on this date, so this just finds it again and sets it to that
 					#Maybe the user is using an outdated link for their sign up or is just being cheeky; this makes sure that they don't unnecessarily create a new event
-					event = Event.objects.filter(parent=event, start_time__gte=date, start_time__lt=date + datetime.timedelta(days=1))[0]
+					event = Event.objects.filter(parent=event, start_date__gte=date, start_date__lt=date + datetime.timedelta(days=1))[0]
 				else:
 					#if it wasn't split up already, then do that here
 					if len(ExcludedDates.objects.filter(date=date.date())) >= 1:
@@ -219,16 +255,16 @@ def event_sign_up(request, token):
 					event.save()
 					#^add this date instance as an excluded date
 					event = Event(parent=event) #start overwriting the event to the new one
-					event.start_time = event.parent.start_time.replace(year=date.year, month=date.month, day=date.day)
+					event.start_date = event.parent.start_date.replace(year=date.year, month=date.month, day=date.day)
 					event.save()
-					event.end_time = event.start_time + (event.parent.end_time - event.parent.start_time)
+					event.end_date = event.start_date + (event.parent.end_datetime - event.parent.start_datetime)
 					event.save()
-					#^create a new event with a new start_time and end_time
+					#^create a new event with a new start_date and end_date
 			except:
 				messages.error(request, "You must sign up for this event on a specific date")
 				return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
 		#At this point, we either have a split event, or an event that didn't need splitting
-		if event.start_time < timezone.now():
+		if event.start_datetime < timezone.now():
 			messages.error(request, "You can't sign up for a past event!")
 			return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
 		if event.s_sign_up_slots is not None and event.attendee.count() < event.s_sign_up_slots:
@@ -249,7 +285,7 @@ def event_sign_up(request, token):
 					return render(request, 'cal/event/sign_up.html', {'form': form, 'event': event})
 				else:
 					#automatically sign them up if they're logged in
-					a = Attendee(user=request.user, event=event)
+					a = Attendee(user=request.user, email=request.user.email, event=event)
 					a.save()
 					messages.success(request, "You've successfully signed up for this event!")
 				return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
