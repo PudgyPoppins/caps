@@ -95,8 +95,6 @@ class EventForm(EventAdminForm):
 		self.fields.pop('excluded_dates')
 		self.fields.pop('parent')
 		self.fields.pop('verified')
-		self.fields.pop('attendees')
-		self.fields.pop('total_attending')
 
 		limited_choices = [(choice[0], choice[1]) for choice in self.fields['event_type'].choices if choice[0] != "AA"]
 		self.fields['event_type'] = forms.ChoiceField(choices=limited_choices)# make event_type required, and limit the choices in there so Account Anniversary isn't selectable

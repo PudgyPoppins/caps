@@ -34,12 +34,6 @@ This might come in handy for providing back links: <a href="javascript:history.g
 	* add a way to unsignup for events. Signed in users can only unsign-up themselves (or the nonprofit representative).
 	* email users a day before their event?
 
-	* deletes for recurring:
-		* this event: split the event (new excluded date), then delete it
-		* this and following events:
-			* do a filter search for children events that have a start_time after this event. Delete them
-			* On the recurring event, change the RRULE; either add an UNTIL field with the date at that point, or modify the until (shortening it) to be at that point
-		* all events: search for children, delete them, then delete the parent
 	* updates for recurring:
 		* this event: split the event, then update it
 		* this and following events:
@@ -139,8 +133,7 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 8/7 I'm writing this again really just to test if ssh'ing is working. Here's another file change to test signing commits.
 * 8/10 Made some more progress on deleting events. Fixed a bug where "None" descriptions were showing up. Fixed a problem where times weren't showing up correctly in the json file, then identified a new problem that arised from fixing that. Made a pretty hacky script to add times to the EXDATE thing. Got a real good plan down. Modified s_methods (like s_title) to be recursive to allow for multiple generations of events. Confirmed that UNTIL works in RRULE for fullcalendar, but that it has to go before any \nEXDATES's. Made it so that users can't sign up for a past event.
 * 8/11 Added email field to attendee. Made seperate field for start_date and start_time, etc. Fixed everything to use new end_date and start_date stuff, but realized I probably could've gotten away with keeping just start_time. Fixed a problem with the calendar json (stupid commas). Deletion for non-rrule non-related events works. Completed single deletion (deletion_type=t) for all event types.
-
-TODO: deletion_type folllowing (f) and all (a) next. Good luck on following!
+* 8/12 Deletion_type=a now works! Deletion for all types now works! Added permission check before deleting events.
 
 
 Time is still busted, dates are being stored in UTC (invitation), but they aren't be converted to local time.

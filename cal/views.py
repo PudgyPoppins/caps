@@ -123,8 +123,8 @@ def event_detail(request, token):
 			context['next_repeat'] = next_repeat
 
 			try:
-				d, context['d'] = request.GET['d'], request.GET['d']
-				date = datetime.datetime.strptime(d, '%Y-%m-%d')
+				context['d'] = request.GET['d']
+				date = datetime.datetime.strptime(request.GET['d'], '%Y-%m-%d')
 				if rrule.after(date, inc = True).date() != date.date():
 					messages.error(request, "This event does not repeat on this date")
 					return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
@@ -147,9 +147,18 @@ def event_detail(request, token):
 def get_eldest_event(event):
 	#gets the "eldest" event, the original
 	if event.parent:
-		get_eldest_event(event)
+		get_eldest_event(event.parent)
 	else:
 		return event
+	return get_eldest_event(event.parent)
+def get_all_relatives(event, relatives):
+	#returns all lower relative events (and itself)
+	relatives.append(event)
+	for i in event.instance.all():
+		relatives.append(i)
+		get_all_relatives(i, relatives)
+	relatives = list(set(relatives))
+	return relatives
 
 @login_required
 def edit_event(request, token):
@@ -157,7 +166,7 @@ def edit_event(request, token):
 	if event:
 		event = event[0]
 
-		if (event.created_by and event.created_by == request.user) or (event.calendar.nonprofit and request.user in event.calendar.nonprofit.nonprofit_reps.all()): 
+		if (event.s_created_by and event.s_created_by == request.user) or (event.calendar.nonprofit and request.user in event.calendar.nonprofit.nonprofit_reps.all()): 
 		#user permission to edit cases
 			form = EventForm(instance = event)
 			if request.method == "POST":
@@ -188,6 +197,20 @@ def delete_event(request, token):
 		messages.error(request, "That event doesn't exist!")
 		return HttpResponseRedirect(reverse('home:main'))
 
+	if not((event.s_created_by and event.s_created_by == request.user) or (event.calendar.nonprofit and request.user in event.calendar.nonprofit.nonprofit_reps.all())):
+		messages.error(request, "You do not have permission to delete this event")
+		return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
+
+	if event.rrule and not request.GET.get('d'):
+		messages.error(request, "You must delete this event on a specific date")
+		return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
+	elif event.rrule and request.GET.get('d'):
+		date = datetime.datetime.strptime(request.GET['d'], '%Y-%m-%d').date()
+		rrule = rrulestr(event.rrule.replace('\\n', '\n'))
+		if rrule.after(datetime.datetime.combine(date, event.s_start_time), inc = True).date() != date:
+			messages.error(request, "This event does not repeat on this date")
+			return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
+
 	form = DeleteEventForm()
 	if request.method == 'POST':
 		cal_url = event.cal_url #save it here before we delete the event
@@ -201,7 +224,36 @@ def delete_event(request, token):
 			#at this point, we have a recurring event that we'd like to do something with
 			if form.cleaned_data.get('delete_type'):
 				x = form.cleaned_data.get('delete_type') #one letter variable, easier to work with
-				if x == "t":#delete just this event
+				if x == "a":#delete all events
+					parent = get_eldest_event(event) #get the eldest event to plug into the relative finder
+					relatives_empty = []
+					relatives = get_all_relatives(parent, relatives_empty) #find all of the relatives including and below the parent level (so all of them)
+					for i in relatives:
+						i.delete() #delete them all
+					messages.success(request, "Successfully deleted all events")
+					return HttpResponseRedirect(cal_url)
+
+				elif x == "f":#delete this event and all following ones
+					date = datetime.date(1970, 1, 1)#we have to declare this variable first so it can be overwritten, just pick any date
+					if not event.rrule: #single instance event (that is still related, has a parent)
+						date = event.start_date
+						event = event.parent #set the event to the parent, it's easier to work with this delete_type if it's on the rrule level
+					elif event.rrule: #if the initial event is an rrule, we need to get what day it's at and verify that it works
+						date = datetime.datetime.strptime(request.GET['d'], '%Y-%m-%d').date()
+					#at this point we have an rrule event to work with, and a date
+					rrule = rrulestr(event.rrule.replace('\\n', '\n'))
+					event.rrule = str(rrule.replace(until=date)).replace("\n", "\\n") #change the rrule until to the selected date, effictively "deleting" it.
+					event.save()
+					relatives_empty = []
+					relatives = get_all_relatives(event, relatives_empty)
+					for i in Event.objects.filter(id__in=[i.id for i in relatives], start_date__gte=date):
+						i.delete()
+						# delete all of the children, and the event itself if it starts on the same date
+					messages.success(request, "Successfully deleted event")
+					return HttpResponseRedirect(cal_url)
+
+
+				else:#delete just this event, the default option if something screws up with the delete_type
 					if event.rrule: #rrule events get "deleted" on certain days by adding an Excluded Date
 						try:
 							date = datetime.datetime.strptime(request.GET['d'], '%Y-%m-%d')
@@ -231,8 +283,7 @@ def event_sign_up(request, token):
 		event = event[0]
 		if event.rrule: #if it has an rrule, then it needs to be split
 			try:
-				d = request.GET['d']
-				date = datetime.datetime.strptime(d, '%Y-%m-%d')
+				date = datetime.datetime.strptime(request.GET['d'], '%Y-%m-%d')
 				rrule = rrulestr(event.rrule.replace('\\n', '\n'))
 				if rrule.after(date, inc = True).date() != date.date():
 					messages.error(request, "This event does not repeat on this date")
