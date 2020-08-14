@@ -116,7 +116,7 @@ class Event(models.Model):
 	parent = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank = True, related_name="instance") #relates to itself
 
 	@property
-	def s_title(self): #the s stands for smart, it automatically does a check so I don't have to
+	def s_title(self): #the s stands for search, it automatically does a check so I don't have to
 		if self.title:
 			return self.title
 		elif self.parent:
@@ -178,7 +178,7 @@ class Event(models.Model):
 		elif self.parent:
 			return self.parent.s_calendar
 		else:
-			return "uh oh, this shouldn't be read"
+			return None
 	@property
 	def s_all_day(self):
 		if self.all_day is not None:
@@ -187,6 +187,22 @@ class Event(models.Model):
 			return self.parent.s_all_day
 		else:
 			return "uh oh, this shouldn't be read"
+	@property
+	def s_verified(self):
+		if self.verified is not None:
+			return self.verified
+		elif self.parent:
+			return self.parent.s_verified
+		else:
+			return None
+
+	'''def s_field(self, field):# was a really great way to search through fields without all of these properties, but couldn't be called in templates, and I didn't want to include custom filters on every page :(
+		if getattr(self, field) is not None:
+			return getattr(self, field)
+		elif self.parent:
+			return self.parent.s_field(field)
+		else:
+			return None'''
 
 	@property
 	def cal_type(self):

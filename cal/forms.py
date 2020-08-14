@@ -111,15 +111,15 @@ class AttendeeForm(ModelForm):
 		fields = ['name', 'email']
 
 
-DELETE_CHOICES= [
+CHANGE_CHOICES= [
 	('t', 'This event'),
 	('f', 'This and following events'),
 	('a', 'This and all events'),
 ]
-class DeleteEventForm(forms.Form):
-	delete_type= forms.CharField(label='', widget=forms.RadioSelect(choices=DELETE_CHOICES))
-	def clean_delete_type(self):
-		delete_type = self.cleaned_data['delete_type']
-		if delete_type != "t" and delete_type != "f" and delete_type != "a":
+class RecurringEventForm(forms.Form):
+	change_type= forms.CharField(label='', widget=forms.RadioSelect(choices=CHANGE_CHOICES))
+	def clean_change_type(self):
+		change_type = self.cleaned_data['change_type']
+		if change_type != "t" and change_type != "f" and change_type != "a":
 			raise ValidationError(_("Please stop trying to XSS the site :(. Just reload your browser page."))
-		return delete_type
+		return change_type

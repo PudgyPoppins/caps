@@ -22,9 +22,9 @@
 	{% if event.parent or event.instance.all or event.rrule %}
 	<h3>Delete Recurring Event</h3>
 	<p><ul id="id_delete_type">
-		<li><label for="id_delete_type_0"><input type="radio" name="delete_type" value="t" required id="id_delete_type_0" checked>This event</label></li>
-		<li><label for="id_delete_type_1"><input type="radio" name="delete_type" value="f" required id="id_delete_type_1">This and following events</label></li>
-		<li><label for="id_delete_type_2"><input type="radio" name="delete_type" value="a" required id="id_delete_type_2">All events</label></li>
+		<li><label for="id_change_type_0"><input type="radio" name="change_type" value="t" required id="id_change_type_0" checked>This event</label></li>
+		<li><label for="id_change_type_1"><input type="radio" name="change_type" value="f" required id="id_change_type_1">This and following events</label></li>
+		<li><label for="id_change_type_2"><input type="radio" name="change_type" value="a" required id="id_change_type_2">All events</label></li>
 	</ul></p>
 	{% endif %}
 	<button type="submit">Delete</button>

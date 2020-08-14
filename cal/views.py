@@ -13,13 +13,15 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
+from django.forms.models import model_to_dict
+
 # Create your views here.
 from network.models import Network, Nonprofit
 from accounts.models import User
 from orgs.models import Organization
 
 from .models import *
-from .forms import EventForm, AttendeeForm, DeleteEventForm
+from .forms import EventForm, AttendeeForm, RecurringEventForm
 
 def index(request):
 	return HttpResponse("This is where the global calendar would go.")
@@ -160,33 +162,117 @@ def get_all_relatives(event, relatives):
 	relatives = list(set(relatives))
 	return relatives
 
+
 @login_required
 def edit_event(request, token):
 	event = Event.objects.filter(token=token)
 	if event:
 		event = event[0]
+		data = model_to_dict(event)
+		calendar = event.s_calendar
 
-		if (event.s_created_by and event.s_created_by == request.user) or (event.calendar.nonprofit and request.user in event.calendar.nonprofit.nonprofit_reps.all()): 
-		#user permission to edit cases
-			form = EventForm(instance = event)
-			if request.method == "POST":
-				form = EventForm(request.POST)
-				if form.is_valid():
+		if not((event.s_created_by and event.s_created_by == request.user) or (event.calendar.nonprofit and request.user in event.calendar.nonprofit.nonprofit_reps.all())):
+			#user permission to edit cases
+			messages.error(request, "You don't have permission to edit this event!")
+			return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
+
+		if event.rrule and not request.GET.get('d'):
+			messages.error(request, "You must delete this event on a specific date")
+			return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
+		elif event.rrule and request.GET.get('d'):
+			date = datetime.datetime.strptime(request.GET['d'], '%Y-%m-%d').date()
+			rrule = rrulestr(event.rrule.replace('\\n', '\n'))
+			if rrule.after(datetime.datetime.combine(date, event.s_start_time), inc = True).date() != date:
+				messages.error(request, "This event does not repeat on this date")
+				return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
+		
+		form = EventForm(instance = event, initial=data)
+		recurrence_form = RecurringEventForm()
+		if request.method == "POST":
+
+			black_list = ['created_by', 'verified', 'calendar', 'parent', 'excluded_dates'] #this data can't be set via a dictionary
+			old_event_data = {key : val for key ,val in model_to_dict(event).items() if key not in black_list}#backup the old data
+			restore_event = Event(created_by=event.created_by, verified=event.verified, calendar=event.calendar, parent=event.parent, **old_event_data)
+			restore_event.excluded_dates.set(event.excluded_dates.all())
+			#^create a restore_event to set the event back to after form.is_valid() messes it up
+
+			form = EventForm(request.POST, instance=event, initial=data)
+
+			if form.is_valid() and form.has_changed():
+				event = restore_event
+				if not event.parent and not event.instance.all() and not event.rrule:
+					#Updating is simple for single-occurence, non-related events
 					event = form.save()
 					if calendar.nonprofit and request.user in calendar.nonprofit.nonprofit_reps.all(): 
 					#automatically sets valid if the user is a nonprofit rep for that calendar
 						event.verified = request.user
-					event.save()
-					messages.success(request, "Successfully added an event to %s!" %(calendar_name))
+						event.save()
+					messages.success(request, "Successfully update %s!" %(event.s_title))
 					return HttpResponseRedirect(event.cal_url)
-		else:
-			messages.error(request, "You don't have permission to edit this event!")
-			return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
+				recurrence_form = RecurringEventForm(request.POST)
+				if recurrence_form.is_valid():
+					#at this point, we have a recurring event that we'd like to do something with
+					if recurrence_form.cleaned_data.get('change_type'):
+						x = recurrence_form.cleaned_data.get('change_type') #one letter variable, easier to work with
+						if x == "a":#update all events
+							parent = get_eldest_event(event) #get the eldest event to plug into the relative finder
+							for change in form.changed_data: #loop through the changed fields, and set the parent to them
+								if change not in ['start_date', 'end_date']: #a recurring event where all of them start on the same date would be shit
+									setattr(parent, change, form.cleaned_data.get(change))
+							if calendar.nonprofit and request.user in calendar.nonprofit.nonprofit_reps.all(): #verify parent if possible
+								parent.verified = request.user
+							parent.save()
+							relatives_empty = []
+							relatives = get_all_relatives(parent, relatives_empty) #find all of the relatives including and below the parent level (so all of them)
+							relatives.remove(parent) #remove the parent from this list
+							for i in relatives:
+								for change in form.changed_data:
+									if change not in ['start_date', 'end_date']:
+										setattr(i, change, None)#set all of the changed fields to None, so the children inherit from the parent
+										i.save()	
+							messages.success(request, "Successfully updated all events")
+							return HttpResponseRedirect(parent.cal_url)
+
+						elif x == "f": #update this event and all following ones
+							print("TODO")
+
+						else: #update just this event
+							if event.rrule: #rrule events have to be split
+								try:
+									date = datetime.datetime.strptime(request.GET['d'], '%Y-%m-%d')
+									if len(ExcludedDates.objects.filter(date=date.date())) >= 1:
+										ed = ExcludedDates.objects.filter(date=date.date())[0]
+									else:
+										ed = ExcludedDates(date = date.date())
+										ed.save()
+									event.excluded_dates.add(ed)
+									event.save() #^add a new excluded date to the event, to make room for the new one
+
+									event = Event(parent=event) #start overwriting the event to the new one
+									event.start_date = event.parent.start_date.replace(year=date.year, month=date.month, day=date.day)
+									event.end_date = event.start_date + (event.parent.end_datetime - event.parent.start_datetime)
+									event.save()
+								except:
+									messages.error(request, "You must update this event on a specific date")
+									return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
+							
+							for change in form.changed_data: #loop through the changed fields, and set the event to them
+								setattr(event, change, form.cleaned_data.get(change))
+							event.save()
+
+							messages.success(request, "Successfully updated event")
+							return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token})) 
+							#send the user back to the specific event they just changed
+					else:
+						messages.error(request, "An error occured. Try refreshing your browser?")
+			else:
+				messages.error(request, "Your event couldn't be updated. Did you make sure that you changed the field you were looking to update?")
+
 
 	else:
 		messages.error(request, "That event doesn't exist!")
 		return HttpResponseRedirect(reverse('home:main'))
-	return render(request, "cal/event/event_update_form.html", {"form" : form, "event": event, 'c': event.calendar})
+	return render(request, "cal/event/event_update_form.html", {"form" : form, "event": event, 'c': event.s_calendar})
 
 @login_required
 def delete_event(request, token):
@@ -211,7 +297,7 @@ def delete_event(request, token):
 			messages.error(request, "This event does not repeat on this date")
 			return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
 
-	form = DeleteEventForm()
+	form = RecurringEventForm()
 	if request.method == 'POST':
 		cal_url = event.cal_url #save it here before we delete the event
 		if not event.parent and not event.instance.all() and not event.rrule:
@@ -219,11 +305,11 @@ def delete_event(request, token):
 			event.delete()
 			messages.success(request, "Successfully deleted event")
 			return HttpResponseRedirect(cal_url)
-		form = DeleteEventForm(request.POST)
+		form = RecurringEventForm(request.POST)
 		if form.is_valid():
 			#at this point, we have a recurring event that we'd like to do something with
-			if form.cleaned_data.get('delete_type'):
-				x = form.cleaned_data.get('delete_type') #one letter variable, easier to work with
+			if form.cleaned_data.get('change_type'):
+				x = form.cleaned_data.get('change_type') #one letter variable, easier to work with
 				if x == "a":#delete all events
 					parent = get_eldest_event(event) #get the eldest event to plug into the relative finder
 					relatives_empty = []
@@ -237,7 +323,7 @@ def delete_event(request, token):
 					date = datetime.date(1970, 1, 1)#we have to declare this variable first so it can be overwritten, just pick any date
 					if not event.rrule: #single instance event (that is still related, has a parent)
 						date = event.start_date
-						event = event.parent #set the event to the parent, it's easier to work with this delete_type if it's on the rrule level
+						event = event.parent #set the event to the parent, it's easier to work with this change_type if it's on the rrule level
 					elif event.rrule: #if the initial event is an rrule, we need to get what day it's at and verify that it works
 						date = datetime.datetime.strptime(request.GET['d'], '%Y-%m-%d').date()
 					#at this point we have an rrule event to work with, and a date
@@ -253,7 +339,7 @@ def delete_event(request, token):
 					return HttpResponseRedirect(cal_url)
 
 
-				else:#delete just this event, the default option if something screws up with the delete_type
+				else:#delete just this event, the default option if something screws up with the change_type
 					if event.rrule: #rrule events get "deleted" on certain days by adding an Excluded Date
 						try:
 							date = datetime.datetime.strptime(request.GET['d'], '%Y-%m-%d')
@@ -307,7 +393,6 @@ def event_sign_up(request, token):
 					#^add this date instance as an excluded date
 					event = Event(parent=event) #start overwriting the event to the new one
 					event.start_date = event.parent.start_date.replace(year=date.year, month=date.month, day=date.day)
-					event.save()
 					event.end_date = event.start_date + (event.parent.end_datetime - event.parent.start_datetime)
 					event.save()
 					#^create a new event with a new start_date and end_date

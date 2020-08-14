@@ -40,7 +40,9 @@ This might come in handy for providing back links: <a href="javascript:history.g
 			* On the recurring event, change the RRULE; either add an UNTIL field with the date at that point, or modify the until (shortening it) to be at that point
 			* Then, create a new recurring event with the same RRULE (save for the changed until value, and the changed dtstart), and apply the updates to it
 			* do a filter search for children events that have a start_time after the original recurring event. For loop through 'em, apply the update, change the parent, then save
-		* all events: search for the children, apply the updates, then update the parent
+		* all events: 
+			* apply the updates to the eldest event
+			* search through all of the child events, and set all of the s_* field values as None, it'll inherit them from the eldest event!
 
 	* important note: if an event is updated for "this and following events", then somebody goes back and edits "all events", then this just doesn't work.
 		* the fix: modify code to allow parents to have multiple generations of children. We're going to have grandkids. Then, use some sort of recursive method to get all of the children of the original.
@@ -134,6 +136,13 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 8/10 Made some more progress on deleting events. Fixed a bug where "None" descriptions were showing up. Fixed a problem where times weren't showing up correctly in the json file, then identified a new problem that arised from fixing that. Made a pretty hacky script to add times to the EXDATE thing. Got a real good plan down. Modified s_methods (like s_title) to be recursive to allow for multiple generations of events. Confirmed that UNTIL works in RRULE for fullcalendar, but that it has to go before any \nEXDATES's. Made it so that users can't sign up for a past event.
 * 8/11 Added email field to attendee. Made seperate field for start_date and start_time, etc. Fixed everything to use new end_date and start_date stuff, but realized I probably could've gotten away with keeping just start_time. Fixed a problem with the calendar json (stupid commas). Deletion for non-rrule non-related events works. Completed single deletion (deletion_type=t) for all event types.
 * 8/12 Deletion_type=a now works! Deletion for all types now works! Added permission check before deleting events.
+* 8/13 update type a now works! Got really close on update type t, but ran into this big error. I managed to boil it down to the fact that running form.is_valid updates the connected event instance, which is not what I want when updating the child of an rrule, but confirming that the form is valid. Currently, this stops me from adding the excluded date, and then saving that part. Through sheer force of will I have, however, completely surpassed this issue using an incredibly hacky dictionary solution. update type t now works.
+
+TODO: 
+	* event update view (get deletion type in forms, too, somehow)
+	* event create view
+		* better rrule regex
+		* rrule selector
 
 
 Time is still busted, dates are being stored in UTC (invitation), but they aren't be converted to local time.
