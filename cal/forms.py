@@ -101,9 +101,18 @@ class EventForm(EventAdminForm):
 		self.fields['event_type'].required = True
 class EventFormNetwork(EventForm):
 	def __init__(self, *args, **kwargs):
-		super(EventForm, self).__init__(*args, **kwargs)
+		super(EventFormNetwork, self).__init__(*args, **kwargs)
 		limited_choices = [(choice[0], choice[1]) for choice in self.fields['event_type'].choices if choice[0] != "AA" and choice[0] != "VO"]
 		self.fields['event_type'] = forms.ChoiceField(choices=limited_choices)# limit choices further
+
+class EventFormUpdate(EventForm):
+	def __init__(self, *args, **kwargs):
+		super(EventFormUpdate, self).__init__(*args, **kwargs)
+		self.fields['event_type'].required = False
+class EventFormNetworkUpdate(EventFormNetwork):
+	def __init__(self, *args, **kwargs):
+		super(EventFormNetworkUpdate, self).__init__(*args, **kwargs)
+		self.fields['event_type'].required = False
 
 class AttendeeForm(ModelForm):
 	class Meta:

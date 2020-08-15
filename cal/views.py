@@ -21,7 +21,7 @@ from accounts.models import User
 from orgs.models import Organization
 
 from .models import *
-from .forms import EventForm, AttendeeForm, RecurringEventForm
+from .forms import EventForm, EventFormUpdate, EventFormNetwork, EventFormNetworkUpdate, AttendeeForm, RecurringEventForm
 
 def index(request):
 	return HttpResponse("This is where the global calendar would go.")
@@ -98,9 +98,16 @@ def add_event(request, username=None, nonprofit=None, network=None, organization
 		messages.error(request, "That wasn't a valid url for creating an event")
 		raise Http404("Couldn't find this calendar")
 
-	form = EventForm() #EventFormNetwork
+	form = None #now it's global-er
+	if network and not nonprofit:
+		form = EventFormNetwork()
+	else:
+		form = EventForm()
 	if request.method == "POST":
-		form = EventForm(request.POST)
+		if network and not nonprofit:
+			form = EventFormNetwork(request.POST)
+		else:
+			form = EventForm(request.POST)
 		if form.is_valid():
 			event = form.save()
 			event.calendar = calendar
@@ -162,6 +169,34 @@ def get_all_relatives(event, relatives):
 	relatives = list(set(relatives))
 	return relatives
 
+def get_latest_until(event):
+	eldest = get_eldest_event(event)
+	relatives_empty = []
+	relatives = get_all_relatives(eldest, relatives_empty)
+	return_value = datetime.datetime(1, 1, 1)
+	for i in relatives:
+		if i.rrule:
+			rrule = rrulestr(i.rrule.replace('\\n', '\n'))
+			if rrule._until and rrule._until > return_value:
+				return_value = rrule._until
+	return return_value
+
+def exclude_event_on_date(event, date):
+	if isinstance(date, datetime.datetime):
+		if len(ExcludedDates.objects.filter(date=date.date())) >= 1:
+			ed = ExcludedDates.objects.filter(date=date.date())[0]
+		else:
+			ed = ExcludedDates(date = date.date())
+			ed.save()
+	else:
+		if len(ExcludedDates.objects.filter(date=date)) >= 1:
+			ed = ExcludedDates.objects.filter(date=date)[0]
+		else:
+			ed = ExcludedDates(date = date)
+			ed.save()
+	event.excluded_dates.add(ed)
+	event.save()
+
 
 @login_required
 def edit_event(request, token):
@@ -186,17 +221,24 @@ def edit_event(request, token):
 				messages.error(request, "This event does not repeat on this date")
 				return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
 		
-		form = EventForm(instance = event, initial=data)
+		form = None #now it's global-er
+		if calendar.network and not calendar.nonprofit:
+			form = EventFormNetworkUpdate(instance = event, initial=data)
+		else:
+			form = EventFormUpdate(instance = event, initial=data)
 		recurrence_form = RecurringEventForm()
 		if request.method == "POST":
 
-			black_list = ['created_by', 'verified', 'calendar', 'parent', 'excluded_dates'] #this data can't be set via a dictionary
-			old_event_data = {key : val for key ,val in model_to_dict(event).items() if key not in black_list}#backup the old data
+			block_list = ['created_by', 'verified', 'calendar', 'parent', 'excluded_dates'] #this data can't be set via a dictionary
+			old_event_data = {key : val for key ,val in model_to_dict(event).items() if key not in block_list}#backup the old data
 			restore_event = Event(created_by=event.created_by, verified=event.verified, calendar=event.calendar, parent=event.parent, **old_event_data)
 			restore_event.excluded_dates.set(event.excluded_dates.all())
 			#^create a restore_event to set the event back to after form.is_valid() messes it up
 
-			form = EventForm(request.POST, instance=event, initial=data)
+			if calendar.network and not calendar.nonprofit:
+				form = EventFormNetworkUpdate(request.POST, instance = event, initial=data)
+			else:
+				form = EventFormUpdate(request.POST, instance = event, initial=data)
 
 			if form.is_valid() and form.has_changed():
 				event = restore_event
@@ -234,27 +276,102 @@ def edit_event(request, token):
 							return HttpResponseRedirect(parent.cal_url)
 
 						elif x == "f": #update this event and all following ones
-							print("TODO")
+							date = datetime.date(1970, 1, 1)#we have to declare this variable first so it can be overwritten, just pick any date
+							original_has_until = False
+							original_has_attendees = False
+							attendees = []
+
+							if not event.rrule: #single instance event (that is still related, has a parent)
+								date = event.start_date
+								if event.attendee.all():
+									original_has_attendees = True
+									attendees += event.attendee.all()
+									#save the attendees for later
+								event_to_delete = event
+								event = event.parent #set the event to the parent, it's easier to work with this change_type if it's on the rrule level
+								event_to_delete.delete()#delete the current event, we'll replace it with an rrule event
+							elif event.rrule: #if the initial event is an rrule, we need to get what day it's at and verify that it works
+								date = datetime.datetime.strptime(request.GET['d'], '%Y-%m-%d').date()
+							rrule = rrulestr(event.rrule.replace('\\n', '\n'))
+							if rrule._until:
+								original_has_until = True #if it does have an until, then we need to find the furthest in the future until for later
+								latest_until = get_latest_until(event)
+							event.rrule = str(rrule.replace(until=date)).replace("\n", "\\n") #change the rrule until to the selected date, to make room for the new event
+							if calendar.nonprofit and request.user in calendar.nonprofit.nonprofit_reps.all(): #verify event if possible
+								event.verified = request.user
+							event.save()
+							relatives_empty = []
+							relatives = get_all_relatives(event, relatives_empty) #do this up here so as not to include the new event in the search
+							relatives.remove(event) #remove the event from this list
+
+							new_event = Event(parent=event)#create a new event, this is the split part
+							new_event.start_date = event.start_date.replace(year=date.year, month=date.month, day=date.day) #set the new start_date
+							new_event.end_date = new_event.start_date + (event.end_datetime - event.start_datetime) #set the new end_date
+							for change in form.changed_data: #loop through the changed fields, and set the new_event to them
+								if change not in ['start_date', 'end_date']:#we don't really have a way to update these ones
+									setattr(new_event, change, form.cleaned_data.get(change))
+							if original_has_until:
+								rrule = rrule.replace(until=latest_until) 
+								#set the new rrule until to be the latest one, since this edits all events in the future, it will naturally have the latest until
+							new_event.rrule = str(rrule.replace(dtstart=datetime.datetime.combine(date, event.s_start_time))).replace("\n", "\\n") 
+							#set the new rrule to the old one, with a changed dtstart
+							new_event.save()
+
+							excluded_dates_set = []
+							for i in Event.objects.filter(id__in=[i.id for i in relatives], start_date__gt=date):
+								#go through the future children, and either delete unecessary rrules, or reset the changed fields and change the parent
+								if i.rrule:
+									for j in i.instance.all():
+										j.parent = new_event
+										j.save() #set all of the children to the new, updated event
+									excluded_dates_set += i.excluded_dates.all()
+									i.delete() #delete all rrules events that happen beyond this date
+								else:
+									i.parent = new_event
+									i.save()
+									for change in form.changed_data:
+										if change not in ['start_date', 'end_date']:
+											setattr(i, change, None)#set all of the changed fields to None, so the children inherit from the parent
+											i.save()
+
+							for i in event.excluded_dates.all():
+								#loop through the excluded dates and give them to the new event if applicable
+								if i.date > date:
+									event.excluded_dates.remove(i)
+									event.save()
+									new_event.excluded_dates.add(i)
+									new_event.save()
+							for i in excluded_dates_set:
+								#loop through the second set of excluded dates to catch all of the rrule events
+								if i.date > date:
+									new_event.excluded_dates.add(i)
+									new_event.save()
+
+							if original_has_attendees:
+								#split the event, create a new one, 
+								exclude_event_on_date(new_event, date)
+								new_event = Event(parent=new_event, start_date=new_event.start_date, end_date = new_event.end_date)
+								new_event.save()
+								for i in attendees:
+									i.event = new_event #set the event to the new one
+									i.save()
+								new_event.attendee.set(attendees)
+								new_event.save()
+								#override new_event variable with an even newer event, this time with attendees
+
+							messages.success(request, "Successfully updated this and following events")
+							return HttpResponseRedirect(new_event.cal_url)
+
 
 						else: #update just this event
 							if event.rrule: #rrule events have to be split
-								try:
-									date = datetime.datetime.strptime(request.GET['d'], '%Y-%m-%d')
-									if len(ExcludedDates.objects.filter(date=date.date())) >= 1:
-										ed = ExcludedDates.objects.filter(date=date.date())[0]
-									else:
-										ed = ExcludedDates(date = date.date())
-										ed.save()
-									event.excluded_dates.add(ed)
-									event.save() #^add a new excluded date to the event, to make room for the new one
+								date = datetime.datetime.strptime(request.GET['d'], '%Y-%m-%d')
+								exclude_event_on_date(event, date)
 
-									event = Event(parent=event) #start overwriting the event to the new one
-									event.start_date = event.parent.start_date.replace(year=date.year, month=date.month, day=date.day)
-									event.end_date = event.start_date + (event.parent.end_datetime - event.parent.start_datetime)
-									event.save()
-								except:
-									messages.error(request, "You must update this event on a specific date")
-									return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
+								event = Event(parent=event) #start overwriting the event to the new one
+								event.start_date = event.parent.start_date.replace(year=date.year, month=date.month, day=date.day)
+								event.end_date = event.start_date + (event.parent.end_datetime - event.parent.start_datetime)
+								event.save()
 							
 							for change in form.changed_data: #loop through the changed fields, and set the event to them
 								setattr(event, change, form.cleaned_data.get(change))
@@ -343,13 +460,7 @@ def delete_event(request, token):
 					if event.rrule: #rrule events get "deleted" on certain days by adding an Excluded Date
 						try:
 							date = datetime.datetime.strptime(request.GET['d'], '%Y-%m-%d')
-							if len(ExcludedDates.objects.filter(date=date.date())) >= 1:
-								ed = ExcludedDates.objects.filter(date=date.date())[0]
-							else:
-								ed = ExcludedDates(date = date.date())
-								ed.save()
-							event.excluded_dates.add(ed)
-							event.save()
+							exclude_event_on_date(event, date)
 							messages.success(request, "Successfully deleted event")
 							return HttpResponseRedirect(event.cal_url)
 						except:
@@ -375,7 +486,7 @@ def event_sign_up(request, token):
 					messages.error(request, "This event does not repeat on this date")
 					return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
 				
-				date = pytz.utc.localize(date)
+				#date = pytz.utc.localize(date)
 				#By this point, we've successfully confirmed that this date is valid for this event
 				if len(Event.objects.filter(parent=event, start_date__gte=date, start_date__lte=date + datetime.timedelta(days=1))) >= 1:
 					#This condition is met when the initial event was already split up on this date, so this just finds it again and sets it to that
@@ -383,13 +494,7 @@ def event_sign_up(request, token):
 					event = Event.objects.filter(parent=event, start_date__gte=date, start_date__lt=date + datetime.timedelta(days=1))[0]
 				else:
 					#if it wasn't split up already, then do that here
-					if len(ExcludedDates.objects.filter(date=date.date())) >= 1:
-						ed = ExcludedDates.objects.filter(date=date.date())[0]
-					else:
-						ed = ExcludedDates(date = date.date())
-						ed.save()
-					event.excluded_dates.add(ed)
-					event.save()
+					exclude_event_on_date(event, date)
 					#^add this date instance as an excluded date
 					event = Event(parent=event) #start overwriting the event to the new one
 					event.start_date = event.parent.start_date.replace(year=date.year, month=date.month, day=date.day)

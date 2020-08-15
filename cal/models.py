@@ -167,7 +167,7 @@ class Event(models.Model):
 	def s_description(self):
 		if self.description:
 			return self.description
-		elif self.parent and self.parent.description:
+		elif self.parent:
 			return self.parent.s_description
 		else:
 			return None
@@ -196,7 +196,8 @@ class Event(models.Model):
 		else:
 			return None
 
-	'''def s_field(self, field):# was a really great way to search through fields without all of these properties, but couldn't be called in templates, and I didn't want to include custom filters on every page :(
+	'''def s_field(self, field):
+		# was a really great way to search through fields without all of these properties, but couldn't be called in templates, and I didn't want to include custom filters on every page :(
 		if getattr(self, field) is not None:
 			return getattr(self, field)
 		elif self.parent:
@@ -243,7 +244,7 @@ class Event(models.Model):
 
 
 	class Meta: 
-		ordering = ['-start_date']
+		ordering = ['parent__id', '-start_date']
 
 	def __str__(self):
 		return format(self.s_title)

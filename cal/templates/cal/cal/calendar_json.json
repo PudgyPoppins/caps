@@ -1,35 +1,31 @@
 {% load custom_filters %}
 [
-	{% if calendar.networkcal.all %}
-	{% for noncal in calendar.networkcal.all %}
-	{% for i in noncal.event.all %}
-	{% for j in i.instance.all %}
+
+	{% with event_list=calendar|get_calendar_events %}
+	{% for i in event_list %}
 	{
-		{% include 'cal/snippets/snippet.json' with i=j %}
+		"title": "{{ i.s_title|escapejs }}",
+		{% if i.s_event_type == "AA" %}"backgroundColor": "red",
+		{% elif i.s_event_type == "CE" %}"backgroundColor": "yellow",
+		"textColor": "#000000",
+		{% elif i.s_event_type == "NV" %}"backgroundColor": "gray",
+		"textColor": "#000000",
+		{% endif %}
+		"allDay": {{ i.s_all_day|lower }},
+
+		{% if i.rrule %}
+		"rrule": "{{ i.rrule|rruleExdate:i }}",
+		{% if not i.all_day %}"duration": "{{ i.start_datetime|duration:i.end_datetime }}",{% endif %}
+
+		{% else %}
+		"start": "{{ i.start_date|date:"Y-m-d" }}T{{ i.s_start_time|time:"H:i:00" }}",
+		"end": "{{ i.end_date|date:"Y-m-d" }}T{{ i.s_end_time|time:"H:i:00" }}",
+		{% endif %}
+		"extendedProps": { {% if i.rrule %}"rrule": "true", {% endif %}{% if i.s_description %}"description": "{{ i.s_description|escapejs }}",{% endif %} "token": "{{ i.token }}" }
 	},
 	{% endfor %}
-
 	{
-		{% include 'cal/snippets/snippet.json' with i=i %}
-	}{% if forloop.counter != noncal.event.count|multiply:calendar.networkcal.count and calendar.event.all %},{% endif %}
 
-	{% endfor %}
-	{% endfor %}
-	{% endif %}
-
-	{% if calendar.event.all %}
-	{% for i in calendar.event.all %}
-
-	{% for j in i.instance.all %}
-	{
-		{% include 'cal/snippets/snippet.json' with i=j %}
-	},
-	{% endfor %}
-
-	{
-		{% include 'cal/snippets/snippet.json' with i=i %}
-	}{% if forloop.counter != calendar.event.count %},{% endif %}
-
-	{% endfor %}
-	{% endif %}
+	}
+	{% endwith %}
 ]

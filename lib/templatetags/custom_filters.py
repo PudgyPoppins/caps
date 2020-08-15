@@ -73,3 +73,39 @@ def rruleExdate(value, event):
 	else:
 		x = value
 	return x
+
+def get_eldest_event(event):
+	#gets the "eldest" event, the original
+	if event.parent:
+		get_eldest_event(event.parent)
+	else:
+		return event
+	return get_eldest_event(event.parent)
+def get_all_relatives(event, relatives):
+	#returns all lower relative events (and itself)
+	relatives.append(event)
+	for i in event.instance.all():
+		relatives.append(i)
+		get_all_relatives(i, relatives)
+	relatives = list(set(relatives))
+	return relatives
+
+@register.filter
+def get_calendar_events(calendar):
+	relatives = []
+	empty_relatives = []
+	if calendar.networkcal.all():
+		for noncal in calendar.networkcal.all():
+			for i in noncal.event.all():
+				relatives += get_all_relatives(i, empty_relatives)
+	if calendar.event.all():
+		for i in calendar.event.all():
+			relatives += get_all_relatives(i, empty_relatives)
+	relatives = list(set(relatives))
+	return relatives
+
+'''@register.filter
+def get_relatives(event):
+	relatives = get_all_relatives(event, empty_relatives)
+	print(relatives)
+	return relatives'''

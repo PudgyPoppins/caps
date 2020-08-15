@@ -56,7 +56,7 @@ class CalendarAdmin(admin.ModelAdmin):
 
 class EventAdmin(admin.ModelAdmin):
 	form = EventAdminForm
-	list_display = ('title', 'token', 'calendar', 'start_datetime', 'end_datetime', 'rrule')
+	list_display = ('title', 'token', 'calendar', 'start_datetime', 'end_datetime', 'rrule', 'parent')
 	search_fields = ['title']
 
 admin.site.register(Calendar, CalendarAdmin)
