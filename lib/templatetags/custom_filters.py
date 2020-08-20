@@ -103,9 +103,3 @@ def get_calendar_events(calendar):
 			relatives += get_all_relatives(i, empty_relatives)
 	relatives = list(set(relatives))
 	return relatives
-
-'''@register.filter
-def get_relatives(event):
-	relatives = get_all_relatives(event, empty_relatives)
-	print(relatives)
-	return relatives'''
