@@ -138,10 +138,10 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 8/12 Deletion_type=a now works! Deletion for all types now works! Added permission check before deleting events.
 * 8/13 update type a now works! Got really close on update type t, but ran into this big error. I managed to boil it down to the fact that running form.is_valid updates the connected event instance, which is not what I want when updating the child of an rrule, but confirming that the form is valid. Currently, this stops me from adding the excluded date, and then saving that part. Through sheer force of will I have, however, completely surpassed this issue using an incredibly hacky dictionary solution. update type t now works.
 * 8/14 added EventFormUpdate, EventFormNetwork (different restrictions), and EventFormNetworkUpdate to the edit and update views. Streamlined the calendar_json.json file and fixed a problem where it didn't include second generation events. Completed the update_type = f, wich was a lot harder than expected. It also involved the use-case of setting the attendees to the new one, if applicable, which I didn't think about earlier, but was able to implement. Fixed an error with event.s_description not going past the second generation
+* 8/20 My excuse for not working most everyday is that Arch Linux security is a rabbit hole with no end. I'm mature enough to quit that, now. I wrote a beast of an rrule regex, it could probably be more elegant, but if it works, it works.
 
 TODO: 
 	* event create view
-		* better rrule regex
 		* rrule selector
 
 
