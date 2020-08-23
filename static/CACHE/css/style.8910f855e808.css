@@ -35,7 +35,7 @@
   transition: 0.2s ease-in; }
 
 /* line 27, lib/static/lib/css/style.scss */
-h1, h2, h3, h4, h5, h6, p, a, li, ul, ol, input, label {
+h1, h2, h3, h4, h5, h6, p, a, li, ul, ol, input, label, button {
   font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
   font-weight: 400; }
 
@@ -51,7 +51,7 @@ h1 {
   font-weight: 500; }
 
 /* line 38, lib/static/lib/css/style.scss */
-a, a:not(.dropdown-item):visited {
+a, a::visited {
   color: #25D;
   text-decoration: none;
   cursor: pointer; }
@@ -61,10 +61,9 @@ a:hover, a:focus {
   color: #1d48bc;
   text-decoration: underline; }
 
-/* line 47, lib/static/lib/css/style.scss */
-a.dropdown-item:hover, a.dropdown-item:focus {
-  text-decoration: none; }
-
+/*a.dropdown-item:hover, a.dropdown-item:focus{
+  text-decoration: none;
+}*/
 /* line 50, lib/static/lib/css/style.scss */
 .alt-a, .alt-a:visited {
   color: #5c5f6f; }
@@ -104,43 +103,46 @@ a.dropdown-item:hover, a.dropdown-item:focus {
 
 /* line 76, lib/static/lib/css/style.scss */
 .navLinks {
-  margin-left: auto;
-  padding-right: 57.5px; }
+  margin-left: auto; }
 
 /* line 77, lib/static/lib/css/style.scss */
+.navLinks.loggedin {
+  padding-right: 57.5px; }
+
+/* line 78, lib/static/lib/css/style.scss */
 .navLinks a {
   display: block;
   text-decoration: none;
   padding: 15px 7.5px;
   border-bottom: 2.5px solid transparent; }
 
-/* line 78, lib/static/lib/css/style.scss */
+/* line 79, lib/static/lib/css/style.scss */
 .navLinks a:hover {
   border-bottom: 2.5px solid #25D;
   background-color: #f9f9f9; }
 
-/* line 79, lib/static/lib/css/style.scss */
+/* line 80, lib/static/lib/css/style.scss */
 .navLinks a.active {
   background-color: #f9f9f9; }
 
-/* line 80, lib/static/lib/css/style.scss */
+/* line 81, lib/static/lib/css/style.scss */
 #userLink {
   padding: 5px;
   position: absolute;
   right: 50px; }
 
-/* line 84, lib/static/lib/css/style.scss */
+/* line 85, lib/static/lib/css/style.scss */
 #userLink:hover {
   background-color: #f2f2f2; }
 
-/* line 85, lib/static/lib/css/style.scss */
+/* line 86, lib/static/lib/css/style.scss */
 .userIcon {
   width: 40px;
   height: 40px;
   border-radius: 100%;
   vertical-align: middle; }
 
-/* line 92, lib/static/lib/css/style.scss */
+/* line 93, lib/static/lib/css/style.scss */
 .modal {
   display: none;
   /* Hidden by default */
@@ -163,7 +165,7 @@ a.dropdown-item:hover, a.dropdown-item:focus {
   background-color: rgba(0, 0, 0, 0.4);
   /* Black w/ opacity */ }
 
-/* line 103, lib/static/lib/css/style.scss */
+/* line 104, lib/static/lib/css/style.scss */
 .modal-content {
   background-color: white;
   margin: 5% auto;
@@ -177,14 +179,14 @@ a.dropdown-item:hover, a.dropdown-item:focus {
   -webkit-animation-duration: 0.4s; }
 
 /* The Close Button */
-/* line 116, lib/static/lib/css/style.scss */
+/* line 117, lib/static/lib/css/style.scss */
 .close {
   color: #aaa;
   float: right;
   font-size: 28px;
   font-weight: bold; }
 
-/* line 123, lib/static/lib/css/style.scss */
+/* line 124, lib/static/lib/css/style.scss */
 .close:hover,
 .close:focus {
   color: black;
@@ -207,6 +209,10 @@ a.dropdown-item:hover, a.dropdown-item:focus {
     margin-top: 5%;
     opacity: 1; } }
 
-/* line 138, lib/static/lib/css/style.scss */
-.dropdown .button {
-  font-size: 0.8rem !important; }
+/*.hidden{display:none;}
+.dropdown .button{
+  font-size:0.8rem;
+}*/
+/* line 144, lib/static/lib/css/style.scss */
+.rruleContainer {
+  display: none; }

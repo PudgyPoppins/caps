@@ -15,7 +15,7 @@ from orgs.models import Organization
 
 from django.core.validators import RegexValidator
 
-rruleValidator = RegexValidator(r'(?P<DTSTART>DTSTART:\d{8}T\d{6}Z?\\n)?RRULE:((?P<FREQ>FREQ=(MONTHLY|YEARLY|WEEKLY))?(?P<UNTIL>UNTIL=\d{8}T\d{6}Z?)?(?P<COUNT>COUNT=\d+)?(?P<INTERVAL>INTERVAL=\d+)?(?P<WKST>WKST=(MO|TU|WE|TH|FR|SA|SU))?(?P<BYDAY>BYDAY=(((MO)?(TU)?(WE)?(TH)?(FR)?(SA)?(SU)?),?)+)?(?P<BYMONTH>BYMONTH=(\d{1,2},?)+)?(?P<BYMONTHDAY>BYMONTHDAY=(\d{1,2},?)+)?(?P<BYYEARDAY>BYYEARDAY=(\d{1,3},?)+)?(?P<BYWEEKNO>BYWEEKNO=(\d{1,2},?)+)?;?)+(?P<EXDATE>\\nEXDATE:((\d{8}(T\d{6}Z?)?),?)+)?', 'This string must be in the rrule format.') #currently, doesn't enforce rrule formate that well
+rruleValidator = RegexValidator(r'(?P<DTSTART>DTSTART:\d{8}T\d{6}Z?\\n)?RRULE:((?P<FREQ>FREQ=(MONTHLY|YEARLY|WEEKLY|DAILY))?(?P<UNTIL>UNTIL=\d{8}T\d{6}Z?)?(?P<COUNT>COUNT=\d+)?(?P<INTERVAL>INTERVAL=\d+)?(?P<WKST>WKST=(MO|TU|WE|TH|FR|SA|SU))?(?P<BYDAY>BYDAY=(((MO)?(TU)?(WE)?(TH)?(FR)?(SA)?(SU)?),?)+)?(?P<BYMONTH>BYMONTH=(\d{1,2},?)+)?(?P<BYMONTHDAY>BYMONTHDAY=(\d{1,2},?)+)?(?P<BYYEARDAY>BYYEARDAY=(\d{1,3},?)+)?(?P<BYWEEKNO>BYWEEKNO=(\d{1,2},?)+)?(?P<BYSETPOS>BYSETPOS=(-?\d{1,2},?)+)?;?)+(?P<EXDATE>\\nEXDATE:((\d{8}(T\d{6}Z?)?),?)+)?', 'This string must be in the rrule format.') #currently, doesn't enforce rrule formate that well
 
 # Create your models here.
 

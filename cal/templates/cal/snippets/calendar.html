@@ -52,9 +52,9 @@
 		  if(eventObj.extendedProps.description){document.getElementById("modalDescription").innerHTML = eventObj.extendedProps.description;}
 
 		  if(eventObj.extendedProps.rrule){document.getElementById("moreInformation").setAttribute("href", "{% url 'cal:eventdetail' %}" + eventObj.extendedProps.token + "?d=" + moment(eventObj.start).format('YYYY-MM-DD'));}
-
 		  else{document.getElementById("moreInformation").setAttribute("href", "{% url 'cal:eventdetail' %}" + eventObj.extendedProps.token);}
-		  if(! eventObj.allDay){document.getElementById("modalTime").innerHTML = eventObj.start.toLocaleDateString("en-US", dateFormat) + " - " + eventObj.end.toLocaleDateString("en-US", dateFormat);}
+
+		  if(! eventObj.allDay){document.getElementById("modalTime").innerHTML = eventObj.start.toLocaleDateString("en-US", dateFormat) + " - " + eventObj.end.toLocaleDateString("en-US", dateFormat); console.log(eventObj.start)}
 		  else{document.getElementById("modalTime").innerHTML = "This is an all day event.";}
 		},
 		events: {

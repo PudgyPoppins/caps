@@ -1,0 +1,55 @@
+<form method="post" id="form">{% csrf_token %}
+	{{ form.non_field_errors }}
+    {% for field in form %}
+    {% if field.name == "rrule" %}
+    	{{ field.as_hidden }}
+		<p>🦀rrule field is gone🦀</p>
+		<input type="checkbox" id="repeatCheck" name="repeatCheck">
+  		<label for="repeatCheck">This is a repeating event</label>
+
+  		<div id="rruleContainer" class="rruleContainer">
+  			<p>idk, put a form here</p>
+  		</div>
+	{% else %}
+		<p>
+			{{ field.errors }} 
+			{{ field.label_tag }}
+				{{ field }}
+				{% if field.help_text %}
+				<span>{{ field.help_text|safe }}</span>
+				{% endif %}
+			</div>
+			{% if not field.field.required %}
+			<i>(optional)</i>
+			{% endif %}
+		</p>
+	{% endif %}
+	{% endfor %}
+    <input type="submit" value="{{ buttonText }}">
+</form>
+
+<script>
+	var repeatCheck = document.getElementById("repeatCheck");
+	var rruleContainer = document.getElementById("rruleContainer");
+	var rruleField = document.getElementById("id_rrule");
+	repeatCheck.addEventListener("change", toggleRruleContainer);
+	document.getElementById("form").addEventListener("submit", formSubmit);
+
+	var rrule_str = "";
+
+	toggleRruleContainer();
+	function toggleRruleContainer(){
+		if (repeatCheck.checked){
+			rruleContainer.style.display = "block";
+		}
+		else {
+			rruleContainer.style.display = "none";
+		}
+	}
+
+	function formSubmit(){
+		if (repeatCheck.checked){
+			rruleField.value = rrule_str;
+		}
+	}
+</script>

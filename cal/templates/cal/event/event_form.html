@@ -1,8 +1,10 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Create an event{% endblock %}
 
 {% block content %}
+<script src="{% static 'cal/rrule.js' %}"></script>
 
 <h1>Create a new event</h1>
 
@@ -21,8 +23,5 @@
 <p>Create a new event on the {{ c.organization.title }} organization calendar.</p>
 {% endif %}
 
-<form method="post">{% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Save">
-</form>
+{% include "cal/snippets/event_form.html" with buttonText="Save" %}
 {% endblock %}
