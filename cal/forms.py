@@ -49,7 +49,16 @@ class EventAdminForm(ModelForm):
 			raise ValidationError(_('End time must be after start time'))
 		if end_time and start_time and datetime.datetime.combine(end_date, end_time) - datetime.datetime.combine(start_date, start_time) < datetime.timedelta(minutes=10): #if the entire event lasts less than 10 minutes
 			raise ValidationError(_('The event must be at least ten minutes long'))
+		if not end_time and start_time:
+			raise ValidationError(_('An end time is required if a start time is provided'))
 		return end_time
+
+	def clean_start_time(self):
+		end_time = self.cleaned_data.get('end_time')
+		start_time = self.cleaned_data.get('start_time')
+		if not start_time and end_time:
+			raise ValidationError(_('A start time is required if an end time is provided'))
+		return start_time
 
 	def clean_end_date(self):
 		end_date = self.cleaned_data['end_date']
@@ -95,6 +104,16 @@ class EventAdminForm(ModelForm):
 		return instance
 
 class EventForm(EventAdminForm):
+	class Meta:
+		model = Event
+		exclude = ()
+		widgets = {
+			'description': forms.Textarea(), #we want that dummy thicc box for entering an entire description
+			'start_date': forms.DateInput(attrs={'type': 'date'}),
+			'end_date': forms.DateInput(attrs={'type': 'date'}),
+			'start_time': forms.TimeInput(attrs={'type': 'time'}),
+			'end_time': forms.TimeInput(attrs={'type': 'time'}),
+		}
 	def __init__(self, *args, **kwargs):
 		super(EventForm, self).__init__(*args, **kwargs)
 		self.fields.pop('calendar')
@@ -110,28 +129,18 @@ class EventForm(EventAdminForm):
 
 		self.fields['title'].required = True
 
-	def clean(self):
-		end_time = self.cleaned_data.get('end_time')
-		start_time = self.cleaned_data.get('start_time')
-		all_day = self.cleaned_data.get('all_day')
-		
-		if all_day and (end_time is None or start_time is None): #if the all_day is None or False, and the times are unset, raise an error
-			raise ValidationError(_('You must set the start time and end time if this is not an all day event.'))
 class EventFormNetwork(EventForm):
 	def __init__(self, *args, **kwargs):
 		super(EventFormNetwork, self).__init__(*args, **kwargs)
 		limited_choices = [(choice[0], choice[1]) for choice in self.fields['event_type'].choices if choice[0] != "AA" and choice[0] != "VO"]
 		self.fields['event_type'] = forms.ChoiceField(choices=limited_choices)# limit choices further
-	def clean(self):
-		pass
 
 class EventFormUpdate(EventForm):
 	def __init__(self, *args, **kwargs):
 		super(EventFormUpdate, self).__init__(*args, **kwargs)
 		self.fields['event_type'].required = False
 		self.fields['title'].required = False
-	def clean(self):
-		pass
+
 class EventFormNetworkUpdate(EventFormNetwork):
 	def __init__(self, *args, **kwargs):
 		super(EventFormNetworkUpdate, self).__init__(*args, **kwargs)

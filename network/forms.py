@@ -45,7 +45,7 @@ class NetworkForm(ModelForm):
 class NonprofitFormUpdate(ModelForm):
 	class Meta:
 		model = Nonprofit
-		exclude = ('pub_date', 'flagged', 'slug', 'created_by')
+		exclude = ('pub_date', 'flagged', 'slug', 'created_by', 'nonprofit_reps')
 		labels = {'lat': _('Latitude'), 'lon': _('Longitude'), 'src_link': _('Image Url'), 'src_file': _('Image File')}
 		help_texts = {'lat': _('Please enter the latitude of the location, or leave it blank to auto-generate one via the address'), 'lon': _('Please enter the longitude of the location, or leave it blank to auto-generate one via the address')}
 		widgets = {

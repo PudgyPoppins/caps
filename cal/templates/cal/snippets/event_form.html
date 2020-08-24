@@ -1,55 +1,134 @@
+{% load static %}
+<script src="{% static 'lib/js/moment.js' %}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+<script src="{% static 'cal/bootstrap-datetimepicker.js' %}"></script>
+
+<!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">-->
+<link rel="stylesheet" href="{% static 'cal/bootstrap-datetimepicker.css' %}">
+
 <form method="post" id="form">{% csrf_token %}
 	{{ form.non_field_errors }}
-    {% for field in form %}
-    {% if field.name == "rrule" %}
-    	{{ field.as_hidden }}
-		<p>🦀rrule field is gone🦀</p>
-		<input type="checkbox" id="repeatCheck" name="repeatCheck">
-  		<label for="repeatCheck">This is a repeating event</label>
-
-  		<div id="rruleContainer" class="rruleContainer">
-  			<p>idk, put a form here</p>
-  		</div>
-	{% else %}
-		<p>
-			{{ field.errors }} 
-			{{ field.label_tag }}
-				{{ field }}
-				{% if field.help_text %}
-				<span>{{ field.help_text|safe }}</span>
-				{% endif %}
-			</div>
-			{% if not field.field.required %}
-			<i>(optional)</i>
+	<p>
+		{{ form.title.errors }} 
+		{{ form.title.label_tag }}
+			{{ form.title }}
+			{% if form.title.help_text %}
+			<span>{{ form.title.help_text|safe }}</span>
 			{% endif %}
-		</p>
-	{% endif %}
-	{% endfor %}
-    <input type="submit" value="{{ buttonText }}">
+		</div>
+		{% if not form.title.field.required %}
+		<i>(optional)</i>
+		{% endif %}
+	</p>
+	<p>
+		{{ form.description.errors }} 
+		{{ form.description.label_tag }}
+			{{ form.description }}
+			{% if form.description.help_text %}
+			<span>{{ form.description.help_text|safe }}</span>
+			{% endif %}
+		</div>
+		{% if not form.description.field.required %}
+		<i>(optional)</i>
+		{% endif %}
+	</p>
+
+	{{ form.start_date.label_tag }}
+	<div class="form-group">
+	<div class='input-group date' id='start_date_picker'>
+		{{ form.start_date }}
+		<span class="input-group-addon">
+		<span class="glyphicon glyphicon-calendar"></span>
+		</span>
+	</div>
+	</div>
+
+	{{ form.end_date.label_tag }}
+	<div class="form-group">
+	<div class='input-group date' id='end_date_picker'>
+		{{ form.end_date }}
+		<span class="input-group-addon">
+		<span class="glyphicon glyphicon-calendar"></span>
+		</span>
+	</div>
+	</div>
+
+	{{ form.start_time.label_tag }}
+	<div class="form-group">
+	<div class='input-group time' id='start_time_picker'>
+		{{ form.start_time }}
+		<span class="input-group-addon">
+		<span class="glyphicon glyphicon-time"></span>
+		</span>
+	</div>
+	</div>
+	{% if form.start_time.errors %}<p>{{ form.start_time.errors }} </p>{% endif %}
+
+	{{ form.end_time.label_tag }}
+	<div class="form-group">
+	<div class='input-group time' id='end_time_picker'>
+		{{ form.end_time }}
+		<span class="input-group-addon">
+		<span class="glyphicon glyphicon-time"></span>
+		</span>
+	</div>
+	</div>
+	{% if form.end_time.errors %}<p>{{ form.end_time.errors }} </p>{% endif %}
+
+	{{ form.rrule.as_hidden }}
+	<input type="checkbox" id="repeatCheck" name="repeatCheck">
+	<label for="repeatCheck">This is a repeating event</label>
+
+	<div id="rruleContainer" class="rruleContainer">
+		<div>
+			<input type="radio" id="daily" name="freq" value="DAILY">
+			<label for="daily">Daily</label>
+			<input type="radio" id="weekly" name="freq" value="WEEKLY">
+			<label for="daily">Weekly</label>
+			<input type="radio" id="monthly" name="freq" value="MONTHLY">
+			<label for="daily">Monthly</label>
+			<input type="radio" id="yearly" name="freq" value="YEARLY">
+			<label for="yearly">Yearly</label>
+		</div>
+	</div>
+
+	<p>
+		{{ form.all_day.errors }} 
+		{{ form.all_day.label_tag }}
+			{{ form.all_day }}
+			{% if form.all_day.help_text %}
+			<span>{{ form.all_day.help_text|safe }}</span>
+			{% endif %}
+		</div>
+		{% if not form.all_day.field.required %}
+		<i>(optional)</i>
+		{% endif %}
+	</p>
+	<p>
+		{{ form.event_type.errors }} 
+		{{ form.event_type.label_tag }}
+			{{ form.event_type }}
+			{% if form.event_type.help_text %}
+			<span>{{ form.event_type.help_text|safe }}</span>
+			{% endif %}
+		</div>
+		{% if not form.event_type.field.required %}
+		<i>(optional)</i>
+		{% endif %}
+	</p>
+	<p>
+		{{ form.sign_up_slots.errors }} 
+		{{ form.sign_up_slots.label_tag }}
+			{{ form.sign_up_slots }}
+			{% if form.sign_up_slots.help_text %}
+			<span>{{ form.sign_up_slots.help_text|safe }}</span>
+			{% endif %}
+		</div>
+		{% if not form.sign_up_slots.field.required %}
+		<i>(optional)</i>
+		{% endif %}
+	</p>
+	<input type="submit" value="{{ buttonText }}">
 </form>
-
-<script>
-	var repeatCheck = document.getElementById("repeatCheck");
-	var rruleContainer = document.getElementById("rruleContainer");
-	var rruleField = document.getElementById("id_rrule");
-	repeatCheck.addEventListener("change", toggleRruleContainer);
-	document.getElementById("form").addEventListener("submit", formSubmit);
-
-	var rrule_str = "";
-
-	toggleRruleContainer();
-	function toggleRruleContainer(){
-		if (repeatCheck.checked){
-			rruleContainer.style.display = "block";
-		}
-		else {
-			rruleContainer.style.display = "none";
-		}
-	}
-
-	function formSubmit(){
-		if (repeatCheck.checked){
-			rruleField.value = rrule_str;
-		}
-	}
-</script>
+<script src="{% static 'cal/event_form.js' %}"></script>
