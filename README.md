@@ -141,6 +141,7 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 8/20 My excuse for not working most everyday is that Arch Linux security is a rabbit hole with no end. I'm mature enough to quit that, now. I wrote a beast of an rrule regex, it could probably be more elegant, but if it works, it works.
 * 8/22 Changed the forms to be more restrictive for creating new events. Started work on an rrule picker. I think I'm going to build my own, and I really think I can do it. Wrote out a plan of attack.
 * 8/23 Changed a form value in Network. Got a bootstrap/jquery date picker in the event_form, which works pretty nicely. Spiced up some css.
+* 8/24 Made some spicy checkbox buttons (toggleable, too, wow). Got really far in creating the rrule picker on the event form. Still have a bit more to go.
 
 TODO: 
 	* event create view

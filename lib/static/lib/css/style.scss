@@ -1,4 +1,5 @@
 /*The server must be restarted for css changes to take effect*/
+$blue-color: #25D;
 
 /*All map stuff*/
 .marker{
@@ -24,7 +25,7 @@
 /**:not(.flickity-slider):not(.carousel-cell):not(.mapboxgl-marker){
 	transition:0.2s ease-in;
 }*/
-.close, .close:hover, a, a:hover, a:focus, .navbar{
+.close, .close:hover, a, a:hover, a:focus, .navbar, label.buttonCheckbox{
   transition: 0.2s ease-in;
 }
 
@@ -40,12 +41,12 @@ head, body{
 }
 h1{font-weight:500;}
 a, a::visited{
-  color:#25D;
+  color:$blue-color;
   text-decoration: none;
   cursor:pointer;
 }
 a:hover, a:focus{
-  color: darken(#25d, 7.5%);
+  color: darken($blue-color, 7.5%);
   text-decoration: underline;
 }
 /*a.dropdown-item:hover, a.dropdown-item:focus{
@@ -80,7 +81,7 @@ a:hover, a:focus{
 .navLinks{margin-left:auto;}
 .navLinks.loggedin {padding-right:57.5px;} //47.5 is enough space for the image to go in, + 10 for the padding
 .navLinks a{display:block; text-decoration:none; padding:15px 7.5px; border-bottom:2.5px solid transparent;}
-.navLinks a:hover{border-bottom:2.5px solid #25D; background-color:darken(white, 2.5%)}
+.navLinks a:hover{border-bottom:2.5px solid $blue-color; background-color:darken(white, 2.5%)}
 .navLinks a.active{background-color:darken(white, 2.5%);}
 #userLink{
   padding:5px;
@@ -145,8 +146,31 @@ a:hover, a:focus{
   font-size:0.8rem;
 }*/
 
-.rruleContainer{
+.rruleContainer, .freqContainer{
   display: none;
+}
+.buttonCheckboxContainer{
+  margin-top:0.75rem;
+}
+label.buttonCheckbox{
+  cursor:pointer;
+  background: lighten($blue-color, 7.5%);
+  color:white;
+  padding:.375rem .75rem;
+  margin:0;
+}
+label.buttonCheckbox:first-child{border-top-left-radius:4px; border-bottom-left-radius:4px;}
+label.buttonCheckbox:last-child{border-top-right-radius:4px; border-bottom-right-radius:4px;}
+label.buttonCheckbox:hover{
+  background: lighten($blue-color, 2.5%);
+}
+label.buttonCheckbox.active{
+  background: $blue-color;
+}
+input[type=checkbox].buttonCheckbox{
+  position:absolute;
+  clip:rect(0,0,0,0);
+  pointer-events: none;
 }
 
 input[type=text], input[type=date], input[type=password], input[type=email], input[type=tel], input[type=time], textarea{

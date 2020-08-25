@@ -81,15 +81,63 @@
 	<label for="repeatCheck">This is a repeating event</label>
 
 	<div id="rruleContainer" class="rruleContainer">
+		<p>Repeat:</p>
 		<div>
-			<input type="radio" id="daily" name="freq" value="DAILY">
+			<input type="radio" id="daily" name="freq" value="DAILY" data-name="day" checked required>
 			<label for="daily">Daily</label>
-			<input type="radio" id="weekly" name="freq" value="WEEKLY">
-			<label for="daily">Weekly</label>
-			<input type="radio" id="monthly" name="freq" value="MONTHLY">
+			<input type="radio" id="weekly" name="freq" value="WEEKLY" data-name="week">
+			<label for="weekly">Weekly</label>
+			<input type="radio" id="monthly" name="freq" value="MONTHLY" data-name="month">
 			<label for="daily">Monthly</label>
-			<input type="radio" id="yearly" name="freq" value="YEARLY">
+			<input type="radio" id="yearly" name="freq" value="YEARLY" data-name="year">
 			<label for="yearly">Yearly</label>
+		</div>
+		<p>every</p>
+		<input type="number" id="interval" value=1 min=1 required><span id="freqDisplay">day</span>
+
+		<div id="weekContainer" class="freqContainer">
+			<div class="buttonCheckboxContainer">
+				<label for="SU" class="buttonCheckbox"><input type="checkbox" id="SU" class="buttonCheckbox weekByDay">Sun</label
+				><label for="MO" class="buttonCheckbox"><input type="checkbox" id="MO" class="buttonCheckbox weekByDay">Mon</label
+				><label for="TU" class="buttonCheckbox"><input type="checkbox" id="TU" class="buttonCheckbox weekByDay">Tue</label
+				><label for="WE" class="buttonCheckbox"><input type="checkbox" id="WE" class="buttonCheckbox weekByDay">Wed</label
+				><label for="TH" class="buttonCheckbox"><input type="checkbox" id="TH" class="buttonCheckbox weekByDay">Thu</label
+				><label for="FR" class="buttonCheckbox"><input type="checkbox" id="FR" class="buttonCheckbox weekByDay">Fri</label
+				><label for="SA" class="buttonCheckbox"><input type="checkbox" id="SA" class="buttonCheckbox weekByDay">Sat</label>
+			</div>
+		</div>
+
+		<div id="monthContainer" class="freqContainer">
+			<input type="radio" id="selectByMonthDay" name="monthSelect" value="bymonthday" checked>
+			<label for="selectByMonthDay">Repeat by days of month</label>
+			<input type="radio" id="selectByDay" name="monthSelect" value="byday">
+			<label for="selectByDay">Repeat by days of week</label>
+
+			<div class="buttonCheckboxContainer monthByMonthDays">
+			</div>
+
+			<div class="monthByDays">
+				<select name="monthBySetPos" id="monthBySetPos">
+					<option value="1" selected>First</option>
+					<option value="2">Second</option>
+					<option value="3">Third</option>
+					<option value="4">Fourth</option>
+					<option value="-1">Last</option>
+				</select>
+				<select name="monthByDay" id="monthByDay">
+					<option value="SU" selected>Sunday</option>
+					<option value="MO">Monday</option>
+					<option value="TU">Tuesday</option>
+					<option value="TH">Thursday</option>
+					<option value="FR">Friday</option>
+					<option value="SA">Saturday</option>
+					<option value="MO,TU,WE,TH,FR,SA,SU">Day</option>
+					<option value="MO,TU,WE,TH,FR">Weekday</option>
+					<option value="SA,SU">Weekend</option>
+				</select>
+			</div>
+		</div>
+		<div id="yearContainer" class="freqContainer">
 		</div>
 	</div>
 
