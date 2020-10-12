@@ -94,12 +94,8 @@ def get_all_relatives(event, relatives):
 def get_calendar_events(calendar):
 	relatives = []
 	empty_relatives = []
-	if calendar.networkcal.all():
-		for noncal in calendar.networkcal.all():
-			for i in noncal.event.all():
-				relatives += get_all_relatives(i, empty_relatives)
-	if calendar.event.all():
-		for i in calendar.event.all():
+	for cal in calendar.get_nested_calendars:
+		for i in cal.event.all():
 			relatives += get_all_relatives(i, empty_relatives)
 	relatives = list(set(relatives))
 	return relatives

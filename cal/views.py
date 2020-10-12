@@ -116,7 +116,7 @@ def add_event(request, username=None, nonprofit=None, network=None, organization
 				event.verified = request.user
 			event.save()
 			messages.success(request, "Successfully added an event to %s!" %(calendar_name))
-			return HttpResponseRedirect(event.cal_url)
+			return HttpResponseRedirect(event.s_calendar.cal_url)
 	return render(request, 'cal/event/event_form.html', {"form" : form, "c": calendar})
 
 def event_detail(request, token):
@@ -250,7 +250,7 @@ def edit_event(request, token):
 						event.verified = request.user
 						event.save()
 					messages.success(request, "Successfully update %s!" %(event.s_title))
-					return HttpResponseRedirect(event.cal_url)
+					return HttpResponseRedirect(event.s_calendar.cal_url)
 				recurrence_form = RecurringEventForm(request.POST)
 				if recurrence_form.is_valid():
 					#at this point, we have a recurring event that we'd like to do something with
@@ -273,7 +273,7 @@ def edit_event(request, token):
 										setattr(i, change, None)#set all of the changed fields to None, so the children inherit from the parent
 										i.save()	
 							messages.success(request, "Successfully updated all events")
-							return HttpResponseRedirect(parent.cal_url)
+							return HttpResponseRedirect(parent.s_calendar.cal_url)
 
 						elif x == "f": #update this event and all following ones
 							date = datetime.date(1970, 1, 1)#we have to declare this variable first so it can be overwritten, just pick any date
@@ -360,7 +360,7 @@ def edit_event(request, token):
 								#override new_event variable with an even newer event, this time with attendees
 
 							messages.success(request, "Successfully updated this and following events")
-							return HttpResponseRedirect(new_event.cal_url)
+							return HttpResponseRedirect(new_event.s_calendar.cal_url)
 
 
 						else: #update just this event
@@ -416,7 +416,7 @@ def delete_event(request, token):
 
 	form = RecurringEventForm()
 	if request.method == 'POST':
-		cal_url = event.cal_url #save it here before we delete the event
+		cal_url = event.s_calendar.cal_url #save it here before we delete the event
 		if not event.parent and not event.instance.all() and not event.rrule:
 			#Deletion is simple for single-occurence, non-related events
 			event.delete()
@@ -462,7 +462,7 @@ def delete_event(request, token):
 							date = datetime.datetime.strptime(request.GET['d'], '%Y-%m-%d')
 							exclude_event_on_date(event, date)
 							messages.success(request, "Successfully deleted event")
-							return HttpResponseRedirect(event.cal_url)
+							return HttpResponseRedirect(event.s_calendar.cal_url)
 						except:
 							messages.error(request, "You must delete this event on a specific date")
 							return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
@@ -565,3 +565,54 @@ def event_sign_up(request, token):
 * If the user is logged in, search for an attendee for them, create a new one if it doesn't exist, and then add that attendee to the new event.
 * If the user isn't logged in, give them a simple name form, then sign them up
 '''
+
+@login_required
+def calendar_subscribe(request, token):
+	calendar = Calendar.objects.filter(token=token)
+	if calendar:
+		calendar = calendar[0]
+		user = request.user
+		u_cal = user.calendar
+		if u_cal == calendar or calendar.user:
+			messages.error(request, "You can't subscribe to a user calendar")
+			return HttpResponseRedirect(calendar.cal_url)
+		if calendar in u_cal.get_nested_calendars:
+			messages.info(request, "You're already subscribed to this calendar")
+		else:
+			if calendar in u_cal.excludedcal.all():
+				u_cal.excludedcal.remove(calendar)
+			u_cal.calendars.add(calendar)
+			u_cal.save()
+			messages.success(request, "Successfully subscribed to this calendar")
+		return HttpResponseRedirect(calendar.cal_url)
+	else:
+		messages.error(request, "That calendar doesn't exist!")
+		return HttpResponseRedirect(reverse('home:main'))
+
+@login_required
+def calendar_unsubscribe(request, token):
+	calendar = Calendar.objects.filter(token=token)
+	if calendar:
+		calendar = calendar[0]
+		user = request.user
+		u_cal = user.calendar
+		if u_cal == calendar:
+			messages.error(request, "You can't unsubscribe from your own calendar!")
+			return HttpResponseRedirect(calendar.cal_url)
+		if calendar in u_cal.get_nested_calendars:
+			if calendar in u_cal.calendars.all():
+				u_cal.calendars.remove(calendar)
+				messages.success(request, "Successfully unsubscribed from to this calendar")
+			elif calendar not in u_cal.excludedcal.all():
+				u_cal.excludedcal.add(calendar)
+				messages.success(request, "Successfully unsubscribed from to this calendar")
+			else: #the only other possibility is that it's already in excludedcal.all()
+				messages.info(request, "You're already unsubscribed to this calendar")
+			return HttpResponseRedirect(calendar.cal_url)
+		else:
+			#you're only subscribed to a calendar if you're explicitly subscribed to it (it's in calendars.all()), or if you're implicitly subscribed to it (it's a child of something in calendars.all())
+			messages.info(request, "You're not subscribed to this calendar in the first place")
+			return HttpResponseRedirect(calendar.cal_url)
+	else:
+		messages.error(request, "That calendar doesn't exist!")
+		return HttpResponseRedirect(reverse('home:main'))

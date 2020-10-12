@@ -42,6 +42,32 @@ class Calendar(models.Model):
 
 	isGlobal = models.BooleanField(default=False)
 
+	@property
+	def get_nested_calendars(self):
+		cal_list = []
+		cal_list.append(self)
+		for i in self.networkcal.all():
+			cal_list += i.get_nested_calendars
+		for i in self.calendars.all():
+			cal_list += i.get_nested_calendars
+		for i in self.excludedcal.all():
+			cal_list.remove(i)
+		cal_list = list(set(cal_list))
+		return cal_list
+
+	@property
+	def cal_url(self):
+		if self.nonprofit:
+			return reverse('network:detailnon', kwargs={'network' : self.nonprofit.network.slug, 'slug' : self.nonprofit.slug}) + "#calendar"
+		elif self.network:
+			return reverse('network:detail', kwargs={'slug' : self.network.slug}) + "#calendar"
+		elif self.organization:
+			return reverse('organization:detail', kwargs={'slug' : self.organization.slug}) + "#calendar"
+		elif self.user:
+			return reverse('accounts:profile', kwargs={'username' : self.user.username}) + "#calendar"
+		else:
+			return reverse('home:main')
+
 	def __str__(self):
 		if(self.user):
 			return format(self.user.username)
@@ -51,6 +77,19 @@ class Calendar(models.Model):
 			return format(self.network.slug)
 		elif(self.organization):
 			return format(self.organization.slug)
+		else:
+			return ("Global")
+
+	@property
+	def name(self):
+		if(self.user):
+			return format(self.user.username) + " — User"
+		elif(self.nonprofit):
+			return format(self.nonprofit.title) + " — Nonprofit"
+		elif(self.network):
+			return format(self.network.title) + " — Network"
+		elif(self.organization):
+			return format(self.organization.title) + " — Organization"
 		else:
 			return ("Global")
 	def save(self, *args, **kwargs):
@@ -216,22 +255,6 @@ class Event(models.Model):
 				return "organization"
 			elif self.s_calendar.user:
 				return "user"
-		else:
-			return None
-
-	@property
-	def cal_url(self):
-		if self.s_calendar:
-			if self.s_calendar.nonprofit:
-				return reverse('network:detailnon', kwargs={'network' : self.s_calendar.nonprofit.network.slug, 'slug' : self.s_calendar.nonprofit.slug}) + "#calendar"
-			elif self.s_calendar.network:
-				return reverse('network:detail', kwargs={'slug' : self.s_calendar.network.slug}) + "#calendar"
-			elif self.s_calendar.organization:
-				return reverse('organization:detail', kwargs={'slug' : self.s_calendar.organization.slug}) + "#calendar"
-			elif self.s_calendar.user:
-				return reverse('accounts:profile') + "#calendar"
-			else:
-				return reverse('home:main')
 		else:
 			return None
 

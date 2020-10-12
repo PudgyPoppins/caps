@@ -66,6 +66,19 @@
 	{% endif %}
 {% endif %}
 
+{% if user.username == profile.username %}
+<h3>Subscribed Calendars</h3>
+{% if calendar.get_nested_calendars|length > 1 %}
+	<ul>
+	{% for i in calendar.get_nested_calendars %}
+		{% if i != calendar %}<li><a href="{{ i.cal_url }}">{{ i.name }}</a></li>{% endif %}
+	{% endfor %}
+	</ul>
+{% else %}
+	<p>You aren't subscribed to any other calendars yet.</p>
+{% endif %}
+{% endif %}
+
 {% if user.username == profile.username %}{% include "cal/snippets/calendar.html" with type="user" %}{% endif %}
 
 {% endblock %}

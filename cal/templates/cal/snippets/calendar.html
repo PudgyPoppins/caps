@@ -25,6 +25,18 @@
 <a href="{% url 'cal:add_event_org' organization.slug %}">add an event</a>
 {% endif %}
 
+{% if user.is_authenticated and calendar in user.calendar.get_nested_calendars and calendar not in user.calendar.excludedcal.all and type != "user" %}
+<p>You are subscribed to this calendar</p>
+{% elif calendar not in user.calendar.get_nested_calendars and type != "user" or calendar in user.calendar.excludedcal.all and type != "user" %}
+<p>You are not subscribed to this calendar</p>
+{% endif %}
+
+{% if user.is_authenticated and calendar not in user.calendar.get_nested_calendars and type != "user" %}
+<a href="{% url 'cal:subscribe' calendar.token %}">subscribe to this calendar</a>
+{% elif user.is_authenticated and calendar in user.calendar.get_nested_calendars and calendar not in user.calendar.excludedcal.all and type != "user" %}
+<a href="{% url 'cal:unsubscribe' calendar.token %}">unsubscribe to this calendar</a>
+{% endif %}
+
 <div id="calendar"></div>
 
 <script>

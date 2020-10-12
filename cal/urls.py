@@ -13,6 +13,9 @@ urlpatterns = [
 
     path('<token>.json', views.calendar_json, name='caljson'), #add an event to an organization calendar
 
+    path('<token>/subscribe', views.calendar_subscribe, name='subscribe'), #subscribe to a calendar
+    path('<token>/unsubscribe', views.calendar_unsubscribe, name='unsubscribe'), #unsubscribe from a calendar
+
     path('event/', views.event_detail, name='eventdetail'), #this url ONLY exists so that I can reverse to it, then add a token in javascript
 
     path('event/<token>', views.event_detail, name='eventdetail'), #event detail view
