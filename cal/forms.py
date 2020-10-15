@@ -151,6 +151,9 @@ class AttendeeForm(ModelForm):
 	class Meta:
 		model = Attendee
 		fields = ['name', 'email']
+	def __init__(self, *args, **kwargs):
+		super(AttendeeForm, self).__init__(*args, **kwargs)
+		self.fields['email'].required = True
 
 
 CHANGE_CHOICES= [

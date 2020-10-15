@@ -2,7 +2,7 @@ from django.db import models
 
 from django.urls import reverse
 
-import datetime, random, string
+import datetime, random, string, uuid
 from django.utils import timezone
 import datetime
 
@@ -123,7 +123,7 @@ class Event(models.Model):
 	start_time = models.TimeField('starting time', null=True, blank=True)
 	end_time = models.TimeField('ending time', null=True, blank=True)
 
-	all_day = models.BooleanField('all day?', help_text="will this event last the entire day", default=False, null=True)
+	all_day = models.BooleanField('all day?', help_text="will this event last the entire day", null=True)
 	rrule = models.CharField(help_text="Will this event ever repeat?", null = True, blank = True, max_length=700, validators=[rruleValidator])
 	
 	excluded_dates = models.ManyToManyField(ExcludedDates, blank = True, related_name="excluded")
@@ -282,8 +282,25 @@ class Attendee(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, null = True, blank = True)
 	email = models.EmailField(max_length=50, blank = True, null=True)
 	event = models.ForeignKey(Event, on_delete=models.CASCADE, null = True, related_name="attendee")
+
+	uuid = models.CharField(max_length=36, null=True, blank=True)
+	notified = models.BooleanField(default=False)
 	def __str__(self):
 		if self.user:
 			return format(self.user)
 		elif self.name:
 			return format(self.name)
+	
+	@property
+	def s_email(self):
+		if self.user:
+			return format(self.user.email)
+		elif self.email:
+			return format(self.email)
+		else:
+			return None
+
+	def save(self, *args, **kwargs):
+		if not self.uuid:
+			self.uuid = uuid.uuid4() #set the uuid to something completely random, and I'll just pray that 16^32 is enough possibilities that there's no collisons		
+		return super(Attendee, self).save(*args, **kwargs)

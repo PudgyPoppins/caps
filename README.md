@@ -34,27 +34,8 @@ This might come in handy for providing back links: <a href="javascript:history.g
 	* add a way to unsignup for events. Signed in users can only unsign-up themselves (or the nonprofit representative).
 	* email users a day before their event?
 
-	* updates for recurring:
-		* this event: split the event, then update it
-		* this and following events:
-			* On the recurring event, change the RRULE; either add an UNTIL field with the date at that point, or modify the until (shortening it) to be at that point
-			* Then, create a new recurring event with the same RRULE (save for the changed until value, and the changed dtstart), and apply the updates to it
-			* do a filter search for children events that have a start_time after the original recurring event. For loop through 'em, apply the update, change the parent, then save
-		* all events: 
-			* apply the updates to the eldest event
-			* search through all of the child events, and set all of the s_* field values as None, it'll inherit them from the eldest event!
-
-	* important note: if an event is updated for "this and following events", then somebody goes back and edits "all events", then this just doesn't work.
-		* the fix: modify code to allow parents to have multiple generations of children. We're going to have grandkids. Then, use some sort of recursive method to get all of the children of the original.
-
 	* add a way to filter events shown on the calendar. Validity filtration is a must. Maybe also nonprofit filtration?
 	* make a regex for an RRULE (and for that matter, a user-friendly field for the RRULE)
-
-	* Users can 'subscribe' to network calendars and nonprofit calendars, adding all of these events to their calendar. They can also just add specific events to their cals
-	
-	* In the javascript for the event update/create, I'm going to have to override some things; the calendar will be determined by an html created dropdown that has the values for the other nonprofits in the network, and their own user calendar. When this dropdown value changes, it automatically redirects them to the respective createview/update view of that calendar.
-		* I might not do this, actually
-	* create views and forms
 	
 	* import events from a google cal | https://fullcalendar.io/docs/v3/google-calendar
 	* rss feeds
@@ -143,6 +124,7 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 8/23 Changed a form value in Network. Got a bootstrap/jquery date picker in the event_form, which works pretty nicely. Spiced up some css.
 * 8/24 Made some spicy checkbox buttons (toggleable, too, wow). Got really far in creating the rrule picker on the event form. Still have a bit more to go.
 * 10/12 Calendar subscribe and unsubscribe now works entirely (or should work, at least). Also did some minor fixing up with calendar properties.
+* 10/14 Added a few fields and a property to Attendee. Created an unattend view. Automatically email users whenever they sign up for an event. Added an email template for use in confirming sign ups. Created a management tool to automatically send emails to people who have volunteering things happening soon. Created a command for a cronjob (that I have commented out on the management tool since Arch Linux) to do this.
 
 TODO: 
 	* event create view

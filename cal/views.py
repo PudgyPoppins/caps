@@ -5,6 +5,10 @@ from django.views import generic
 from django.utils import timezone
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
+
 import pytz
 from dateutil.rrule import *
 from datetime import datetime
@@ -521,14 +525,16 @@ def event_sign_up(request, token):
 							a = form.save(commit=False)
 							a.event = event
 							a.save()
-							messages.success(request, "You've successfully signed up for this event!")
+							send_confirmation_email(a)
+							messages.success(request, "You've successfully signed up for this event! Check your email for a verification message.")
 							return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
 					return render(request, 'cal/event/sign_up.html', {'form': form, 'event': event})
 				else:
 					#automatically sign them up if they're logged in
 					a = Attendee(user=request.user, email=request.user.email, event=event)
 					a.save()
-					messages.success(request, "You've successfully signed up for this event!")
+					send_confirmation_email(a)
+					messages.success(request, "You've successfully signed up for this event! Check your email for a verification message.")
 				return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
 				##^This code block is responsible for signing up the user for that event, or giving them an error
 			else:
@@ -540,7 +546,8 @@ def event_sign_up(request, token):
 						a = form.save(commit=False)
 						a.event = event
 						a.save()
-						messages.success(request, "You've successfully signed up for this event!")
+						send_confirmation_email(a)
+						messages.success(request, "You've successfully signed up for this event! Check your email for a verification message.")
 						return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
 				return render(request, 'cal/event/sign_up.html', {'form': form, 'event': event})
 
@@ -555,6 +562,29 @@ def event_sign_up(request, token):
 		return HttpResponseRedirect(reverse('home:main'))
 	return HttpResponse('bepis')
 
+def send_confirmation_email(a):
+	send_mail(
+		'Confirming your event sign up',
+		render_to_string('cal/snippets/attendee_email.txt', {'attendee': a, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME}),
+		'pudgypoppins@gmail.com',
+		[a.s_email],
+		html_message=render_to_string('cal/snippets/attendee_email.html', {'attendee': a, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME}),
+	)
+
+def unattend(request, uuid):
+	attendee = Attendee.objects.filter(uuid=uuid)
+	if attendee:
+		attendee = attendee[0]
+		event = attendee.event
+		if event.start_datetime < timezone.now():
+			attendee.delete()
+			messages.success(request, "Successfully unattended event")
+		else:
+			messages.error(request, "That event already happened! You can't unattend now!")
+		return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : event.token}))
+	else:
+		messages.error(request, "That attendee doesn't exist!")
+		return HttpResponseRedirect(reverse('home:main'))
 
 '''
 * Verify that the event doesn't already have any children. If it does have children, then it's already been split before

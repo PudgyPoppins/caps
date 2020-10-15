@@ -8,8 +8,7 @@
 <h1>{{ event }} on {% if d %}{{ d|getLongDate }}{% else %}{{ event.start_datetime|date:"M j, Y" }}{% endif %}</h1>
 <h3>{% if event.s_description %}{{ event.s_description }}{% endif %}</h3>
 <h3>
-	{% if not event.s_all_day and event.s_start_time|date:"P" == "midnight" and event.s_start_time|date:"P" == "midnight" %}
-	{% elif not event.s_all_day %}{{ event.start_datetime|date:"P" }} to {{ event.end_datetime|date:"P" }}
+	{% if not event.s_all_day %}{{ event.start_datetime|date:"P" }} to {{ event.end_datetime|date:"P" }}
 	{% else %}all day event{% endif %}
 </h3>
 

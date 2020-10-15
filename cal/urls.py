@@ -22,6 +22,7 @@ urlpatterns = [
     path('event/<token>/edit', views.edit_event, name='editevent'), #event edit  view
     path('event/<token>/delete', views.delete_event, name='deleteevent'), #event delete  view
     path('event/<token>/sign_up', views.event_sign_up, name='signup'), #event sign up view
+    path('unattend/<uuid>', views.unattend, name='unattend'), #event unattend view
 	
 	path('user/<username>/', views.usercal, name='usercal'), #redirect to a user detail page if that user is the logged in one
 	path('u/<username>/', views.redirect_usercal, name='redirect_usercal'), #redirect to user/<username>

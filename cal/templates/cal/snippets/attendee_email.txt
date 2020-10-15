@@ -1,0 +1,14 @@
+Hello, {{ attendee }}!
+
+
+{% if not second_notif %}
+You have successfully marked your attendance to the event "{{ attendee.event }}", which will happen on {{ attendee.event.start_datetime|date:"M j, Y" }} {% if not attendee.event.s_all_day %}{{ attendee.event.start_datetime|date:"P" }} to {{ attendee.event.end_datetime|date:"P" }}{% else %}all day{% endif %}
+{% else %}
+This email is to inform you that an event that you signed up for, "{{ attendee.event }}", will happen in {{ attendee.event.start_datetime|timeuntil }} (it starts at {{ attendee.event.start_datetime|date:"P" }}).
+{% endif %}
+
+If you cannot make this event, or if your sign up was marked by accident, please unattend this event by going to this url: {{ domain }}{% url 'cal:unattend' attendee.uuid %}
+
+Thanks!
+
+The {{ site }} team

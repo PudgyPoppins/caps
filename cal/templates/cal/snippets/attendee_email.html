@@ -1,0 +1,12 @@
+<h1>Hello, {{ attendee }}!</h1>
+
+{% if not second_notif %}
+<p>You have successfully marked your attendance to the event "{{ attendee.event }}", which will happen on {{ attendee.event.start_datetime|date:"M j, Y" }} {% if not attendee.event.s_all_day %}{{ attendee.event.start_datetime|date:"P" }} to {{ attendee.event.end_datetime|date:"P" }}{% else %}all day{% endif %}</p>
+{% else %}
+<p>This email is to inform you that an event that you signed up for, "{{ attendee.event }}", will happen in {{ attendee.event.start_datetime|timeuntil }}.</p>
+{% endif %}
+
+<p>If you cannot make this event, or if your sign up was marked by accident, please <a href="{{ domain }}{% url 'cal:unattend' attendee.uuid%}">unattend this event</a>.</p>
+
+<p>Thanks!</p>
+<p>The {{ site }} team</p>

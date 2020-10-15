@@ -27,6 +27,8 @@ with open('DEBUG.text') as f:
 
 ALLOWED_HOSTS = ['192.168.0.180', 'localhost', '127.0.0.1',  '174.52.169.151', 'www.174.52.169.151' ]
 
+SITE_NAME = "this is the site name"
+DOMAIN_NAME = "https://example.com"
 
 # Application definition
 
