@@ -1,0 +1,6 @@
+Hello, {{ r }}!
+
+Thank you so much for your interest in {{ site }}! Your recent application to represent {{ r.nonprofit }} has been approved.
+
+Thanks!
+The {{ site }} team

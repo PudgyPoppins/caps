@@ -5,7 +5,7 @@ from django.forms import ModelForm, CheckboxSelectMultiple
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from network.models import Network, Nonprofit
+from network.models import Network, Nonprofit, RepApplicant
 
 class NetworkForm(ModelForm):
 	def clean_pub_date(self):
@@ -82,3 +82,10 @@ class NonprofitFormCreate(NonprofitFormUpdate):
 	def __init__(self, *args, **kwargs):
 		super(NonprofitFormCreate, self).__init__(*args, **kwargs)
 		self.fields.pop('network')
+
+class NonprofitFormRepresent(ModelForm):
+	class Meta:
+		model = RepApplicant
+		fields = ('email', 'src_file', 'text')
+		labels = {'src_file': _('Photo')}
+		widgets = {'text': forms.Textarea()}

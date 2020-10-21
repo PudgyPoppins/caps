@@ -10,11 +10,14 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 
+from django.core.mail import mail_admins
+from django.conf import settings
+
 # Create your views here.
 from cal.models import Calendar
 
 from .models import Network, Nonprofit
-from network.forms import NetworkForm, NonprofitFormCreate, NonprofitFormUpdate
+from .forms import *
 
 class IndexView(generic.ListView):
 	template_name = 'network/index.html'
@@ -152,6 +155,26 @@ class NonDetailView(generic.DetailView):
 		context = super().get_context_data(**kwargs)
 		context['calendar'] = Calendar.objects.get(nonprofit=self.object.id)
 		return context
+
+def non_represent(request, network, slug):
+	network = get_object_or_404(Network, slug=network)
+	nonprofit = get_object_or_404(Nonprofit, slug=slug, network=network)
+	form = NonprofitFormRepresent()
+	if request.method == 'POST':
+		form = NonprofitFormRepresent(request.POST)
+		if form.is_valid() and request.user.is_authenticated:
+			rep = form.save(commit=False)
+			rep.user = request.user
+			rep.nonprofit = nonprofit
+			rep.save()
+			messages.success(request, "Your application has been submitted and is currently under review. We will contact you when this process is complete.")
+			html = "<p>A new nonprofit application for " + str(rep.user) + " has been created, who is applying for " + rep.nonprofit.title + ". Check the admin site to see more.</p>"
+			mail_admins(subject = 'New nonprofit application',  message = 'A new nonprofit application has been created', fail_silently=True, html_message = html)
+			return HttpResponseRedirect(reverse('network:detailnon', kwargs={'network': network.slug, 'slug' : slug}))
+		else:
+			messages.error(request, "You have to be logged in to submit this form!")
+			return HttpResponseRedirect(reverse('network:detailnon', kwargs={'network': network.slug, 'slug' : slug}))
+	return render(request, 'network/non/nonprofit_rep_form.html', {"form" : form, "nonprofit": nonprofit, 'site': settings.SITE_NAME})
 
 
 def report(request, network_id):

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Nonprofit Representative Form{% endblock %}
+
+{% block content %}
+<h1>Apply to Represent a Nonprofit</h1>
+<h2>What is a nonprofit representative?</h2>
+<p>If you work for a nonprofit agency, and you'd like to use {{ site }} to verify and create volunteering events, or help volunteers log their hours with your nonprofit, you have to be a nonprofit representative.</p>
+
+
+{% if user.is_authenticated %}
+<form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit">
+</form>
+
+{% else %}
+<p>In order to apply to be a nonprofit representative, you have to be <a href="{% url 'login' %}">logged in</a> or <a href="{% url 'accounts:signup' %}">create an account</a></p>
+{% endif %}
+
+{% endblock %}

@@ -17,6 +17,10 @@
 
 <a href="{% url 'network:detail' nonprofit.network.slug %}">back to network</a>
 
+{% if user not in nonprofit.nonprofit_reps.all %}<a href="{% url 'network:representnon' nonprofit.network.slug nonprofit.slug %}">apply to represent this nonprofit</a>
+{% else %}<p>You are a nonprofit representative for {{ nonprofit.title }}</p>
+{% endif %}
+
 {% if nonprofit.src_file%}<img src="{{ nonprofit.src_file.url }}">{% endif %}
 {% if nonprofit.src_link%}<img src="{{ nonprofit.src_link }}">{% endif %}
 

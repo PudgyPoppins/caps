@@ -10,12 +10,35 @@ from PIL import Image
 from io import StringIO, BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
+def imageResize(self):
+	#image resizing:
+	if self.src_file:
+		# 1024px width maximum
+		basewidth = 1024
+		img = Image.open(self.src_file)
+		# Keep the exif data
+		exif = None
+		if 'exif' in img.info:
+		    exif = img.info['exif']
+		width_percent = (basewidth/float(img.size[0]))
+		height_size = int((float(img.size[1])*float(width_percent)))
+		img = img.resize((basewidth, height_size), PIL.Image.ANTIALIAS)
+		img = img.convert('RGB')
+		output = BytesIO()
+		# save the resized file to our IO ouput with the correct format and EXIF data ;-)
+		if exif:
+		    img.save(output, format='JPEG', exif=exif, quality=100)
+		else:
+		    img.save(output, format='JPEG', quality=100)
+		output.seek(0)
+		self.src_file = InMemoryUploadedFile(output, 'ImageField', "%s.jpg" % self.src_file.name, 'image/jpeg', output.getbuffer().nbytes, None)
+
 # Create your models here.
 class Network(models.Model):
 	pub_date = models.DateTimeField('date published', default=timezone.now)
 	title = models.CharField(max_length=75, help_text="What town/city/location will this network be representing?", unique=True, default="")
-	src_link = models.URLField(max_length=200, help_text="Enter a url for an image representing the network location", blank=True)	
-	src_file = models.ImageField(upload_to='network_images', help_text = "Submit a file for an image representing the network location", height_field=None, width_field=None, max_length=100, blank=True)
+	src_link = models.URLField(max_length=200, help_text="Enter a url for an image representing the network location", blank=True, null=True)	
+	src_file = models.ImageField(upload_to='network_images/', help_text = "Submit a file for an image representing the network location", height_field=None, width_field=None, max_length=100, blank=True, null=True)
 	slug = models.SlugField(max_length=100, unique=True, blank=True)
 
 	lat = models.DecimalField(max_digits=9, decimal_places=6, blank = True, null = True)
@@ -40,27 +63,7 @@ class Network(models.Model):
 	def save(self, *args, **kwargs):
 		self.slug = slugify(self.title)
 
-		#image resizing:
-		if self.src_file:
-			# 1024px width maximum
-			basewidth = 1024
-			img = Image.open(self.src_file)
-			# Keep the exif data
-			exif = None
-			if 'exif' in img.info:
-			    exif = img.info['exif']
-			width_percent = (basewidth/float(img.size[0]))
-			height_size = int((float(img.size[1])*float(width_percent)))
-			img = img.resize((basewidth, height_size), PIL.Image.ANTIALIAS)
-			img = img.convert('RGB')
-			output = BytesIO()
-			# save the resized file to our IO ouput with the correct format and EXIF data ;-)
-			if exif:
-			    img.save(output, format='JPEG', exif=exif, quality=100)
-			else:
-			    img.save(output, format='JPEG', quality=100)
-			output.seek(0)
-			self.src_file = InMemoryUploadedFile(output, 'ImageField', "%s.jpg" % self.src_file.name, 'image/jpeg', output.getbuffer().nbytes, None)
+		imageResize(self)
 
 		super(Network, self).save(*args, **kwargs)
 
@@ -78,8 +81,8 @@ class Nonprofit(models.Model):
 	network = models.ForeignKey(Network, on_delete=models.CASCADE) #Each nonprofit belongs to one network
 	pub_date = models.DateTimeField('date published', default=timezone.now)
 	title = models.CharField(max_length=75, help_text="Enter the network name")
-	src_link = models.URLField(max_length=200, help_text="Enter a url for an image representing the network location", blank=True)	
-	src_file = models.ImageField(upload_to='nonprofit_images', help_text = "Submit a file for an image representing the network location", height_field=None, width_field=None, max_length=100, blank=True)
+	src_link = models.URLField(max_length=200, help_text="Enter a url for an image representing the nonprofit location", blank=True, null=True)	
+	src_file = models.ImageField(upload_to='nonprofit_images/', help_text = "Upload an image representing the nonprofit location", height_field=None, width_field=None, max_length=100, blank=True, null=True)
 
 	#At least one of these forms is required to be filled out
 	website = models.URLField(max_length=200, help_text="Enter the nonprofit website url, if applicable", null=True, blank=True)
@@ -87,7 +90,7 @@ class Nonprofit(models.Model):
 	address = models.CharField(max_length=100, help_text="Enter the nonprofit address, if applicable", null=True, blank=True)
 	email = models.EmailField(max_length=254, help_text="Please enter a relevant email for volunteering, if applicable", null = True, blank=True)
 
-	description = models.CharField(max_length=1024, help_text="What kind of work will volunteers be doing here?", null=True, blank=True)
+	description = models.CharField(max_length=2048, help_text="What kind of work will volunteers be doing here?", null=True, blank=True)
 
 	lat = models.DecimalField(max_digits=9, decimal_places=6, null = True, blank=True)
 	lon = models.DecimalField(max_digits=9, decimal_places=6, null = True, blank=True)
@@ -113,30 +116,25 @@ class Nonprofit(models.Model):
 
 	def save(self, *args, **kwargs):
 		self.slug = slugify(self.title)
-
-		#image resizing:
-		if self.src_file:
-			# 1024px width maximum
-			basewidth = 1024
-			img = Image.open(self.src_file)
-			# Keep the exif data
-			exif = None
-			if 'exif' in img.info:
-			    exif = img.info['exif']
-			width_percent = (basewidth/float(img.size[0]))
-			height_size = int((float(img.size[1])*float(width_percent)))
-			img = img.resize((basewidth, height_size), PIL.Image.ANTIALIAS)
-			img = img.convert('RGB')
-			output = BytesIO()
-			# save the resized file to our IO ouput with the correct format and EXIF data ;-)
-			if exif:
-			    img.save(output, format='JPEG', exif=exif, quality=100)
-			else:
-			    img.save(output, format='JPEG', quality=100)
-			output.seek(0)
-			self.src_file = InMemoryUploadedFile(output, 'ImageField', "%s.jpg" % self.src_file.name, 'image/jpeg', output.getbuffer().nbytes, None)
-
+		imageResize(self)
 		super(Nonprofit, self).save(*args, **kwargs)
 
 	def __str__(self): 
 		return self.title
+
+class RepApplicant(models.Model):
+	user = models.ForeignKey(User, on_delete=models.CASCADE, null = True)
+	nonprofit = models.ForeignKey(Nonprofit, on_delete=models.CASCADE, null = True)
+	email = models.EmailField(max_length=254, help_text="If you'd like to use a different email address for your application, please enter it here", null = True, blank=True)
+	src_file = models.ImageField(upload_to='applicant_images/', help_text = "Upload an image providing proof that you can represent this nonprofit (examples include a photo of you in uniform, a check/direct deposit, a log sheet of your hours, etc)", height_field=None, width_field=None, max_length=100, blank=True, null=True)
+	text = models.CharField(max_length=1024, help_text="Is there anything else that could show that you have a connection to this nonprofit?", null=True, blank=True)
+	created_on = models.DateTimeField(default=timezone.now)
+
+	approved = models.BooleanField(default=False)
+
+	def __str__(self): 
+		return str(self.user)
+
+	def save(self, *args, **kwargs):
+		imageResize(self)
+		super(RepApplicant, self).save(*args, **kwargs)
