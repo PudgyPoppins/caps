@@ -30,7 +30,7 @@ class NetworkForm(ModelForm):
 	def clean_src_file(self):
 		image = self.cleaned_data.get('src_file', False)
 		if image:
-			if image._size > 2.5*1024*1024:
+			if image.size > 2.5*1024*1024:
 				raise ValidationError("Image file too large ( > 2.5MB )")
 		return image
 
@@ -70,6 +70,12 @@ class NonprofitFormUpdate(ModelForm):
 			if lon > 180 or lon < -180:
 				raise ValidationError(_('Invalid longitude - longitude must be between -180 and 180'))
 		return lon
+	def clean_src_file(self):
+		image = self.cleaned_data.get('src_file', False)
+		if image:
+			if image.size > 2.5*1024*1024:
+				raise ValidationError("Image file too large ( > 2.5MB )")
+		return image
 	def clean(self):
 		file = self.cleaned_data.get('src_file', False)
 		url = self.cleaned_data.get('src_link', False)

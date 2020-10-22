@@ -161,7 +161,7 @@ def non_represent(request, network, slug):
 	nonprofit = get_object_or_404(Nonprofit, slug=slug, network=network)
 	form = NonprofitFormRepresent()
 	if request.method == 'POST':
-		form = NonprofitFormRepresent(request.POST)
+		form = NonprofitFormRepresent(request.POST, request.FILES)
 		if form.is_valid() and request.user.is_authenticated:
 			rep = form.save(commit=False)
 			rep.user = request.user

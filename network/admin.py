@@ -46,7 +46,7 @@ def approve_applicant(modeladmin, request, queryset):
 				[email],
 				html_message=render_to_string('network/snippets/rep_email.html', {'r': i, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME}),
 			)
-approve_applicant.short_description = 'Approve applicant for nonprofit'
+approve_applicant.short_description = 'Approve applicants for nonprofit'
 
 class RepApplicantAdmin(admin.ModelAdmin):
 	list_display = ('user', 'nonprofit', 'approved')
@@ -55,7 +55,7 @@ class RepApplicantAdmin(admin.ModelAdmin):
 	actions = [approve_applicant]
 	def image_display(self, obj):
 		x = "<div>"
-		x += "<img src='/media/applicant_images/%s' height='500px'/>" %(obj.src_file)
+		x += "<img src='/media/%s' style='max-width:100%%;'/>" %(obj.src_file)
 		x += "</div>"
 		return mark_safe(x)
 
@@ -63,6 +63,7 @@ class RepApplicantAdmin(admin.ModelAdmin):
 		fields = [f.name for f in RepApplicant._meta.get_fields()] + ["image_display"]
 		fields.remove("id")
 		fields.remove("approved")
+		fields.remove("src_file")
 		return fields
 
 

@@ -124,7 +124,8 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 8/24 Made some spicy checkbox buttons (toggleable, too, wow). Got really far in creating the rrule picker on the event form. Still have a bit more to go.
 * 10/12 Calendar subscribe and unsubscribe now works entirely (or should work, at least). Also did some minor fixing up with calendar properties.
 * 10/14 Added a few fields and a property to Attendee. Created an unattend view. Automatically email users whenever they sign up for an event. Added an email template for use in confirming sign ups. Created a management tool to automatically send emails to people who have volunteering things happening soon. Created a command for a cronjob (that I have commented out on the management tool since Arch Linux) to do this.
-* 10/20 Completed the nonprofit rep form, everything's working, EXCEPT for image uploads :(. This is NOT a pog champ moment >:(.
+* 10/20 Completed the nonprofit rep form, everything's working, EXCEPT for image uploads :(. This is NOT a pog champ moment >:(. It also automatically send admin emails when users apply, and gives users emails if they get accepted. Admins can approve applicants on the admin page.
+* 10/21 Got images to work! This is true for both nonprofits, networks, and applicants. Epic gamer moment!
 
 TODO: 
 	* event create view

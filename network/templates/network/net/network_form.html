@@ -6,7 +6,7 @@
 <a href="{% url 'network:index' %}">back to list view</a>
 
 <h1>Add a new Network</h1>
-<form method="post">{% csrf_token %}
+<form method="post" enctype="multipart/form-data">{% csrf_token %}
     {{ form.as_p }}
     {% include 'network/snippets/network_map.html' %}
     <input type="submit" value="Save">

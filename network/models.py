@@ -126,7 +126,7 @@ class RepApplicant(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, null = True)
 	nonprofit = models.ForeignKey(Nonprofit, on_delete=models.CASCADE, null = True)
 	email = models.EmailField(max_length=254, help_text="If you'd like to use a different email address for your application, please enter it here", null = True, blank=True)
-	src_file = models.ImageField(upload_to='applicant_images/', help_text = "Upload an image providing proof that you can represent this nonprofit (examples include a photo of you in uniform, a check/direct deposit, a log sheet of your hours, etc)", height_field=None, width_field=None, max_length=100, blank=True, null=True)
+	src_file = models.ImageField(upload_to='applicant_images/', help_text = "Upload an image providing proof that you can represent this nonprofit (examples include a photo of you in uniform, a check/direct deposit, a log sheet of your hours, etc)", max_length=100, blank=True, null=True)
 	text = models.CharField(max_length=1024, help_text="Is there anything else that could show that you have a connection to this nonprofit?", null=True, blank=True)
 	created_on = models.DateTimeField(default=timezone.now)
 

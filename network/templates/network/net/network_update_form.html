@@ -6,7 +6,7 @@
 <a href="{% url 'network:detail' object.slug %}">back to detail view</a>
 
 <h1>Update network information</h1>
-<form method="post">{% csrf_token %}
+<form method="post" enctype="multipart/form-data">{% csrf_token %}
     {{ form.as_p }}
     {% include 'network/snippets/network_map.html' %}
     <input type="submit" value="Update">
