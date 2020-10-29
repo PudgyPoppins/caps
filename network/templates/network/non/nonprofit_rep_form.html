@@ -2,17 +2,20 @@
 {% block title %}Nonprofit Representative Form{% endblock %}
 
 {% block content %}
-<h1>Apply to Represent a Nonprofit</h1>
+<h1>Apply to Represent {{ nonprofit.title }}</h1>
 <h2>What is a nonprofit representative?</h2>
 <p>If you work for a nonprofit agency, and you'd like to use {{ site }} to verify and create volunteering events, or help volunteers log their hours with your nonprofit, you have to be a nonprofit representative.</p>
+<p>You can use this form to submit any proof that you have a verifiable connection to this nonprofit. Alternatively, you can also <a href=" mailto:{{ email }}?subject=Apply%20to%20represent%20{{ nonprofit.title }} ">send an email to {{ email }}</a> from a work email address (some_name@your_nonprofit.org), which is sufficient enough proof.</p>
 
 
-{% if user.is_authenticated %}
+{% if user.is_authenticated and user not in nonprofit.nonprofit_reps.all %}
 <form method="post" enctype="multipart/form-data">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Submit">
 </form>
 
+{% elif user.is_authenticated %}
+<p>Since you're already representing {{ nonprofit.title }}, you can't fill out the form again.</p>
 {% else %}
 <p>In order to apply to be a nonprofit representative, you have to be <a href="{% url 'login' %}">logged in</a> or <a href="{% url 'accounts:signup' %}">create an account</a></p>
 {% endif %}

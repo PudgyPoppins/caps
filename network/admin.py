@@ -19,6 +19,10 @@ class NetworkAdmin(admin.ModelAdmin):
 	list_filter = ['flagged', 'pub_date']
 	list_display = ('title', 'pub_date', 'was_flagged', 'slug')
 	search_fields = ['title']
+	readonly_fields = ["image_display"]
+	def image_display(self, obj):
+		x = "<div><img src='/media/%s' style='max-width:100%%;'/></div>" %(obj.src_file)
+		return mark_safe(x)
 
 class NonprofitAdmin(admin.ModelAdmin):
 	list_display = ('title', 'network', 'pub_date', 'was_flagged')
@@ -27,6 +31,10 @@ class NonprofitAdmin(admin.ModelAdmin):
 	formfield_overrides = {
 		models.ManyToManyField: {'widget': CheckboxSelectMultiple},
 	}
+	readonly_fields = ["image_display"]
+	def image_display(self, obj):
+		x = "<div><img src='/media/%s' style='max-width:100%%;'/></div>" %(obj.src_file)
+		return mark_safe(x)
 
 def approve_applicant(modeladmin, request, queryset):
 	queryset.update(approved=True)
@@ -54,9 +62,7 @@ class RepApplicantAdmin(admin.ModelAdmin):
 	search_fields = ['user', 'nonprofit', 'approved']
 	actions = [approve_applicant]
 	def image_display(self, obj):
-		x = "<div>"
-		x += "<img src='/media/%s' style='max-width:100%%;'/>" %(obj.src_file)
-		x += "</div>"
+		x = "<div><img src='/media/%s' style='max-width:100%%;'/></div>" %(obj.src_file)
 		return mark_safe(x)
 
 	def get_readonly_fields(self, request, obj=None):

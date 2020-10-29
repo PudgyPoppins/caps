@@ -1,16 +1,21 @@
 import pytz
+from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.views.generic.base import TemplateView
 # Create your views here.
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 
 from network.models import Network, Nonprofit
 from django.utils import timezone
 
 def main(request):
 	if request.user.is_authenticated:
-		network_list = Network.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')
-		return render(request, 'network/index.html', {"network_list": network_list})
+		if request.user.nonprofit_rep.all():
+			nonprofit = request.user.nonprofit_rep.all()[0]
+			return HttpResponseRedirect(reverse('network:detailnon', kwargs={'network': nonprofit.network.slug, 'slug' : nonprofit.slug}))
+		else:
+			network_list = Network.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')
+			return render(request, 'network/index.html', {"network_list": network_list})
 	else:
 		context = {}
 		return render(request, 'home/index.html', context)

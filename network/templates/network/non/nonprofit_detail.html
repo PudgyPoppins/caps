@@ -13,7 +13,16 @@
 {% if user.is_authenticated and user.username == nonprofit.created_by.username or user.is_authenticaed and perms.network.delete_nonprofit or user.is_authenticated and user in nonprofit.nonprofit_rep.all %}
 <a href="{% url 'network:deletenon' nonprofit.network.slug nonprofit.slug %}">delete</a>
 {% endif %}
+
+{% if not nonprofit.locked or user.is_authenticated and user in nonprofit.nonprofit_reps.all %}
 <a href="{% url 'network:updatenon' nonprofit.network.slug nonprofit.slug %}">update</a>
+{% endif %}
+
+{% if user.is_authenticated and user in nonprofit.nonprofit_reps.all and not nonprofit.locked %}
+<a href="{% url 'network:locknon' nonprofit.network.slug nonprofit.slug %}">lock nonprofit</a>
+{% elif user.is_authenticated and user in nonprofit.nonprofit_reps.all and nonprofit.locked%}
+<a href="{% url 'network:unlocknon' nonprofit.network.slug nonprofit.slug %}">unlock nonprofit</a>
+{% endif %}
 
 <a href="{% url 'network:detail' nonprofit.network.slug %}">back to network</a>
 

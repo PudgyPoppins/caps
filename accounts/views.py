@@ -76,13 +76,9 @@ def get_profile(request, username):
 	user = get_object_or_404(User, username=username)
 	if request.user.is_authenticated and user == request.user:
 		return HttpResponseRedirect(reverse('accounts:current_profile'))
-	created_networks = Network.objects.filter(created_by=user)
-	created_nonprofits = Nonprofit.objects.filter(created_by=user)
 	joined_organizations = Organization.objects.filter(Q(member=user) | Q(leader=user) | Q(moderator=user))
 	context = {
 		'profile': user,
-		'created_networks': created_networks,
-		'created_nonprofits': created_nonprofits,
 		'joined_organizations': joined_organizations,
 	}
 	return render(request, 'accounts/profile.html', context) #I'm passing this info through as profile instead of user because if the profile is not the user's own, I want them to be able to see their stuff still

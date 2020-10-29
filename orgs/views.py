@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.safestring import mark_safe
+from django.conf import settings
 
 # Create your views here.
 from cal.models import Calendar
@@ -299,7 +300,7 @@ def leave(request, organization):
 						organization.leader.remove(request.user)
 						messages.success(request, "Successfully left %s and transfered leadership to %s" %(organization.title, new_leader))
 					elif new_leader in organization.leader.all():
-						messages.error(request, mark_safe("Please <a href='mailto:pudgypoppins@gmail.com'>email me</a>, something went disastrously wrong :("))
+						messages.error(request, mark_safe("Please <a href='mailto:%s'>email me</a>, something went disastrously wrong :(" %(settings.ADMINS[0][1])))
 					else:
 						try_link = reverse('orgs:leave', kwargs={'organization': organization.slug})
 						messages.error(request, mark_safe("%s is not a member of this organization! <a href='%s'>Try again?</a>" %(new_leader, try_link)))

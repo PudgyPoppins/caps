@@ -8,33 +8,22 @@ One thing I should focus on is working outside in.
 This might come in handy for providing back links: <a href="javascript:history.go(-1)">back</a>
 
 # TODO:
-* see image issue
 * ## Network / Nonprofits
 	* add announcements (TextPost model in organization) to nonprofits so that they can make them.
 		* only nonprofit representatives can create announcements
-	* add a way to do nonprofit representatives, with a proof / application system
-	* maybe a success message on creation/update? | https://docs.djangoproject.com/en/3.0/ref/contrib/messages/#adding-messages-in-class-based-views
 	* soft deleting as an option (a moderator could recover a deleted object up to 2 weeks later or so) | https://medium.com/@adriennedomingus/soft-deletion-in-django-e4882581c340 | this one is probably better: https://blog.khophi.co/soft-delete-django-quickly/
 	* ### Forms
 		* markdown for the volunteer description would be pretty cool, I think
 		* when you refresh the page, all of the field values are kept. However, the address is NOT.
 
-* ## User system / user classess
+* ## Users
+	* Email verification
 
-	* create groups | https://docs.djangoproject.com/en/3.0/ref/contrib/auth/#django.contrib.auth.models.Group
-	* if you're a moderator or nonprofit representative, this'll show up on your user profile
-		* nonprofit representatives are attatched to a nonprofit in a model. However, I should still add them all to a group, so that way, I can get who they are, then set their home:main view to their nonprofit.
-	* ### Reporting System
-		* If a nonprofit is flagged true, then send an email with the reason | https://docs.djangoproject.com/en/3.0/topics/email/#send-mass-mail
-			* scratch that... first, add a many to many field of reasons, similar to tags, to nonprofits and networks. Then, if they have a reason, it will automatically pop up as flagged in the template view.
-		* reports should probably be a separate model that has a many to many relationship with nonprofits and networks, and could be assigned or deleted
-		* when a user gets their own account reported, they see a warning message in the top of their profile, and their background image in the navbar turns red | https://docs.djangoproject.com/en/3.0/ref/contrib/messages/#expiration-of-messages
-			* how about we send an email instead?
+* ## Reporting System
+	* Literally just copy/paste the reporting system I had for APCrowd2020
+
 * ## Calendar
-	* nonprofit reps can lock their nonprofit from regular users creating events?
-
-	* add a way to filter events shown on the calendar. Validity filtration is a must. Maybe also nonprofit filtration?
-	* make a regex for an RRULE (and for that matter, a user-friendly field for the RRULE)
+	* add a way to filter events shown on the calendar by verified.
 	
 	* import events from a google cal | https://fullcalendar.io/docs/v3/google-calendar
 	* rss feeds
@@ -52,17 +41,16 @@ This might come in handy for providing back links: <a href="javascript:history.g
 
 * ##Logging
 	* When a user signs up for an event, after the event has happened, then the nonprofit representative can verify that they helped out
+		* Add another crontab job that runs every 30 minutes. Filter for all of the volunteering events that happened more than one day ago. Send one email to nonprofit reps listing all of the attendees who didn't have their hours verified so far.
 	* Nonprofit representatives can also add a log for a user without an event
 	* Users can add their own logs. They can select a nonprofit that's already added or write in their own. They can write in their hours, too.
 
 * ## Later:
 	* 404 error page isn't getting css.
-	* When making the site look good, I'll probably have to override all of the forms with custom elements. See nonprofit_map and change all of that dom element creation stuff that I did.
+	* When making the site look good, I'll probably have to override all of the forms with custom elements. See nonprofit_map and change all of that dom element creation stuff that I did.conda create -n entwine -c conda-forge entwine
 	* make more favicons (for phones) and more meta data (twitter card, etc)
 	* write some general tests
 	* ordering networks/nonprofits based on distance to you: https://geopy.readthedocs.io/en/stable/#module-geopy.distance
-	* switch image uploading to a service like aws
-	* use regex on phone model to enforce an answer
 	* add a button you can use to get directions to a nonprofit on its detail view
 	* set keywords and author meta for base.html
 
@@ -70,9 +58,8 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * if you refresh a network when you're creating it, the coords will reset while the title stays, which isn't good. I should clear the forms on page reload for this view.
 * whenever you add a nonprofit with the same name in the same network, it rightfully raises an error, but not in the form view which is what I want
 * issue: networks, "Lisbon, Peru" and "Lisbon Peru" can be created because they have technically different titles (comma vs no comma), but they have the same slug
-* potential issue: image gets resized every time it is saved if it's above a certain width. While I set this to 100% conversion, I'm curious if future loss occurs
-	* to solve this, wrap the whole thing in an if image width > 1024 px, just to be safe and eficient
 * original big image doesn't get delted after resizing happens
+	* I haven't seen this happen again, though, Oct 21
 
 # Brainstorming
 * Handling exceptions:
@@ -125,7 +112,8 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 10/12 Calendar subscribe and unsubscribe now works entirely (or should work, at least). Also did some minor fixing up with calendar properties.
 * 10/14 Added a few fields and a property to Attendee. Created an unattend view. Automatically email users whenever they sign up for an event. Added an email template for use in confirming sign ups. Created a management tool to automatically send emails to people who have volunteering things happening soon. Created a command for a cronjob (that I have commented out on the management tool since Arch Linux) to do this.
 * 10/20 Completed the nonprofit rep form, everything's working, EXCEPT for image uploads :(. This is NOT a pog champ moment >:(. It also automatically send admin emails when users apply, and gives users emails if they get accepted. Admins can approve applicants on the admin page.
-* 10/21 Got images to work! This is true for both nonprofits, networks, and applicants. Epic gamer moment!
+* 10/21 Got images to work! This is true for both nonprofits, networks, and applicants. Epic gamer moment! Listed representing nonprofits on user's profile page. Simplified profile page context variables with reverse relationships. Added more detail on the nonprofit_rep template. Stopped user from applying if they're already representing the nonprofit. Set the home page for nonprofit reps to their nonprofit. Added nonprofit success messages. Added a regex phone validator
+* 10/28 Added locked boolean to nonprofits. Added a system for nonprofit reps to lock their nonprofits from user-edits and user-created calendar events, and unlock them.
 
 TODO: 
 	* event create view

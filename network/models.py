@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 import datetime
 from django.utils import timezone
+from django.core.validators import RegexValidator
 
 from accounts.models import User
 
@@ -16,22 +17,23 @@ def imageResize(self):
 		# 1024px width maximum
 		basewidth = 1024
 		img = Image.open(self.src_file)
-		# Keep the exif data
-		exif = None
-		if 'exif' in img.info:
-		    exif = img.info['exif']
-		width_percent = (basewidth/float(img.size[0]))
-		height_size = int((float(img.size[1])*float(width_percent)))
-		img = img.resize((basewidth, height_size), PIL.Image.ANTIALIAS)
-		img = img.convert('RGB')
-		output = BytesIO()
-		# save the resized file to our IO ouput with the correct format and EXIF data ;-)
-		if exif:
-		    img.save(output, format='JPEG', exif=exif, quality=100)
-		else:
-		    img.save(output, format='JPEG', quality=100)
-		output.seek(0)
-		self.src_file = InMemoryUploadedFile(output, 'ImageField', "%s.jpg" % self.src_file.name, 'image/jpeg', output.getbuffer().nbytes, None)
+		if img.width > basewidth:
+			# Keep the exif data
+			exif = None
+			if 'exif' in img.info:
+			    exif = img.info['exif']
+			width_percent = (basewidth/float(img.size[0]))
+			height_size = int((float(img.size[1])*float(width_percent)))
+			img = img.resize((basewidth, height_size), PIL.Image.ANTIALIAS)
+			img = img.convert('RGB')
+			output = BytesIO()
+			# save the resized file to our IO ouput with the correct format and EXIF data ;-)
+			if exif:
+			    img.save(output, format='JPEG', exif=exif, quality=80)
+			else:
+			    img.save(output, format='JPEG', quality=80)
+			output.seek(0)
+			self.src_file = InMemoryUploadedFile(output, 'ImageField', "%s.jpg" % self.src_file.name, 'image/jpeg', output.getbuffer().nbytes, None)
 
 # Create your models here.
 class Network(models.Model):
@@ -45,7 +47,7 @@ class Network(models.Model):
 	lon = models.DecimalField(max_digits=9, decimal_places=6, blank = True, null = True)
 
 	flagged = models.BooleanField(default=False)
-	created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True)
+	created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True, related_name="network")
 
 
 	def __str__(self): 
@@ -77,6 +79,8 @@ class Tag(models.Model):
 	def __str__(self):
 		return format(self.name)
 
+
+phoneValidator = RegexValidator(r'\d{3}-\d{3}-\d{4}')
 class Nonprofit(models.Model):
 	network = models.ForeignKey(Network, on_delete=models.CASCADE) #Each nonprofit belongs to one network
 	pub_date = models.DateTimeField('date published', default=timezone.now)
@@ -86,7 +90,7 @@ class Nonprofit(models.Model):
 
 	#At least one of these forms is required to be filled out
 	website = models.URLField(max_length=200, help_text="Enter the nonprofit website url, if applicable", null=True, blank=True)
-	phone = models.CharField(max_length=12, help_text="Enter a phone number in the format 111-111-1111", null=True, blank=True) #for now, I'm using a charfield but in the future I should use a phonenumber field from a library
+	phone = models.CharField(max_length=12, help_text="Enter a phone number in the format 111-111-1111", null=True, blank=True, validators=[phoneValidator])
 	address = models.CharField(max_length=100, help_text="Enter the nonprofit address, if applicable", null=True, blank=True)
 	email = models.EmailField(max_length=254, help_text="Please enter a relevant email for volunteering, if applicable", null = True, blank=True)
 
@@ -98,8 +102,9 @@ class Nonprofit(models.Model):
 	tags = models.ManyToManyField(Tag, blank=True)
 
 	flagged = models.BooleanField(default=False)
-	created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True)
+	created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True, related_name="nonprofit")
 	nonprofit_reps = models.ManyToManyField(User, blank = True, related_name="nonprofit_rep")
+	locked = models.BooleanField(default=False)
 
 	slug = models.SlugField(max_length=100, blank=True)
 

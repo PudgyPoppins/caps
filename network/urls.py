@@ -14,7 +14,9 @@ urlpatterns = [
     path('<slug:network>/<slug:slug>/', views.NonDetailView.as_view(), name='detailnon'), #nonprofit detail view
     path('<slug:network>/<slug:slug>/update/', views.UpdateNonView.as_view(), name='updatenon'), #update a nonprofit
     path('<slug:network>/<slug:slug>/delete/', views.DeleteNonView.as_view(), name='deletenon'), #delete a nonprofit
-    path('<slug:network>/<slug:slug>/represent/', views.non_represent, name='representnon'), #delete a nonprofit
+    path('<slug:network>/<slug:slug>/represent/', views.non_represent, name='representnon'), #represent a nonprofit
+    path('<slug:network>/<slug:slug>/lock/', views.non_lock, name='locknon'), #lock a nonprofit
+    path('<slug:network>/<slug:slug>/unlock/', views.non_unlock, name='unlocknon'), #unlock a nonprofit
     
     path('<str:network_id>/report/', views.report, name='report'),
 ]

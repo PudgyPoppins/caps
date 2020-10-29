@@ -16,6 +16,7 @@ from datetime import datetime
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils.safestring import mark_safe
 
 from django.forms.models import model_to_dict
 
@@ -88,6 +89,11 @@ def add_event(request, username=None, nonprofit=None, network=None, organization
 	elif nonprofit and network:
 		network = get_object_or_404(Network, slug=network)
 		nonprofit = get_object_or_404(Nonprofit, slug=nonprofit, network=network)
+		if nonprofit.locked and not request.user in nonprofit.nonprofit_reps.all(): #if it's locked, and you're not a rep, you can't add an event
+			messages.error(request, "A nonprofit representative has locked this nonprofit from user-created events")
+			rep_link = reverse('network:representnon', kwargs={'network': network.slug, 'slug' : slug})
+			messages.info(request, mark_safe("You don't have permission to perform this action! If you think that you should be able to lock this nonprofit, please fill out the <a href='%s'>form to represent this nonprofit</a>" %(rep_link)))
+			return HttpResponseRedirect(reverse('network:detailnon', kwargs={'network': network.slug, 'slug' : nonprofit.slug}))
 		calendar = Calendar.objects.get(nonprofit=nonprofit)
 		calendar_name = "the " + nonprofit.title + " nonprofit calendar"
 	elif network:
