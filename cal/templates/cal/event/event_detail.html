@@ -8,7 +8,7 @@
 <h1>{{ event }} on {% if d %}{{ d|getLongDate }}{% else %}{{ event.start_datetime|date:"M j, Y" }}{% endif %}</h1>
 <h3>{% if event.s_description %}{{ event.s_description }}{% endif %}</h3>
 <h3>
-	{% if not event.s_all_day %}{{ event.start_datetime|date:"P" }} to {{ event.end_datetime|date:"P" }}
+	{% if event.s_all_day is not True %}{{ event.start_datetime|date:"P" }} to {{ event.end_datetime|date:"P" }}
 	{% else %}all day event{% endif %}
 </h3>
 
@@ -18,9 +18,9 @@
 <a href="{% url 'cal:nonprofitcal' c.nonprofit.network.slug c.nonprofit.slug %}">back to nonprofit calendar</a> |
 <a href="{% url 'cal:networkcal' c.nonprofit.network.slug %}">back to network calendar</a> |
 {% elif c.network %}
-<a href="{% url 'cal:orgcal' c.network.slug %}">back to network calendar</a> |
+<a href="{% url 'cal:networkcal' c.network.slug %}">back to network calendar</a> |
 {% elif c.organization %}
-<a href="{% url 'cal:networkcal' c.organization.slug %}">back to organization calendar</a> |
+<a href="{% url 'cal:orgcal' c.organization.slug %}">back to organization calendar</a> |
 {% endif %}
 
 {% if user.is_authenticated and event.s_created_by.username == user.username or event.calendar.nonprofit and user.is_authenticated and user in event.calendar.nonprofit.nonprofit_reps.all %}
@@ -30,6 +30,14 @@
 
 {% if event.rrule and d or not event.rrule %}
 <a href="{% url 'cal:signup' event.token %}{% if d %}?d={{ d }}{% endif %}">sign up for event</a> |
+{% endif %}
+
+{% if c.nonprofit and user.is_authenticated and user in c.nonprofit.nonprofit_reps.all %}
+{% if event.verified %}
+<a href="{% url 'cal:verifyevent' event.token %}">unverify event</a> |
+{% else %}
+<a href="{% url 'cal:verifyevent' event.token %}">verify event</a> |
+{% endif %}
 {% endif %}
 
 {% if next_repeat and not d %}<p>The next time this event repeats is on <a href="{% url 'cal:eventdetail' event.token %}?d={{ next_repeat }}">{{ next_repeat }}</a>.</p>{% endif %}

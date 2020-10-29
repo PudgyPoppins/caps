@@ -229,11 +229,11 @@ class Event(models.Model):
 	@property
 	def s_verified(self):
 		if self.verified is not None:
-			return self.verified
+			return True
 		elif self.parent:
 			return self.parent.s_verified
 		else:
-			return None
+			return False
 
 	'''def s_field(self, field):
 		# was a really great way to search through fields without all of these properties, but couldn't be called in templates, and I didn't want to include custom filters on every page :(

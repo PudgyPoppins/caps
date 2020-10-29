@@ -114,6 +114,7 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 10/20 Completed the nonprofit rep form, everything's working, EXCEPT for image uploads :(. This is NOT a pog champ moment >:(. It also automatically send admin emails when users apply, and gives users emails if they get accepted. Admins can approve applicants on the admin page.
 * 10/21 Got images to work! This is true for both nonprofits, networks, and applicants. Epic gamer moment! Listed representing nonprofits on user's profile page. Simplified profile page context variables with reverse relationships. Added more detail on the nonprofit_rep template. Stopped user from applying if they're already representing the nonprofit. Set the home page for nonprofit reps to their nonprofit. Added nonprofit success messages. Added a regex phone validator
 * 10/28 Added locked boolean to nonprofits. Added a system for nonprofit reps to lock their nonprofits from user-edits and user-created calendar events, and unlock them.
+* 10/29 Added a way for nonprofit reps to verify/unverify events. Changed the calendar json to show only verified events, and show all events if ?all is present in the url. Need to add a way to filter with fullcalendar, still, but we're getting close. Removed bulma.
 
 TODO: 
 	* event create view

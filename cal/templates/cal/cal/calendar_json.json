@@ -1,7 +1,7 @@
 {% load custom_filters %}
 [
 
-	{% with event_list=calendar|get_calendar_events %}
+	{% with event_list=calendar|get_calendar_events:all %}
 	{% for i in event_list %}
 	{
 		"title": "{{ i.s_title|escapejs }}",
@@ -12,6 +12,7 @@
 		"textColor": "#000000",
 		{% endif %}
 		"allDay": {{ i.s_all_day|lower }},
+		"verified": {{ i.s_verified|lower }},
 
 		{% if i.rrule %}
 		"rrule": "{{ i.rrule|rruleExdate:i }}",

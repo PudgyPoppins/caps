@@ -72,7 +72,10 @@ def calendar_json(request, token):
 	else:
 		messages.error(request, "That calendar doesn't exist, or you don't have permission to see it!")
 		return HttpResponseRedirect(reverse('home:main'))
-	return render(request, 'cal/cal/calendar_json.json', {"calendar" : calendar}, content_type="application/json")
+	if request.GET.get('all'): all = True
+	else: all=False
+
+	return render(request, 'cal/cal/calendar_json.json', {"calendar" : calendar, "all": all}, content_type="application/json")
 
 #Event Views
 @login_required
@@ -136,10 +139,12 @@ def event_detail(request, token):
 		context = {"event": event}
 		context['c'] = event.s_calendar
 		if event.rrule:
-
 			rrule = rrulestr(event.rrule.replace('\\n', '\n'))
-			next_repeat = str(rrule.after(datetime.datetime.now(), inc = True).date())
-			context['next_repeat'] = next_repeat
+			try:
+				next_repeat = str(rrule.after(datetime.datetime.now(), inc = True).date())
+				context['next_repeat'] = next_repeat
+			except:
+				context['next_repeat'] = None
 
 			try:
 				context['d'] = request.GET['d']
@@ -651,4 +656,29 @@ def calendar_unsubscribe(request, token):
 			return HttpResponseRedirect(calendar.cal_url)
 	else:
 		messages.error(request, "That calendar doesn't exist!")
+		return HttpResponseRedirect(reverse('home:main'))
+
+@login_required
+def verify_event(request, token):
+	event = Event.objects.filter(token=token)
+	if event:
+		event = event[0]
+		if not event.s_calendar.nonprofit:
+			messages.error(request, "This isn't a nonprofit event")
+		elif request.user not in event.s_calendar.nonprofit.nonprofit_reps.all() and not request.user.is_admin:
+			rep_link = reverse('network:representnon', kwargs={'network': event.s_calendar.nonprofit.network.slug, 'slug' : event.s_calendar.nonprofit.slug})
+			messages.error(request, mark_safe("You don't have permission to perform this action! If you think that you should be able to verify this event, please fill out the <a href='%s'>form to represent this nonprofit</a>" %(rep_link)))
+		else:
+			if event.verified:
+				event.verified = None
+				event.save()
+				messages.success(request, "Successfully unverified this event")
+			else:
+				event.verified = request.user
+				event.save()
+				messages.success(request, "Successfully verified this event")
+		return HttpResponseRedirect(reverse('cal:eventdetail', kwargs={'token' : token}))
+
+	else:
+		messages.error(request, "That event doesn't exist!")
 		return HttpResponseRedirect(reverse('home:main'))

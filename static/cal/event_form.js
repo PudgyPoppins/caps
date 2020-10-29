@@ -1,3 +1,5 @@
+import { RRule, RRuleSet, rrulestr } from '/static/cal/rrule.js';
+
 $(function () {
 	$('#start_date_picker').datetimepicker({format: 'YYYY-MM-DD'});
 });
@@ -158,6 +160,15 @@ function monthByDay(){
 	rruleByMonthDay = ""; //this value should not be set if the user is somehow here
 	rruleBySetPos = $('#monthBySetPos').val();
 	rruleByDay = $('#monthByDay').val();
+}
+
+$(document).on("change", "input:radio[name=freq] #interval input:checkbox.buttonCheckbox #monthByDay #monthBySetPos" , function() {
+	rruleStr();
+});
+rruleStr();
+function rruleStr(){
+	var x = RRule.fromString(createRruleStr());
+	$("#rruleStr").text = x.toText();
 }
 
 /*
