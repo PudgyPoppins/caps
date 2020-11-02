@@ -91,21 +91,19 @@ def get_all_relatives(event, relatives):
 	return relatives
 
 @register.filter
-def get_calendar_events(calendar, all=False):
+def get_calendar_events(calendar):
 	relatives = []
 	empty_relatives = []
 	for cal in calendar.get_nested_calendars:
 		for i in cal.event.all():
 			relatives += get_all_relatives(i, empty_relatives)
 	relatives = list(set(relatives))
-	if not all:
-		return get_verified_calendar_events(relatives)
 	return relatives
 
-@register.filter
+'''@register.filter
 def get_verified_calendar_events(events):
 	verified_events = []
 	for i in events:
 		if i.s_verified:
 			verified_events.append(i)
-	return verified_events
+	return verified_events'''

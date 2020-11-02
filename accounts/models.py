@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+import orgs
+
 class User(AbstractUser):
 	pass
 	username = models.CharField(max_length=25, help_text="What username would you like to pick?", unique=True, default="")
@@ -11,3 +13,8 @@ class User(AbstractUser):
 		if self.display_name:
 			return self.display_name
 		return self.username
+
+	@property
+	def organization_leadership(self): #show all of the organizations that this user helps out in
+		return orgs.models.Organization.objects.filter(models.Q(leader=self) | models.Q(moderator=self))
+	

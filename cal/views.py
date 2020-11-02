@@ -72,10 +72,7 @@ def calendar_json(request, token):
 	else:
 		messages.error(request, "That calendar doesn't exist, or you don't have permission to see it!")
 		return HttpResponseRedirect(reverse('home:main'))
-	if request.GET.get('all'): all = True
-	else: all=False
-
-	return render(request, 'cal/cal/calendar_json.json', {"calendar" : calendar, "all": all}, content_type="application/json")
+	return render(request, 'cal/cal/calendar_json.json', {"calendar" : calendar}, content_type="application/json")
 
 #Event Views
 @login_required
@@ -607,6 +604,40 @@ def unattend(request, uuid):
 * If the user isn't logged in, give them a simple name form, then sign them up
 '''
 
+def calendar_subscribe_helper(request, calendar1, calendar2): #calendar1 is the user calendar/organization calendar, calendar 2 is the calendar to subscribe to
+	if calendar1 == calendar2 or calendar2.user:
+		messages.error(request, "You can't subscribe to a user calendar")
+		return HttpResponseRedirect(calendar2.cal_url)
+	if calendar2 in calendar1.get_nested_calendars:
+		messages.info(request, "You're already subscribed to this calendar")
+	else:
+		if calendar2 in calendar1.excludedcal.all():
+			calendar1.excludedcal.remove(calendar2)
+		calendar1.calendars.add(calendar2)
+		calendar1.save()
+		messages.success(request, "Successfully subscribed to this calendar")
+	return HttpResponseRedirect(calendar2.cal_url)
+
+def calendar_unsubscribe_helper(request, calendar1, calendar2): #calendar1 is the user calendar/organization calendar, calendar 2 is the calendar to subscribe to
+	if calendar1 == calendar2:
+		messages.error(request, "You can't unsubscribe from your own calendar!")
+		return HttpResponseRedirect(calendar2.cal_url)
+	if calendar2 in calendar1.get_nested_calendars:
+		if calendar2 in calendar1.calendars.all():
+			calendar1.calendars.remove(calendar2)
+			messages.success(request, "Successfully unsubscribed from this calendar")
+		elif calendar2 not in calendar1.excludedcal.all():
+			calendar1.excludedcal.add(calendar2)
+			messages.success(request, "Successfully unsubscribed from this calendar")
+		else: #the only other possibility is that it's already in excludedcal.all()
+			messages.info(request, "You're already unsubscribed to this calendar")
+		return HttpResponseRedirect(calendar2.cal_url)
+	else:
+		#you're only subscribed to a calendar if you're explicitly subscribed to it (it's in calendars.all()), or if you're implicitly subscribed to it (it's a child of something in calendars.all())
+		messages.info(request, "You're not subscribed to this calendar in the first place")
+		return HttpResponseRedirect(calendar.cal_url)
+
+
 @login_required
 def calendar_subscribe(request, token):
 	calendar = Calendar.objects.filter(token=token)
@@ -614,18 +645,7 @@ def calendar_subscribe(request, token):
 		calendar = calendar[0]
 		user = request.user
 		u_cal = user.calendar
-		if u_cal == calendar or calendar.user:
-			messages.error(request, "You can't subscribe to a user calendar")
-			return HttpResponseRedirect(calendar.cal_url)
-		if calendar in u_cal.get_nested_calendars:
-			messages.info(request, "You're already subscribed to this calendar")
-		else:
-			if calendar in u_cal.excludedcal.all():
-				u_cal.excludedcal.remove(calendar)
-			u_cal.calendars.add(calendar)
-			u_cal.save()
-			messages.success(request, "Successfully subscribed to this calendar")
-		return HttpResponseRedirect(calendar.cal_url)
+		return calendar_subscribe_helper(request, u_cal, calendar)
 	else:
 		messages.error(request, "That calendar doesn't exist!")
 		return HttpResponseRedirect(reverse('home:main'))
@@ -637,22 +657,36 @@ def calendar_unsubscribe(request, token):
 		calendar = calendar[0]
 		user = request.user
 		u_cal = user.calendar
-		if u_cal == calendar:
-			messages.error(request, "You can't unsubscribe from your own calendar!")
-			return HttpResponseRedirect(calendar.cal_url)
-		if calendar in u_cal.get_nested_calendars:
-			if calendar in u_cal.calendars.all():
-				u_cal.calendars.remove(calendar)
-				messages.success(request, "Successfully unsubscribed from to this calendar")
-			elif calendar not in u_cal.excludedcal.all():
-				u_cal.excludedcal.add(calendar)
-				messages.success(request, "Successfully unsubscribed from to this calendar")
-			else: #the only other possibility is that it's already in excludedcal.all()
-				messages.info(request, "You're already unsubscribed to this calendar")
-			return HttpResponseRedirect(calendar.cal_url)
+		return calendar_unsubscribe_helper(request, u_cal, calendar)
+	else:
+		messages.error(request, "That calendar doesn't exist!")
+		return HttpResponseRedirect(reverse('home:main'))
+
+@login_required
+def org_calendar_subscribe(request, token, organization):
+	calendar = Calendar.objects.filter(token=token)
+	if calendar:
+		calendar = calendar[0]
+		organization = get_object_or_404(Organization, slug=organization)
+		if organization in request.user.organization_leadership:
+			return calendar_subscribe_helper(request, organization.calendar, calendar)
 		else:
-			#you're only subscribed to a calendar if you're explicitly subscribed to it (it's in calendars.all()), or if you're implicitly subscribed to it (it's a child of something in calendars.all())
-			messages.info(request, "You're not subscribed to this calendar in the first place")
+			messages.error(request, "You don't have permission to do that!")
+			return HttpResponseRedirect(calendar.cal_url)
+	else:
+		messages.error(request, "That calendar doesn't exist!")
+		return HttpResponseRedirect(reverse('home:main'))
+
+@login_required
+def org_calendar_unsubscribe(request, token, organization):
+	calendar = Calendar.objects.filter(token=token)
+	if calendar:
+		calendar = calendar[0]
+		organization = get_object_or_404(Organization, slug=organization)
+		if organization in request.user.organization_leadership:
+			return calendar_unsubscribe_helper(request, organization.calendar, calendar)
+		else:
+			messages.error(request, "You don't have permission to do that!")
 			return HttpResponseRedirect(calendar.cal_url)
 	else:
 		messages.error(request, "That calendar doesn't exist!")

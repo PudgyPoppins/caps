@@ -23,7 +23,7 @@ This might come in handy for providing back links: <a href="javascript:history.g
 	* Literally just copy/paste the reporting system I had for APCrowd2020
 
 * ## Calendar
-	* add a way to filter events shown on the calendar by verified.
+	* rrule form
 	
 	* import events from a google cal | https://fullcalendar.io/docs/v3/google-calendar
 	* rss feeds
@@ -114,7 +114,8 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 10/20 Completed the nonprofit rep form, everything's working, EXCEPT for image uploads :(. This is NOT a pog champ moment >:(. It also automatically send admin emails when users apply, and gives users emails if they get accepted. Admins can approve applicants on the admin page.
 * 10/21 Got images to work! This is true for both nonprofits, networks, and applicants. Epic gamer moment! Listed representing nonprofits on user's profile page. Simplified profile page context variables with reverse relationships. Added more detail on the nonprofit_rep template. Stopped user from applying if they're already representing the nonprofit. Set the home page for nonprofit reps to their nonprofit. Added nonprofit success messages. Added a regex phone validator
 * 10/28 Added locked boolean to nonprofits. Added a system for nonprofit reps to lock their nonprofits from user-edits and user-created calendar events, and unlock them.
-* 10/29 Added a way for nonprofit reps to verify/unverify events. Changed the calendar json to show only verified events, and show all events if ?all is present in the url. Need to add a way to filter with fullcalendar, still, but we're getting close. Removed bulma.
+* 10/29 Added a way for nonprofit reps to verify/unverify events. Changed the calendar json to show only verified events, and show all events if ?all is present in the url. Need to add a way to filter with fullcalendar, still, but we're getting close. Removed bulma. Actually added filter with fullcalendar later today, but will add in next commit.
+* 11/1 Locked nonprofits by default after approving a nonprofit rep. Made it so that organization leaders can subscribe/unsub from calendars for their organization. Worked on creating announcements for nonprofits.
 
 TODO: 
 	* event create view

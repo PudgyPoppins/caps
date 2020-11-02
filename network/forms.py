@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from network.models import Network, Nonprofit, RepApplicant
+from orgs.models import TextPost
 
 class NetworkForm(ModelForm):
 	def clean_pub_date(self):
@@ -95,3 +96,9 @@ class NonprofitFormRepresent(ModelForm):
 		fields = ('email', 'src_file', 'text')
 		labels = {'src_file': _('Photo')}
 		widgets = {'text': forms.Textarea()}
+
+class CreateAnnouncement(ModelForm):
+	class Meta:
+		model = TextPost
+		fields = ('title', 'message', 'allows_children')
+		widgets = {'message': forms.Textarea()}

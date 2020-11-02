@@ -29,6 +29,17 @@
 {% if network.src_link%}<br><img src="{{ network.src_link }}"><br>{% endif %}
 
 {% if organization.public or user.is_authenticated and user in organization.member.all or user.is_authenticated and user in organization.moderator.all or user.is_authenticated and user in organization.leader.all %}
+
+<h3>Subscribed Calendars</h3>
+{% if organization.calendar.get_nested_calendars|length > 1 %}
+  <ul>
+  {% for i in organization.calendar.get_nested_calendars %}
+    {% if i != organization.calendar %}<li><a href="{{ i.cal_url }}">{{ i.name }}</a></li>{% endif %}
+  {% endfor %}
+  </ul>
+{% else %}
+  <p>This organization isn't subscribed to any other calendars.</p>
+{% endif %}
 {% include "cal/snippets/calendar.html" with type="organization" %}
 
 <ul>

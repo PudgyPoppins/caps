@@ -37,16 +37,34 @@
 <a href="{% url 'cal:unsubscribe' calendar.token %}">unsubscribe to this calendar</a>
 {% endif %}
 
+{% if user.is_authenticated and type != "user" %}
+{% for org in user.organization_leadership %}
+
+{% if calendar not in org.calendar.get_nested_calendars %}
+<a href="{% url 'cal:org_subscribe' calendar.token org.slug %}">subscribe to this calendar for the organiztion {{ org }}</a>
+{% elif calendar in org.calendar.get_nested_calendars and calendar not in org.calendar.excludedcal.all %}
+<a href="{% url 'cal:org_unsubscribe' calendar.token org.slug %}">unsubscribe to this calendar for the organiztion {{ org }}</a>
+{% endif %}
+
+{% endfor %}
+{% endif %}
+
+<input type="radio" id="verified" name="show_type" value="true" checked>
+<label for="verified">show only verified events</label>
+<input type="radio" id="all" name="show_type" value="all">
+<label for="all">show all events</label>
 <div id="calendar"></div>
 
 <script>
+var e;
+  var calendar;
   var dateFormat = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute:'numeric' };
 
   document.addEventListener('DOMContentLoaded', function() {
 	var calendarEl = document.getElementById('calendar');
 	var modal = document.getElementById("eventModal");
 
-	var calendar = new FullCalendar.Calendar(calendarEl, {
+	calendar = new FullCalendar.Calendar(calendarEl, {
 		allDayDefault: false,
 		eventLimit: true,
 		plugins: [ 'dayGrid', 'list', 'rrule', 'timeGrid' ],
@@ -72,11 +90,23 @@
 		events: {
 			url: '{% url "cal:caljson" calendar.token %}',
 		    cache: true
-		}
+		},
+		eventRender: function eventRender(event, element, view) {
+			var show_type = document.querySelector('input[name = "show_type"]:checked').value;
+			if (show_type == "true"){show_type = true;}
+			return ['all', event.event.extendedProps.verified].indexOf(show_type) >= 0; 
+			//I have no idea why it's event.event.extendedProps.verified, and not event.verified, but if it works,it works
+	    }
+
 	});
 
 	calendar.render();
   });
+  document.getElementById("verified").addEventListener("change", rerender);
+  document.getElementById("all").addEventListener("change", rerender);
+  function rerender(){
+  	calendar.rerenderEvents();
+  }
 
 </script>
 

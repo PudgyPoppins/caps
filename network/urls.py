@@ -17,6 +17,8 @@ urlpatterns = [
     path('<slug:network>/<slug:slug>/represent/', views.non_represent, name='representnon'), #represent a nonprofit
     path('<slug:network>/<slug:slug>/lock/', views.non_lock, name='locknon'), #lock a nonprofit
     path('<slug:network>/<slug:slug>/unlock/', views.non_unlock, name='unlocknon'), #unlock a nonprofit
+
+    path('<slug:network>/<slug:slug>/create_announcement/', views.create_announcement, name='create_announcement'),
     
     path('<str:network_id>/report/', views.report, name='report'),
 ]

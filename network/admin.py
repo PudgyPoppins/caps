@@ -42,6 +42,7 @@ def approve_applicant(modeladmin, request, queryset):
 		i.save()
 		if i not in i.nonprofit.nonprofit_reps.all(): #if they get approved, add them into the nonprofit_rep for their desired nonprofit thing
 			i.nonprofit.nonprofit_reps.add(i.user)
+			i.nonprofit.locked = True
 			i.nonprofit.save()
 
 			email = i.user.email

@@ -8,6 +8,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.safestring import mark_safe
@@ -204,10 +205,11 @@ def non_represent(request, network, slug):
 	}
 	return render(request, 'network/non/nonprofit_rep_form.html', context)
 
+@login_required
 def non_lock(request, network, slug):
 	network = get_object_or_404(Network, slug=network)
 	nonprofit = get_object_or_404(Nonprofit, slug=slug, network=network)
-	if request.user.is_authenticated and (request.user in nonprofit.nonprofit_reps.all() or request.user.is_admin):
+	if request.user in nonprofit.nonprofit_reps.all() or request.user.is_admin:
 		nonprofit.locked = True
 		nonprofit.save()
 		messages.success(request, "Successsfully locked this nonprofit from edits and event creations by regular users")
@@ -215,10 +217,12 @@ def non_lock(request, network, slug):
 		rep_link = reverse('network:representnon', kwargs={'network': network.slug, 'slug' : slug})
 		messages.error(request, mark_safe("You don't have permission to perform this action! If you think that you should be able to lock this nonprofit, please fill out the <a href='%s'>form to represent this nonprofit</a>" %(rep_link)))
 	return HttpResponseRedirect(reverse('network:detailnon', kwargs={'network': network.slug, 'slug' : slug}))
+
+@login_required
 def non_unlock(request, network, slug):
 	network = get_object_or_404(Network, slug=network)
 	nonprofit = get_object_or_404(Nonprofit, slug=slug, network=network)
-	if request.user.is_authenticated and (request.user in nonprofit.nonprofit_reps.all() or request.user.is_admin):
+	if request.user in nonprofit.nonprofit_reps.all() or request.user.is_admin:
 		nonprofit.locked = False
 		nonprofit.save()
 		messages.success(request, "Successsfully unlocked this nonprofit, allowing edits and event creations by regular users")
@@ -227,6 +231,26 @@ def non_unlock(request, network, slug):
 	return HttpResponseRedirect(reverse('network:detailnon', kwargs={'network': network.slug, 'slug' : slug}))
 
 
+#What I'll do instead is add a <form action="some link"> on the event detail page, then process the form there
+'''@login_required
+def create_announcement(request, network, slug):
+	network = get_object_or_404(Network, slug=network)
+	nonprofit = get_object_or_404(Nonprofit, slug=slug, network=network)
+	if request.user in nonprofit.nonprofit_reps.all() or request.user.is_admin:
+		form = CreateAnnouncement()
+		if request.method == 'POST':
+			form = CreateAnnouncement(request.POST)
+			if form.is_valid():
+				a = form.save(commit=False)
+				a.nonprofit = nonprofit
+				a.created_by = request.user
+				a.save()
+				messages.success(request, "Successfully added announcement")
+			messages.error(request, "You have an error in your form, try again!")
+	else:
+		messages.error(request, "You don't have permission to perform this action!")
+		return HttpResponseRedirect(reverse('network:detailnon', kwargs={'network': network.slug, 'slug' : slug}))
+	return render(request, 'network/event/event_form.html', {"form" : form})'''
 
 def report(request, network_id):
 	network = get_object_or_404(Network, slug=network_id)
