@@ -9,8 +9,8 @@ This might come in handy for providing back links: <a href="javascript:history.g
 
 # TODO:
 * ## Network / Nonprofits
-	* add announcements (TextPost model in organization) to nonprofits so that they can make them.
-		* only nonprofit representatives can create announcements
+	* done, for minimum viable product
+
 	* soft deleting as an option (a moderator could recover a deleted object up to 2 weeks later or so) | https://medium.com/@adriennedomingus/soft-deletion-in-django-e4882581c340 | this one is probably better: https://blog.khophi.co/soft-delete-django-quickly/
 	* ### Forms
 		* markdown for the volunteer description would be pretty cool, I think
@@ -116,6 +116,7 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 10/28 Added locked boolean to nonprofits. Added a system for nonprofit reps to lock their nonprofits from user-edits and user-created calendar events, and unlock them.
 * 10/29 Added a way for nonprofit reps to verify/unverify events. Changed the calendar json to show only verified events, and show all events if ?all is present in the url. Need to add a way to filter with fullcalendar, still, but we're getting close. Removed bulma. Actually added filter with fullcalendar later today, but will add in next commit.
 * 11/1 Locked nonprofits by default after approving a nonprofit rep. Made it so that organization leaders can subscribe/unsub from calendars for their organization. Worked on creating announcements for nonprofits.
+* 11/2 Added announcements / replies for nonprofit reps. Did some work on the TextPost model. Added recursive replies! (That wasn't in the minimum viable product, those nonprofits better be grateful, smh)
 
 TODO: 
 	* event create view

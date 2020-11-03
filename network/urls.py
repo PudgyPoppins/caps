@@ -19,6 +19,10 @@ urlpatterns = [
     path('<slug:network>/<slug:slug>/unlock/', views.non_unlock, name='unlocknon'), #unlock a nonprofit
 
     path('<slug:network>/<slug:slug>/create_announcement/', views.create_announcement, name='create_announcement'),
+    path('<slug:network>/<slug:slug>/announcements/<id>/', views.announcement_detail, name='announcement_detail'),
+    path('<slug:network>/<slug:slug>/announcements/<int:pk>/update', views.UpdateAnnouncementView.as_view(), name='announcement_update'),
+    path('<slug:network>/<slug:slug>/announcements/<int:pk>/delete', views.DeleteAnnouncementView.as_view(), name='announcement_delete'),
+    path('<slug:network>/<slug:slug>/announcements/<int:pk>/reply', views.announcement_reply, name='announcement_reply'),
     
     path('<str:network_id>/report/', views.report, name='report'),
 ]

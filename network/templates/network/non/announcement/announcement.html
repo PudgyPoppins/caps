@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Announcement - {{ a.title }}{% endblock %}
+
+{% block content %}
+
+{% if user in a.nonprofit.nonprofit_reps.all or user.is_admin %}
+<a href="{% url 'network:announcement_update' a.nonprofit.network.slug a.nonprofit.slug a.id %}">edit announcement</a>
+<a href="{% url 'network:announcement_delete' a.nonprofit.network.slug a.nonprofit.slug a.id %}">delete announcement</a>
+{% endif %}
+
+<h1>{{ a.title }}</h1>
+{% if a.message %}<p>{{ a.message }}</p>{% endif %}
+
+{% if a.allows_children %}
+	<h2>Replies:</h2>
+	<ul>
+		{% for r in children %}
+		<li style="margin-left:{{ r.depth }}em;">
+			<p>{{ r.created_by }} - {{ r.message }}</p>
+			{% if user == r.created_by %}
+				<a href="{% url 'network:announcement_update' a.nonprofit.network.slug a.nonprofit.slug r.id %}">update reply</a>
+			{% endif %}
+			{% if user in a.nonprofit.nonprofit_reps.all or user.is_admin or user == r.created_by %}
+				<a href="{% url 'network:announcement_delete' a.nonprofit.network.slug a.nonprofit.slug r.id %}">delete reply</a>
+			{% endif %}
+			{% if user.is_authenticated and r.allows_children %}
+				<a href="#" onclick="reply('{{ r.id }}')" id="anchor{{ r.id }}">reply</a>
+				<div id="reply{{r.id}}" style="display: none">
+					<form method="post" action="{% url 'network:announcement_reply' a.nonprofit.network.slug a.nonprofit.slug r.id %}">{% csrf_token %}
+					    <textarea name="message" cols="40" rows="10" maxlength="2048" required="" id="id_message"></textarea>
+					    <input type="submit" value="Add reply">
+					</form>
+				</div>
+			{% endif %}
+		</li>
+		{% endfor %}
+	</ul>
+{% endif %}
+
+{% if user.is_authenticated and a.allows_children %}
+<form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Add reply">
+</form>
+{% elif not user.is_authenticated and a.allows_children %}
+<p><a href="{% url 'accounts:sign_in' %}">sign in</a> to add a reply</p>
+{% endif %}
+
+<script>
+	function reply(id){
+		box = document.getElementById("reply" + id);
+		link = document.getElementById("anchor" + id);
+		box.style.display = "block";
+
+		link.innerHTML = "cancel reply";
+		link.setAttribute( "onclick", "javascript: cancel_reply(" + id + ");" );
+	}
+	function cancel_reply(id){
+		box = document.getElementById("reply" + id);
+		link = document.getElementById("anchor" + id);
+		box.style.display = "none";
+
+		link.innerHTML = "reply";
+		link.setAttribute( "onclick", "javascript: reply(" + id + ");" );
+	}
+</script>
+
+{% endblock %}

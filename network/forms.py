@@ -102,3 +102,9 @@ class CreateAnnouncement(ModelForm):
 		model = TextPost
 		fields = ('title', 'message', 'allows_children')
 		widgets = {'message': forms.Textarea()}
+
+class ReplyAnnouncement(CreateAnnouncement):
+	def __init__(self, *args, **kwargs):
+		super(ReplyAnnouncement, self).__init__(*args, **kwargs)
+		self.fields.pop('allows_children')
+		self.fields.pop('title')

@@ -93,7 +93,6 @@ def get_all_relatives(event, relatives):
 @register.filter
 def get_calendar_events(calendar):
 	relatives = []
-	empty_relatives = []
 	for cal in calendar.get_nested_calendars:
 		for i in cal.event.all():
 			relatives += get_all_relatives(i, empty_relatives)

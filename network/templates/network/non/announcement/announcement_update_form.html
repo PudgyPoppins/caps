@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Update announcement{% endblock %}
+
+{% block content %}
+<a href="{% url 'network:announcement_detail' a.s_nonprofit.network.slug a.s_nonprofit.slug a.s_id %}">back to detail view</a>
+
+<h1>Update announcement</h1>
+<form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Update">
+</form>
+{% endblock %}

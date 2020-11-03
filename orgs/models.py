@@ -155,10 +155,47 @@ class TextPost(models.Model): #pretty much a comment / announcement
 	allows_children = models.BooleanField(default=True, help_text="Allow replies to this announcement") #if you're a nonprofit, you might not want to have comments underneath something
 
 	organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null = True, blank = True)
-	nonprofit = models.ForeignKey(Nonprofit, on_delete=models.CASCADE, null = True, blank = True)
+	nonprofit = models.ForeignKey(Nonprofit, on_delete=models.CASCADE, null = True, blank = True, related_name="announcement")
 
 	def __str__(self):
 		if self.title:
 			return format(self.title)
 		else:
 			return format(self.message[:5])#first five chars of message
+
+	class Meta: 
+		ordering = ['-pub_date']
+
+	@property
+	def s_id(self):
+		if not self.parent:
+			return self.id
+		else:
+			return self.parent.s_id
+	@property
+	def s_nonprofit(self):
+		if self.nonprofit:
+			return self.nonprofit
+		elif self.parent:
+			return self.parent.s_nonprofit
+		else:
+			return None
+	
+	@property
+	def depth(self):
+		depth = 1
+		if not self.parent:
+			depth = 0
+		elif self.parent:
+			depth += self.parent.depth
+		return depth
+
+
+	@property
+	def get_relatives(self):
+		relatives = []
+		if self.parent:
+			relatives.append(self)
+		for i in self.child.all():
+			relatives += i.get_relatives
+		return relatives

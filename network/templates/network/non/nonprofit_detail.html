@@ -39,4 +39,23 @@
 
 {% include "cal/snippets/calendar.html" with type="nonprofit" %}
 
+{% for a in nonprofit.announcement.all %}
+<a href="{% url 'network:announcement_detail' nonprofit.network.slug nonprofit.slug a.id %}"><h3>{{ a.title }}</h3></a>
+{% if a.message %}
+	<p>
+		{{ a.message|truncatewords:50 }}
+		{% if a.message|wordcount > 50 %}{{ a.message|wordcount }} words total.{% endif %}
+		{% if a.allows_children and a.child.all %}{{ a.child.count }} repl{{ a.child.count|pluralize:"y,ies" }}{% endif %}
+	</p>
+{% endif %}
+{% endfor %}
+
+{% if user in nonprofit.nonprofit_reps.all or user.is_admin %}
+<h2>Add an announcement</h2>
+<form method="post" action="{% url 'network:create_announcement' nonprofit.network.slug nonprofit.slug %}">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Add announcement">
+</form>
+{% endif %}
+
 {% endblock %}
