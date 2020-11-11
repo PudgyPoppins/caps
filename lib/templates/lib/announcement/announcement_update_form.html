@@ -3,7 +3,7 @@
 {% block title %}Update announcement{% endblock %}
 
 {% block content %}
-<a href="{% url 'network:announcement_detail' a.s_nonprofit.network.slug a.s_nonprofit.slug a.s_id %}">back to detail view</a>
+<a href="{{ a.s_get_absolute_url }}">back to announcement view</a>
 
 <h1>Update announcement</h1>
 <form method="post">{% csrf_token %}

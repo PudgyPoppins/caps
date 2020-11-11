@@ -14,10 +14,10 @@
 
 <a href="{% url 'orgs:index' %}">back to index view</a>
 <br>
-{% if user.is_authenticated and user in organization.member.all or user.is_authenticated and user in organization.moderator.all or user.is_authenticated and user in organization.leader.all %}
+{% if user.is_authenticated and user in organization.get_participants %}
 <a href="{% url 'orgs:leave' organization.slug %}">leave organization</a> |
 {% endif %}
-{% if user.is_authenticated and user in organization.leader.all or user.is_authenticated and user in organization.moderator.all %}
+{% if user.is_authenticated and user in organization.get_leadership %}
 <a href="{% url 'orgs:updateorg' organization.slug %}">update organization</a> |
 {% endif %}
 {% if user.is_authenticated and user in organization.leader.all %}
@@ -28,7 +28,7 @@
 {% if organization.src_file%}<br><img src="{{ network.src_file.url }}"><br>{% endif %}
 {% if network.src_link%}<br><img src="{{ network.src_link }}"><br>{% endif %}
 
-{% if organization.public or user.is_authenticated and user in organization.member.all or user.is_authenticated and user in organization.moderator.all or user.is_authenticated and user in organization.leader.all %}
+{% if organization.public or user.is_authenticated and user in organization.get_participants %}
 
 <h3>Subscribed Calendars</h3>
 {% if organization.calendar.get_nested_calendars|length > 1 %}
@@ -60,7 +60,7 @@
 	</li>
 </ul>
 
-{% if not organization.public and request.user in organization.leader.all or request.user in organization.moderator.all and not organization.public %}
+{% if not organization.public and request.user in organization.get_leadership %}
 
 <p><a href="{% url 'orgs:geninvite' organization.slug %}">Generate Invite</a></p>
 <h3>Active Invites:</h3>
@@ -80,7 +80,7 @@
 
 <h3>Active Requests:</h3>
 {% for r in organization.request_set.all %}
-{% if r.is_not_approved and r.user not in organization.member.all and r.user not in organization.moderator.all and r.user not in organization.leader.all %}
+{% if r.is_not_approved and r.user not in organization.get_participants %}
 <p><a href="{% url 'orgs:appreq' token=r.token organization=organization.slug %}">Approve {{ r.user }}</a> | <a href="{% url 'orgs:delreq' token=r.token organization=organization.slug %}">Deny request to join</a> | Message: {{ r.request_message }}</p>
 {% endif %}
 {% endfor %}
@@ -94,6 +94,19 @@
 {% if not has_made_request %}<p><a href="{% url 'orgs:reqorg' organization.slug %}">Request Access</a></p>
 {% else %} <p>Your request to join this organization is pending. {% if organization.email %}If you wish to speed this up, you could <a href="mailto:{{ organization.email }}">contact the organization</a>?{% endif %}</p>
 {% endif %}
+{% endif %}
+
+{% if organization.announcement.all %}
+<h3>Announcements</h3>
+{% include "network/snippets/list_announcements.html" with object=organization %}
+{% endif %}
+
+{% if user in organization.get_leadership or user.is_admin %}
+<h2>Add an announcement</h2>
+<form method="post" action="{% url 'orgs:create_announcement' organization.slug %}">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Add announcement">
+</form>
 {% endif %}
 
 <script>

@@ -8,6 +8,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.safestring import mark_safe
@@ -19,6 +20,7 @@ from accounts.models import User
 
 from .models import Organization, Goal, TextPost, Invitation
 from .forms import * #honestly, I'm gonna use all of them, just import 'em all
+from lib.forms import CreateAnnouncement, ReplyAnnouncement
 
 class IndexView(generic.ListView):
 	template_name = 'orgs/index.html'
@@ -78,7 +80,7 @@ class UpdateOrgView(LoginRequiredMixin, UpdateView):
 	def user_passes_test(self, request):
 		if request.user.is_authenticated:
 			self.object = self.get_object()
-			return (request.user in self.object.leader.all() or request.user in self.object.moderator.all() or request.user.has_perm('network.update_organization')) #return whether or not the current user is a leader, or if they have explicit permission to delete networks
+			return (request.user in self.object.get_leadership or request.user.has_perm('network.update_organization')) #return whether or not the current user is in leadership, or if they have explicit permission to delete networks
 		return False
 
 	def dispatch(self, request, *args, **kwargs):
@@ -102,6 +104,10 @@ class OrgDetailView(generic.DetailView):
 				context['has_made_request'] = False
 		else:
 			context['has_made_request'] = False
+
+		form = CreateAnnouncement()
+		context['form'] = form
+
 		return context
 
 class CreateInvitation(LoginRequiredMixin, CreateView):
@@ -112,7 +118,7 @@ class CreateInvitation(LoginRequiredMixin, CreateView):
 	def user_passes_test(self, request):
 		if request.user.is_authenticated:
 			org = get_object_or_404(Organization, slug=self.kwargs['organization'])
-			return(request.user in org.leader.all() or request.user in org.moderator.all() or request.user.has_perm('network.create_invitation')) #return whether or not the current user is a mod/leader, or if they have explicit permission to create invitations for all networks
+			return(request.user in org.get_leadership or request.user.has_perm('network.create_invitation')) #return whether or not the current user is a mod/leader, or if they have explicit permission to create invitations for all networks
 		return False
 
 	def dispatch(self, request, *args, **kwargs):
@@ -143,7 +149,7 @@ def delete_invitation(request, token):
 	token = Invitation.objects.filter(token=token, valid=True)
 	if token:
 		token = token[0]
-		if request.user in token.organization.leader.all() or request.user in token.organization.moderator.all():
+		if request.user in token.organization.get_leadership:
 			org = token.organization
 			if not token.valid: #insta delete if not valid 
 				token.delete()
@@ -182,7 +188,7 @@ def join(request, token):
 		#Otherwise, it's valid, continue as planned
 		organization = Organization.objects.get(id=token.organization.id)
 		#If they're already a part of the organization
-		if request.user in organization.member.all() or request.user in organization.moderator.all() or request.user in organization.leader.all():
+		if request.user in organization.get_participants:
 			messages.info(request, "You're already a part of this organization!")
 			return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : token.organization.slug}))
 		organization.member.add(request.user) #add the user as a member now! Yay, they joined!
@@ -215,7 +221,7 @@ class CreateRequest(LoginRequiredMixin, CreateView):
 		if len(user_requests) > 0:
 			messages.error(request, "You've already made a request to join this organization!")
 			return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : organization.slug}))
-		if request.user in organization.member.all() or request.user in organization.leader.all() or request.user in organization.moderator.all():
+		if request.user in organization.get_participants:
 			messages.error(request, "You're already in this organization!")
 			return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : organization.slug}))
 		return super(CreateRequest, self).dispatch(request, *args, **kwargs)
@@ -240,10 +246,10 @@ class CreateRequest(LoginRequiredMixin, CreateView):
 def approve_request(request, organization, token):
 	req = Request.objects.filter(token=token, approved=False)
 	organization = get_object_or_404(Organization, slug=organization)
-	if request.user in organization.leader.all() or request.user in organization.moderator.all():
+	if request.user in organization.get_leadership:
 		if req:
 			req = req[0]
-			if req.user in organization.leader.all() or req.user in organization.moderator.all() or req.user in organization.member.all():
+			if req.user in organization.get_participants:
 				messages.error(request, "That user is already in the organization!")
 				req.delete()
 				return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : organization.slug}))
@@ -261,7 +267,7 @@ def approve_request(request, organization, token):
 def deny_request(request, organization, token):
 	req = Request.objects.filter(token=token, approved=False)
 	organization = get_object_or_404(Organization, slug=organization)
-	if request.user in organization.leader.all() or request.user in organization.moderator.all():
+	if request.user in organization.get_leadership:
 		if req:
 			req = req[0]
 			req.delete()
@@ -278,7 +284,7 @@ def leave(request, organization):
 	organization = get_object_or_404(Organization, slug=organization)
 	context["organization"] = organization
 
-	if not(request.user in organization.leader.all() or request.user in organization.moderator.all() or request.user in member.all()):
+	if not request.user in organization.get_participants:
 		messages.error(request, "You're not a part of this organization!")
 		return HttpResponseRedirect(reverse('orgs:index'))
 	else:
@@ -366,7 +372,7 @@ def kick_user(request, organization, username):
 	organization = get_object_or_404(Organization, slug=organization)
 	user = get_object_or_404(User, username=username)
 
-	if request.user == user and (user in organization.member.all() or user in organization.moderator.all() or user in organization.leader.all()):
+	if request.user == user and user in organization.get_participants:
 		leave_link = reverse('orgs:leave', kwargs={'organization': organization.slug})
 		return HttpResponseRedirect(leave_link)
 
@@ -401,9 +407,9 @@ def kick_user(request, organization, username):
 def add_user(request, organization, username):
 	organization = get_object_or_404(Organization, slug=organization)
 	user = get_object_or_404(User, username=username)
-	if user in organization.leader.all() or user in organization.moderator.all() or user in organization.member.all():
+	if user in organization.get_participants:
 		messages.error(request, "That user is already in the organization!")
-	elif request.user in organization.leader.all() or request.user in organization.moderator.all():
+	elif request.user in organization.get_leadership:
 		organization.member.add(user)
 		undo_link = reverse('orgs:kick', kwargs={'organization': organization.slug, 'username': user.username})
 		messages.success(request, mark_safe("Successfully added %s to %s. <a href='%s'>Undo?</a>" %(user, organization.title, undo_link)))
@@ -421,7 +427,7 @@ def promote_user(request, organization, username):
 			organization.moderator.add(user)
 			undo_link = reverse('orgs:demote', kwargs={'organization': organization.slug, 'username': user.username})
 			messages.success(request, mark_safe("Successfully promoted %s to helper. <a href='%s'>Undo?</a>" %(user, undo_link)))
-		elif user in organization.moderator.all() or user in organization.leader.all():
+		elif user in organization.get_leadership:
 			messages.error(request, "This user can't be promoted!")
 		else:
 			messages.error(request, "Couldn't find a user with the username %s in this organization" %(user))

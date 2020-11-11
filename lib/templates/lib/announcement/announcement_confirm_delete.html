@@ -3,6 +3,8 @@
 {% block title %}Delete announcement?{% endblock %}
 
 {% block content %}
+<a href="{{ a.s_get_absolute_url }}">back to announcement view</a>
+
 <h1>Delete this Announcement</h1>
 <form method="post">{% csrf_token %}
     <p>Are you sure you want to delete this announcement?</p>

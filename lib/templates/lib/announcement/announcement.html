@@ -3,9 +3,9 @@
 
 {% block content %}
 
-{% if user in a.nonprofit.nonprofit_reps.all or user.is_admin %}
-<a href="{% url 'network:announcement_update' a.nonprofit.network.slug a.nonprofit.slug a.id %}">edit announcement</a>
-<a href="{% url 'network:announcement_delete' a.nonprofit.network.slug a.nonprofit.slug a.id %}">delete announcement</a>
+{% if user in a.nonprofit.nonprofit_reps.all or user in a.organization.get_leadership or user.is_admin %}
+<a href="{{ a.get_absolute_url }}update">edit announcement</a>
+<a href="{{ a.get_absolute_url }}delete">delete announcement</a>
 {% endif %}
 
 <h1>{{ a.title }}</h1>
@@ -18,15 +18,15 @@
 		<li style="margin-left:{{ r.depth }}em;">
 			<p>{{ r.created_by }} - {{ r.message }}</p>
 			{% if user == r.created_by %}
-				<a href="{% url 'network:announcement_update' a.nonprofit.network.slug a.nonprofit.slug r.id %}">update reply</a>
+				<a href="{{ r.get_absolute_url }}update">update reply</a>
 			{% endif %}
-			{% if user in a.nonprofit.nonprofit_reps.all or user.is_admin or user == r.created_by %}
-				<a href="{% url 'network:announcement_delete' a.nonprofit.network.slug a.nonprofit.slug r.id %}">delete reply</a>
+			{% if user in a.nonprofit.nonprofit_reps.all or user in a.organization.get_leadership or user.is_admin or user == r.created_by %}
+				<a href="{{ r.get_absolute_url }}delete">delete reply</a>
 			{% endif %}
 			{% if user.is_authenticated and r.allows_children %}
 				<a href="#" onclick="reply('{{ r.id }}')" id="anchor{{ r.id }}">reply</a>
 				<div id="reply{{r.id}}" style="display: none">
-					<form method="post" action="{% url 'network:announcement_reply' a.nonprofit.network.slug a.nonprofit.slug r.id %}">{% csrf_token %}
+					<form method="post" action="{{ a.get_absolute_url }}reply">{% csrf_token %}
 					    <textarea name="message" cols="40" rows="10" maxlength="2048" required="" id="id_message"></textarea>
 					    <input type="submit" value="Add reply">
 					</form>

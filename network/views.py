@@ -22,6 +22,7 @@ from orgs.models import TextPost
 
 from .models import Network, Nonprofit
 from .forms import *
+from lib.forms import CreateAnnouncement, ReplyAnnouncement
 
 class IndexView(generic.ListView):
 	template_name = 'network/index.html'
@@ -227,133 +228,6 @@ def non_unlock(request, network, slug):
 	else:
 		messages.error(request, "You don't have permission to perform this action!")
 	return HttpResponseRedirect(reverse('network:detailnon', kwargs={'network': network.slug, 'slug' : slug}))
-
-
-@login_required
-def create_announcement(request, network, slug):
-	network = get_object_or_404(Network, slug=network)
-	nonprofit = get_object_or_404(Nonprofit, slug=slug, network=network)
-	if request.user in nonprofit.nonprofit_reps.all() or request.user.is_admin:
-		if request.method == 'POST':
-			form = CreateAnnouncement(request.POST)
-			if form.is_valid():
-				a = form.save(commit=False)
-				a.nonprofit = nonprofit
-				a.created_by = request.user
-				a.save()
-				messages.success(request, "Successfully added announcement")
-				return HttpResponseRedirect(reverse('network:announcement_detail', kwargs={'network': network.slug, 'slug' : slug, 'id': a.id}))
-			messages.error(request, "You have an error in your form, try again!")
-		else:
-			return HttpResponseRedirect(reverse('network:detailnon', kwargs={'network': network.slug, 'slug' : slug}))
-	else:
-		messages.error(request, "You don't have permission to perform this action!")
-		return HttpResponseRedirect(reverse('network:detailnon', kwargs={'network': network.slug, 'slug' : slug}))
-	
-def announcement_detail(request, network, slug, id):
-	network = get_object_or_404(Network, slug=network)
-	nonprofit = get_object_or_404(Nonprofit, slug=slug, network=network)
-	a = get_object_or_404(TextPost, nonprofit=nonprofit, id=id, parent=None)
-	context = {'a': a, 'children': a.get_relatives}
-	if a.allows_children and request.user.is_authenticated:
-		form = ReplyAnnouncement()
-		context['form'] = form
-		if request.method == 'POST':
-			form = ReplyAnnouncement(request.POST)
-			if form.is_valid():
-				reply = form.save(commit=False)
-				reply.parent = a
-				reply.created_by = request.user
-				reply.save()
-				messages.success(request, "Successfully added reply")
-	return render(request, 'network/non/announcement/announcement.html', context)
-
-class UpdateAnnouncementView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
-	model = TextPost
-	template_name = 'network/non/announcement/announcement_update_form.html'
-	success_message = "announcement was updated successfully"
-	def get_form_class(self):
-		if not self.object.parent:
-			return CreateAnnouncement
-		else:
-			return ReplyAnnouncement
-
-	def get_object(self):
-		a = get_object_or_404(TextPost, id=self.kwargs['pk'])
-		if a.s_nonprofit.slug != self.kwargs['slug'] or a.s_nonprofit.network.slug != self.kwargs['network']:
-			raise Http404
-		return a
-	
-	def get_success_url(self):
-		return reverse('network:announcement_detail', kwargs={'network': self.object.s_nonprofit.network.slug, 'slug' : self.object.s_nonprofit.slug, 'id': self.object.s_id})
-	
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)
-		context['a'] = self.get_object()
-		return context
-
-	def user_passes_test(self, request):
-		self.object = self.get_object()
-		return self.object.created_by == request.user
-	def dispatch(self, request, *args, **kwargs):
-		if not self.user_passes_test(request):
-			messages.error(request, "You don't have permission to perform this action!")
-			return reverse('network:announcement_detail', kwargs={'network': self.object.nonprofit.network.slug, 'slug' : self.object.nonprofit.slug, 'id': self.object.s_id})
-		return super(UpdateAnnouncementView, self).dispatch(request, *args, **kwargs)
-
-class DeleteAnnouncementView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
-	model = TextPost
-	template_name = 'network/non/announcement/announcement_confirm_delete.html'
-	success_message = "announcement was deleted successfully"
-
-	def get_object(self):
-		a = get_object_or_404(TextPost, id=self.kwargs['pk'])
-		if a.s_nonprofit.slug != self.kwargs['slug'] or a.s_nonprofit.network.slug != self.kwargs['network']:
-			raise Http404
-		return a
-
-	def get_success_url(self, **kwargs):
-		return reverse('network:detailnon', kwargs={'network': self.kwargs['network'], 'slug' : self.kwargs['slug']})		
-
-	def get_context_data(self, **kwargs):
-		context = super().get_context_data(**kwargs)
-		context['a'] = self.get_object()
-		return context
-
-	def user_passes_test(self, request):
-		self.object = self.get_object()
-		network = get_object_or_404(Network, slug=self.kwargs['network'])
-		nonprofit = get_object_or_404(Nonprofit, slug=self.kwargs['slug'], network=network)
-		return self.object.created_by == request.user or request.user in nonprofit.nonprofit_reps.all()
-	
-	def dispatch(self, request, *args, **kwargs):
-		if not self.user_passes_test(request):
-			messages.error(request, "You don't have permission to perform this action!")
-			return reverse('network:announcement_detail', kwargs={'network': self.object.nonprofit.network.slug, 'slug' : self.object.nonprofit.slug, 'id': self.object.s_id})
-		if self.object.parent: #if it's a reply, just delete it immediately
-			parent_id = self.object.s_id
-			self.object.delete()
-			messages.success(request, "Successfully deleted reply.")
-			return HttpResponseRedirect(reverse('network:announcement_detail', kwargs={'network': self.kwargs['network'], 'slug' : self.kwargs['slug'], 'id': parent_id})	)
-		return super(DeleteAnnouncementView, self).dispatch(request, *args, **kwargs)
-
-@login_required
-def announcement_reply(request, network, slug, pk):
-	a = get_object_or_404(TextPost, id=pk)
-	if a.s_nonprofit.slug != slug or a.s_nonprofit.network.slug != network:
-		raise Http404
-	if request.method == 'POST':
-		form = ReplyAnnouncement(request.POST)
-		if form.is_valid():
-			reply = form.save(commit=False)
-			reply.parent = a
-			reply.created_by = request.user
-			reply.save()
-			messages.success(request, "Successfully created reply.")
-			return HttpResponseRedirect(reverse('network:announcement_detail', kwargs={'network': a.s_nonprofit.network.slug, 'slug' : a.s_nonprofit.slug, 'id': a.s_id}))
-		messages.error(request, "Please correct your form")
-	return HttpResponseRedirect(reverse('network:announcement_detail', kwargs={'network': a.nonprofit.network.slug, 'slug' : a.nonprofit.slug, 'id': a.id}))
-
 
 def report(request, network_id):
 	network = get_object_or_404(Network, slug=network_id)

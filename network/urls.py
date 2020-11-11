@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+import lib.views
 
 app_name = 'network'
 urlpatterns = [
@@ -18,11 +19,11 @@ urlpatterns = [
     path('<slug:network>/<slug:slug>/lock/', views.non_lock, name='locknon'), #lock a nonprofit
     path('<slug:network>/<slug:slug>/unlock/', views.non_unlock, name='unlocknon'), #unlock a nonprofit
 
-    path('<slug:network>/<slug:slug>/create_announcement/', views.create_announcement, name='create_announcement'),
-    path('<slug:network>/<slug:slug>/announcements/<id>/', views.announcement_detail, name='announcement_detail'),
-    path('<slug:network>/<slug:slug>/announcements/<int:pk>/update', views.UpdateAnnouncementView.as_view(), name='announcement_update'),
-    path('<slug:network>/<slug:slug>/announcements/<int:pk>/delete', views.DeleteAnnouncementView.as_view(), name='announcement_delete'),
-    path('<slug:network>/<slug:slug>/announcements/<int:pk>/reply', views.announcement_reply, name='announcement_reply'),
+    path('<slug:network>/<slug:slug>/announcements/create', lib.views.create_announcement, name='create_announcement'),
+    path('<slug:network>/<slug:slug>/announcements/<int:pk>/', lib.views.announcement_detail, name='announcement_detail'),
+    path('<slug:network>/<slug:slug>/announcements/<int:pk>/update', lib.views.UpdateAnnouncementView.as_view(), name='announcement_update'),
+    path('<slug:network>/<slug:slug>/announcements/<int:pk>/delete', lib.views.DeleteAnnouncementView.as_view(), name='announcement_delete'),
+    path('<slug:network>/<slug:slug>/announcements/<int:pk>/reply', lib.views.announcement_reply, name='announcement_reply'),
     
     path('<str:network_id>/report/', views.report, name='report'),
 ]

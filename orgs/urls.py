@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+import lib.views
 
 app_name = 'orgs'
 urlpatterns = [
@@ -24,6 +25,12 @@ urlpatterns = [
     path('<slug:organization>/<username>/add', views.add_user, name='add'), #add user
     path('<slug:organization>/<username>/promote', views.promote_user, name='promote'), #promote user
     path('<slug:organization>/<username>/demote', views.demote_user, name='demote'), #demote user
+
+    path('<slug:organization>/announcements/create', lib.views.create_announcement, name='create_announcement'),
+    path('<slug:organization>/announcements/<int:pk>/', lib.views.announcement_detail, name='announcement_detail'),
+    path('<slug:organization>/announcements/<int:pk>/update', lib.views.UpdateAnnouncementView.as_view(), name='announcement_update'),
+    path('<slug:organization>/announcements/<int:pk>/delete', lib.views.DeleteAnnouncementView.as_view(), name='announcement_delete'),
+    path('<slug:organization>/announcements/<int:pk>/reply', lib.views.announcement_reply, name='announcement_reply'),
 
     #path('<slug:network>/add/', views.AddNonView.as_view(), name='addnon'), #add a nonprofit
     #path('<slug:network>/<slug:slug>/', views.NonDetailView.as_view(), name='detailnon'), #nonprofit detail view

@@ -28,18 +28,19 @@ This might come in handy for providing back links: <a href="javascript:history.g
 	* import events from a google cal | https://fullcalendar.io/docs/v3/google-calendar
 	* rss feeds
 
-* ##Organizations
+* ## Organizations
 	* goals and text posts
 	* change the add link so that it sends an invite to the respective user, and they have to accept
 	* orgs can pin nonprofits and networks to their page
-	* add invite to moderator links?
 	* add goals to user profiles when they get created, if they're in an organization
 
 	* Organizations are a way for groups of users to connect to specific nonprofits and networks
 		* Organizations can pin nonprofits or networks to their page
 	* Organizations have leaderboards where they sort who has the most hours in their logging (verified plus verified and unverified scores)
 
-* ##Logging
+	* add invite to moderator links?
+
+* ## Logging
 	* When a user signs up for an event, after the event has happened, then the nonprofit representative can verify that they helped out
 		* Add another crontab job that runs every 30 minutes. Filter for all of the volunteering events that happened more than one day ago. Send one email to nonprofit reps listing all of the attendees who didn't have their hours verified so far.
 	* Nonprofit representatives can also add a log for a user without an event
@@ -117,11 +118,13 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 10/29 Added a way for nonprofit reps to verify/unverify events. Changed the calendar json to show only verified events, and show all events if ?all is present in the url. Need to add a way to filter with fullcalendar, still, but we're getting close. Removed bulma. Actually added filter with fullcalendar later today, but will add in next commit.
 * 11/1 Locked nonprofits by default after approving a nonprofit rep. Made it so that organization leaders can subscribe/unsub from calendars for their organization. Worked on creating announcements for nonprofits.
 * 11/2 Added announcements / replies for nonprofit reps. Did some work on the TextPost model. Added recursive replies! (That wasn't in the minimum viable product, those nonprofits better be grateful, smh)
+* 11/10 It's been a hot sec, but I got announcements working for organizations, too. I spent some time rewriting the announcement code to make it shared between nonprofits / orgs, and I'm happy with the results. I also added some new properties to the organization model to slim down the views and template code, a bit.
 
 TODO: 
 	* event create view
 		* rrule selector
 			* look at paper for help
+	* event_update, event_form, event.js...
 
 
 Time is still busted, dates are being stored in UTC (invitation), but they aren't be converted to local time.

@@ -6,6 +6,8 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+from django.urls import reverse
+
 from accounts.models import User
 
 import PIL
@@ -67,6 +69,14 @@ class Organization(models.Model):
 			self.src_file = InMemoryUploadedFile(output, 'ImageField', "%s.jpg" % self.src_file.name, 'image/jpeg', output.getbuffer().nbytes, None)
 
 		super(Organization, self).save(*args, **kwargs)
+
+	@property
+	def get_participants(self):
+		return self.member.all() | self.moderator.all() | self.leader.all()
+
+	@property
+	def get_leadership(self):
+		return self.moderator.all() | self.leader.all()
 
 def create_token():
 		chars = string.ascii_lowercase+string.ascii_uppercase+string.digits
@@ -154,7 +164,7 @@ class TextPost(models.Model): #pretty much a comment / announcement
 	created_by = models.ForeignKey(User, on_delete=models.CASCADE, null = True, blank = True)
 	allows_children = models.BooleanField(default=True, help_text="Allow replies to this announcement") #if you're a nonprofit, you might not want to have comments underneath something
 
-	organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null = True, blank = True)
+	organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null = True, blank = True, related_name="announcement")
 	nonprofit = models.ForeignKey(Nonprofit, on_delete=models.CASCADE, null = True, blank = True, related_name="announcement")
 
 	def __str__(self):
@@ -162,6 +172,23 @@ class TextPost(models.Model): #pretty much a comment / announcement
 			return format(self.title)
 		else:
 			return format(self.message[:5])#first five chars of message
+
+	def get_absolute_url(self):
+		if self.s_nonprofit:
+			return reverse('network:announcement_detail', kwargs={'network': self.s_nonprofit.network.slug, 'slug': self.s_nonprofit.slug, 'pk': self.id})
+		elif self.s_organization:
+			return reverse('orgs:announcement_detail', kwargs={'organization': self.s_organization.slug, 'pk': self.id})
+		else:
+			return "/"
+
+	def s_get_absolute_url(self):
+		if self.s_nonprofit:
+			return reverse('network:announcement_detail', kwargs={'network': self.s_nonprofit.network.slug, 'slug': self.s_nonprofit.slug, 'pk': self.s_id})
+		elif self.s_organization:
+			return reverse('orgs:announcement_detail', kwargs={'organization': self.s_organization.slug, 'pk': self.s_id})
+		else:
+			return "/"
+
 
 	class Meta: 
 		ordering = ['-pub_date']
@@ -180,6 +207,15 @@ class TextPost(models.Model): #pretty much a comment / announcement
 			return self.parent.s_nonprofit
 		else:
 			return None
+
+	@property
+	def s_organization(self):
+		if self.organization:
+			return self.organization
+		elif self.parent:
+			return self.parent.s_organization
+		else:
+			return None
 	
 	@property
 	def depth(self):
@@ -189,7 +225,6 @@ class TextPost(models.Model): #pretty much a comment / announcement
 		elif self.parent:
 			depth += self.parent.depth
 		return depth
-
 
 	@property
 	def get_relatives(self):
