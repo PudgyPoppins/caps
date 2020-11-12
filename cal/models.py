@@ -35,7 +35,7 @@ class Calendar(models.Model):
 	network = models.OneToOneField(Network, on_delete=models.CASCADE, null = True, blank = True)
 	organization = models.OneToOneField(Organization, on_delete=models.CASCADE, null = True, blank = True)
 
-	network_calendar = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank = True, related_name="networkcal") #network calendars consist of multiple nonprofit calendars, + their own events
+	network_calendar = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank = True, related_name="nonprofitcal") #network calendars consist of multiple nonprofit calendars, + their own events
 	
 	custom_calendar = models.ForeignKey('self', on_delete=models.SET_NULL, null = True, blank = True, related_name="calendars") #user and organization calendars can consist of multiple network and nonprofit calendars, + their own events
 	excluded_calendars = models.ForeignKey('self', on_delete=models.SET_NULL, null = True, blank = True, related_name="excludedcal") #users and orgs can choose to exclude certain nonprofit calendars from their user calendars
@@ -46,7 +46,7 @@ class Calendar(models.Model):
 	def get_nested_calendars(self):
 		cal_list = []
 		cal_list.append(self)
-		for i in self.networkcal.all():
+		for i in self.nonprofitcal.all():
 			cal_list += i.get_nested_calendars
 		for i in self.calendars.all():
 			cal_list += i.get_nested_calendars
@@ -54,6 +54,7 @@ class Calendar(models.Model):
 			cal_list.remove(i)
 		cal_list = list(set(cal_list))
 		return cal_list
+		#return Calendar.objects.filter(id__in=[cal.id for cal in cal_list]).order_by('network_calendar', '-custom_calendar')
 
 	@property
 	def cal_url(self):

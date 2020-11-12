@@ -1,0 +1,10 @@
+Hello, {{ invite.user }}!
+
+You have been invited to join the volunteering organization "{{ invite.organization }}" on {{ site }}.
+
+To join please click this link: {{ domain }}{{ invite.get_absolute_url }}
+
+If you do not wish to join, you can safely ignore this email.
+
+Thanks!
+The {{ site }} team

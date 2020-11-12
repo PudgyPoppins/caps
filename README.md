@@ -29,13 +29,10 @@ This might come in handy for providing back links: <a href="javascript:history.g
 	* rss feeds
 
 * ## Organizations
-	* goals and text posts
-	* change the add link so that it sends an invite to the respective user, and they have to accept
-	* orgs can pin nonprofits and networks to their page
+	* hour goals
 	* add goals to user profiles when they get created, if they're in an organization
 
 	* Organizations are a way for groups of users to connect to specific nonprofits and networks
-		* Organizations can pin nonprofits or networks to their page
 	* Organizations have leaderboards where they sort who has the most hours in their logging (verified plus verified and unverified scores)
 
 	* add invite to moderator links?
@@ -46,9 +43,20 @@ This might come in handy for providing back links: <a href="javascript:history.g
 	* Nonprofit representatives can also add a log for a user without an event
 	* Users can add their own logs. They can select a nonprofit that's already added or write in their own. They can write in their hours, too.
 
+* ## Getting ready for launch:
+	* css top to bottom
+	* will need to override most forms, make them look nice and pretty
+
+	* Change DEBUG to TRUE
+	* Get a real email address to use
+	* robots.txt / meta descriptors on base.html
+	* Migrate project to a server computer / add crontab jobs specified in the management scripts / wipe sql database
+	* Minimize external css/js loaded on each page to minimize requests
+	* Add pretty good caching to Nginx
+
 * ## Later:
 	* 404 error page isn't getting css.
-	* When making the site look good, I'll probably have to override all of the forms with custom elements. See nonprofit_map and change all of that dom element creation stuff that I did.conda create -n entwine -c conda-forge entwine
+	* When making the site look good, I'll probably have to override all of the forms with custom elements. See nonprofit_map and change all of that dom element creation stuff that I did.
 	* make more favicons (for phones) and more meta data (twitter card, etc)
 	* write some general tests
 	* ordering networks/nonprofits based on distance to you: https://geopy.readthedocs.io/en/stable/#module-geopy.distance
@@ -63,8 +71,7 @@ This might come in handy for providing back links: <a href="javascript:history.g
 	* I haven't seen this happen again, though, Oct 21
 
 # Brainstorming
-* Handling exceptions:
-	* Easiest way I can think of: When a user edits an event, there's a split. Another event gets created that doesn't have an rrule (one time), and is a child of the original. An exception day gets added to the original.
+* 
 
 # What was done
 * 12/30 added tests, static files, tagging, the flagged attribute to both network and nonprofit, and changed the admin site
@@ -119,12 +126,13 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 11/1 Locked nonprofits by default after approving a nonprofit rep. Made it so that organization leaders can subscribe/unsub from calendars for their organization. Worked on creating announcements for nonprofits.
 * 11/2 Added announcements / replies for nonprofit reps. Did some work on the TextPost model. Added recursive replies! (That wasn't in the minimum viable product, those nonprofits better be grateful, smh)
 * 11/10 It's been a hot sec, but I got announcements working for organizations, too. I spent some time rewriting the announcement code to make it shared between nonprofits / orgs, and I'm happy with the results. I also added some new properties to the organization model to slim down the views and template code, a bit.
+* 11/12 Made it so that invites expire after a duration of time, which will be easier to do timezone stuff with. Feelin' pretty proud of that idea. Wrote a manage.py command to invalidate invite links, and wrote a crontab commented out under it. Added an invite user to organization link in the profile view. Made it so that adding users to organization via invite sent them an email. Made it so that orgs could "pin" nonprofits/networks (by subscribing to their calendar).
 
 TODO: 
 	* event create view
 		* rrule selector
 			* look at paper for help
-	* event_update, event_form, event.js...
+		* event_update, event_form, event.js...
 
 
 Time is still busted, dates are being stored in UTC (invitation), but they aren't be converted to local time.

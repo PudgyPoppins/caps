@@ -12,6 +12,11 @@ urlpatterns = [
     path('<slug:slug>/update/', views.UpdateOrgView.as_view(), name='updateorg'), #update an organization
     path('<slug:slug>/', views.OrgDetailView.as_view(), name='detail'), #shows organizations in more detail
 
+    path('<slug:organization>/kick/<username>', views.kick_user, name='kick'), #kick user
+    path('<slug:organization>/invite/<username>', views.invite_user, name='invite'), #add user
+    path('<slug:organization>/promote/<username>', views.promote_user, name='promote'), #promote user
+    path('<slug:organization>/demote/<username>', views.demote_user, name='demote'), #demote user
+
     path('<slug:organization>/generate_invite/', views.CreateInvitation.as_view(), name='geninvite'), #generate an invitation
     path('token/<token>/delete/', views.delete_invitation, name='delinvite'), #generate an invitation
     path('join/<token>', views.join, name='join'), #join an organization
@@ -20,11 +25,6 @@ urlpatterns = [
     path('<slug:organization>/<token>/deny/', views.deny_request, name='delreq'), #deny request
     path('<slug:organization>/leave/', views.leave, name='leave'), #leave an organization
     path('<slug:organization>/transfer_leadership', views.transfer_leadership, name='transfer'), #leave an organization
-
-    path('<slug:organization>/<username>/kick', views.kick_user, name='kick'), #kick user
-    path('<slug:organization>/<username>/add', views.add_user, name='add'), #add user
-    path('<slug:organization>/<username>/promote', views.promote_user, name='promote'), #promote user
-    path('<slug:organization>/<username>/demote', views.demote_user, name='demote'), #demote user
 
     path('<slug:organization>/announcements/create', lib.views.create_announcement, name='create_announcement'),
     path('<slug:organization>/announcements/<int:pk>/', lib.views.announcement_detail, name='announcement_detail'),

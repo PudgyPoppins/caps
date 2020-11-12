@@ -101,10 +101,12 @@ class Invitation(models.Model):
 	max_uses = models.IntegerField('Maximum Uses', help_text="What is the maximum number of times this invitation can be used? Leave blank for unlimited", null = True, blank = True, validators=[MinValueValidator(1), MaxValueValidator(100)])
 	uses = models.IntegerField(default=0)
 	organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null=True, blank=True) #invitations are paired with an organization
-	expiration = models.DateTimeField(help_text='after this date, this link will no longer be valid', blank=True, null=True) #invitations can expire after a certain date
+	created_on = models.DateTimeField(default=timezone.now)
+	expiration = models.DurationField(help_text='after this time, this link will no longer be valid', blank=True, null=True) #invitations can expire after a certain date
 	valid = models.BooleanField(default=True) #invitations can be set to invalid, in which case they no longer work
 	token = models.CharField(max_length=5) #token is the uniqueness part
 
+	user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE) #if this is true, then you HAVE to be this user to accept the invitation
 	@property
 	def is_not_expired(self):
 		if self.expiration:
@@ -119,6 +121,10 @@ class Invitation(models.Model):
 		if not self.token:
 			self.token = create_token() #set the token on save
 		return super(Invitation, self).save(*args, **kwargs)
+
+	def get_absolute_url(self):
+		return reverse('orgs:join', kwargs={'token': self.token})
+
 
 #Users can request to join an organization
 class Request(models.Model):

@@ -1,0 +1,10 @@
+<h1>Hello, {{ invite.user }}!</h1>
+
+<p>You have been invited to join the volunteering organization "<b>{{ invite.organization }}</b>"" on {{ site }}.</p>
+
+<p>To join please <a href="{{ domain }}{{ invite.get_absolute_url }}">click this link</a>.</p>
+
+<p>If you do not wish to join, you can safely ignore this email.</p>
+
+<p>Thanks!</p>
+<p>The {{ site }} team</p>

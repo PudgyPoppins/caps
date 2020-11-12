@@ -30,15 +30,28 @@
 
 {% if organization.public or user.is_authenticated and user in organization.get_participants %}
 
-<h3>Subscribed Calendars</h3>
-{% if organization.calendar.get_nested_calendars|length > 1 %}
+<h3>Pinned Networks/Nonprofits</h3>
+<p><i>In order for a network/nonprofit to show up here, you need to subscribe to its calendar (the button for which can be found on its detail page).</i></p>
+{% if organization.calendar.calendars.all %}
   <ul>
-  {% for i in organization.calendar.get_nested_calendars %}
-    {% if i != organization.calendar %}<li><a href="{{ i.cal_url }}">{{ i.name }}</a></li>{% endif %}
+  {% for i in organization.calendar.calendars.all %}
+    {% if i.network and not i.nonprofit %}<li><a href="{{ i.cal_url }}">{{ i.name }}</a></li>{% endif %}
+    {% if i.nonprofitcal.all %}
+    <ul>
+      {% for j in i.nonprofitcal.all %}
+        {% if j not in organization.calendar.excludedcal.all %}<li><a href="{{ j.cal_url }}">{{ j.name }}</a></li>{% endif %}
+      {% endfor %}
+    </ul>
+    {% endif %}
   {% endfor %}
   </ul>
+  <ul>
+    {% for i in organization.calendar.calendars.all %}
+    {% if i.nonprofit %}<li><a href="{{ i.cal_url }}">{{ i.name }}</a></li>{% endif %}
+    {% endfor %}
+  </ul>
 {% else %}
-  <p>This organization isn't subscribed to any other calendars.</p>
+  <p>This organization hasn't pinned anything, yet.</p>
 {% endif %}
 {% include "cal/snippets/calendar.html" with type="organization" %}
 
@@ -66,13 +79,13 @@
 <h3>Active Invites:</h3>
 <ul>
 {% for i in organization.invitation_set.all %}
-{% if i.valid and i.is_not_expired %}
+{% if i.valid and i.is_not_expired and not i.user %}
 <li>Link: <a onclick="copyToClipboard(this, '{{ request.get_host }}{% url 'orgs:join' token=i.token %}')" data-tooltip="Copy link to clipboard">{{ i.token }}</a> | 
   {% if i.expiration %}Expiration: {{ i.expiration }} |{% endif %}
-  {% if i.max_uses %}Max Uses: {{ i.max_uses}} | Uses Remaining: {{ i.max_uses|subtract:i.uses }}
+  {% if i.max_uses %}Max Uses: {{ i.max_uses}} | Uses Remaining: {{ i.max_uses|subtract:i.uses }} |
   {% else %}Used: {{ i.uses }} times |
-  <a href="{% url 'orgs:delinvite' i.token %}">Delete</a>
   {% endif %}
+  <a href="{% url 'orgs:delinvite' i.token %}">Delete</a>
 </li>
 {% endif %}
 {% endfor %}

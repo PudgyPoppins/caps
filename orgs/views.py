@@ -5,6 +5,8 @@ from django.views import generic
 from django.utils import timezone
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -13,6 +15,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.safestring import mark_safe
 from django.conf import settings
+from django.utils.dateparse import parse_duration
 
 # Create your views here.
 from cal.models import Calendar
@@ -140,6 +143,7 @@ class CreateInvitation(LoginRequiredMixin, CreateView):
 	def form_valid(self, form):
 		invitation = form.save(commit=False)
 		invitation.organization = get_object_or_404(Organization, slug=self.kwargs['organization'])
+		i.expiration = parse_duration(i.expiration)
 		invitation.save() #saves the object, sets the id
 		self.object = invitation
 		return HttpResponseRedirect(self.get_success_url())
@@ -173,34 +177,37 @@ def join(request, token):
 	token = Invitation.objects.filter(token=token, valid=True)
 	if token:
 		token = token[0] # Replace queryset with model instance
-		if token.max_uses:#token invalid case 1: too many uses
-			if token.uses >= token.max_uses:
-				token.valid = False
-				token.save()
-				messages.error(request, "This invitation link is no longer valid!")
-				return HttpResponseRedirect(reverse('orgs:index'))
-		if token.expiration: #token invalid case 2: it's expired
-			if timezone.now() > token.expiration:
-				token.valid = False
-				token.save()
-				messages.error(request, "This invitation link is no longer valid!")
-				return HttpResponseRedirect(reverse('orgs:index'))
+		if (token.uses and token.uses >= token.max_uses) or (token.expiration and timezone.now > token.created_on + token.expiration):
+			#this frankenstein of an if statement detects if a token is currently invalid, or should be made invalid
+			token.valid = False
+			token.save()
+			messages.error(request, "This invitation link is no longer valid!")
+			return HttpResponseRedirect(reverse('orgs:index'))
 		#Otherwise, it's valid, continue as planned
 		organization = Organization.objects.get(id=token.organization.id)
 		#If they're already a part of the organization
-		if request.user in organization.get_participants:
+		if request.user in organization.get_participants and not token.user:
 			messages.info(request, "You're already a part of this organization!")
 			return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : token.organization.slug}))
-		organization.member.add(request.user) #add the user as a member now! Yay, they joined!
+		elif token.user and token.user in organization.get_participants:
+			messages.info(request, "%s is already a part of this organization!" % token.user.username)
+			return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : token.organization.slug}))
+		if token.user:
+			organization.member.add(token.user)
+		else:
+			organization.member.add(request.user) #add the user as a member now! Yay, they joined!
 		token.uses += 1
 		token.save()
 		if token.uses >= token.max_uses:
-				token.valid = False
-				token.save()
-		messages.success(request, "You've successfully joined this organization!")
+			token.valid = False
+			token.save()
+		if token.user != request.user:
+			messages.success(request, "%s successfully joined this organization!" % token.user)
+		elif not token.user or token.user == request.user:
+			messages.success(request, "You've successfully joined this organization!")
 		return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : token.organization.slug}))
 	else:
-		messages.error(request, "That invitation link doesn't exist!")
+		messages.error(request, "That invitation link doesn't exist, or is no longer valid!")
 		return HttpResponseRedirect(reverse('orgs:index'))
 
 class CreateRequest(LoginRequiredMixin, CreateView):
@@ -376,7 +383,7 @@ def kick_user(request, organization, username):
 		leave_link = reverse('orgs:leave', kwargs={'organization': organization.slug})
 		return HttpResponseRedirect(leave_link)
 
-	undo_link = reverse('orgs:add', kwargs={'organization': organization.slug, 'username': user.username})
+	undo_link = reverse('orgs:invite', kwargs={'organization': organization.slug, 'username': user.username})
 
 	if request.user in organization.leader.all(): #leaders can only kick moderators if they're demoted first
 		if user in organization.member.all():
@@ -403,16 +410,27 @@ def kick_user(request, organization, username):
 		messages.error(request, "You don't have permission to perform this action!")
 	return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : organization.slug}))
 
+def send_invite_email(invite):
+	send_mail(
+		"You've been invited to join a volunteering organization on " + settings.SITE_NAME,
+		render_to_string('orgs/snippets/invite_email.txt', {'invite': invite, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME}),
+		'pudgypoppins@gmail.com',
+		[invite.user.email],
+		html_message=render_to_string('orgs/snippets/invite_email.html', {'invite': invite, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME}),
+	)
 @login_required
-def add_user(request, organization, username):
+def invite_user(request, organization, username):
 	organization = get_object_or_404(Organization, slug=organization)
 	user = get_object_or_404(User, username=username)
 	if user in organization.get_participants:
 		messages.error(request, "That user is already in the organization!")
 	elif request.user in organization.get_leadership:
-		organization.member.add(user)
+		#organization.member.add(user) #don't just add them, send them an email invitation
+		invite = Invitation(user=user, max_uses=1, organization=organization)
+		invite.save()
+		send_invite_email(invite)
 		undo_link = reverse('orgs:kick', kwargs={'organization': organization.slug, 'username': user.username})
-		messages.success(request, mark_safe("Successfully added %s to %s. <a href='%s'>Undo?</a>" %(user, organization.title, undo_link)))
+		messages.success(request, mark_safe("Successfully invited %s to %s. They'll get a link in their email address to join. <a href='%s'>Undo?</a>" %(user, organization.title, undo_link)))
 	else:
 		messages.error(request, "You don't have permission to perform this action!")
 	return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : organization.slug}))

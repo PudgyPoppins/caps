@@ -17,6 +17,12 @@
 <a href="{% url 'accounts:delete_user' profile.username %}">delete account</a>
 {% endif %}
 
+{% if user.is_authenticated and profile.username != user.username %}
+{% for org in user.organization_leadership %}
+<a href="{% url 'orgs:invite' org.slug profile.username %}">invite this user to {{ org }}</a>
+{% endfor %}
+{% endif %}
+
 <h3>Created Networks</h3>
 {% if profile.network.all %}
 	<ul>
@@ -77,14 +83,26 @@
 
 {% if user.username == profile.username %}
 <h3>Subscribed Calendars</h3>
-{% if calendar.get_nested_calendars|length > 1 %}
+{% if calendar.calendars.all %}
 	<ul>
-	{% for i in calendar.get_nested_calendars %}
-		{% if i != calendar %}<li><a href="{{ i.cal_url }}">{{ i.name }}</a></li>{% endif %}
+	{% for i in calendar.calendars.all %}
+	  {% if i.network and not i.nonprofit %}<li><a href="{{ i.cal_url }}">{{ i.name }}</a></li>{% endif %}
+	  {% if i.nonprofitcal.all %}
+	  <ul>
+	    {% for j in i.nonprofitcal.all %}
+	      {% if j not in calendar.excludedcal.all %}<li><a href="{{ j.cal_url }}">{{ j.name }}</a></li>{% endif %}
+	    {% endfor %}
+	  </ul>
+	  {% endif %}
 	{% endfor %}
 	</ul>
+	<ul>
+	  {% for i in calendar.calendars.all %}
+	  {% if i.nonprofit %}<li><a href="{{ i.cal_url }}">{{ i.name }}</a></li>{% endif %}
+	  {% endfor %}
+	</ul>
 {% else %}
-	<p>You aren't subscribed to any other calendars yet.</p>
+	<p>You aren't subscribed to any calendars yet.</p>
 {% endif %}
 {% endif %}
 

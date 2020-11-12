@@ -34,16 +34,16 @@
 {% if user.is_authenticated and calendar not in user.calendar.get_nested_calendars and type != "user" %}
 <a href="{% url 'cal:subscribe' calendar.token %}">subscribe to this calendar</a>
 {% elif user.is_authenticated and calendar in user.calendar.get_nested_calendars and calendar not in user.calendar.excludedcal.all and type != "user" %}
-<a href="{% url 'cal:unsubscribe' calendar.token %}">unsubscribe to this calendar</a>
+<a href="{% url 'cal:unsubscribe' calendar.token %}">unsubscribe from this calendar</a>
 {% endif %}
 
 {% if user.is_authenticated and type != "user" %}
 {% for org in user.organization_leadership %}
 
 {% if calendar not in org.calendar.get_nested_calendars %}
-<a href="{% url 'cal:org_subscribe' calendar.token org.slug %}">subscribe to this calendar for the organiztion {{ org }}</a>
+<a href="{% url 'cal:subscribe' calendar.token org.slug %}">subscribe to this calendar for the organiztion {{ org }}</a>
 {% elif calendar in org.calendar.get_nested_calendars and calendar not in org.calendar.excludedcal.all %}
-<a href="{% url 'cal:org_unsubscribe' calendar.token org.slug %}">unsubscribe to this calendar for the organiztion {{ org }}</a>
+<a href="{% url 'cal:unsubscribe' calendar.token org.slug %}">unsubscribe from this calendar for the organiztion {{ org }}</a>
 {% endif %}
 
 {% endfor %}

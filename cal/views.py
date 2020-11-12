@@ -636,58 +636,43 @@ def calendar_unsubscribe_helper(request, calendar1, calendar2): #calendar1 is th
 		#you're only subscribed to a calendar if you're explicitly subscribed to it (it's in calendars.all()), or if you're implicitly subscribed to it (it's a child of something in calendars.all())
 		messages.info(request, "You're not subscribed to this calendar in the first place")
 		return HttpResponseRedirect(calendar.cal_url)
-
-
+		
 @login_required
-def calendar_subscribe(request, token):
+def calendar_subscribe(request, token, organization=None):
 	calendar = Calendar.objects.filter(token=token)
 	if calendar:
 		calendar = calendar[0]
-		user = request.user
-		u_cal = user.calendar
-		return calendar_subscribe_helper(request, u_cal, calendar)
-	else:
-		messages.error(request, "That calendar doesn't exist!")
-		return HttpResponseRedirect(reverse('home:main'))
-
-@login_required
-def calendar_unsubscribe(request, token):
-	calendar = Calendar.objects.filter(token=token)
-	if calendar:
-		calendar = calendar[0]
-		user = request.user
-		u_cal = user.calendar
-		return calendar_unsubscribe_helper(request, u_cal, calendar)
-	else:
-		messages.error(request, "That calendar doesn't exist!")
-		return HttpResponseRedirect(reverse('home:main'))
-
-@login_required
-def org_calendar_subscribe(request, token, organization):
-	calendar = Calendar.objects.filter(token=token)
-	if calendar:
-		calendar = calendar[0]
-		organization = get_object_or_404(Organization, slug=organization)
-		if organization in request.user.organization_leadership:
-			return calendar_subscribe_helper(request, organization.calendar, calendar)
+		if organization:
+			organization = get_object_or_404(Organization, slug=organization)
+			if organization in request.user.organization_leadership:
+				return calendar_subscribe_helper(request, organization.calendar, calendar)
+			else:
+				messages.error(request, "You don't have permission to do that!")
+				return HttpResponseRedirect(calendar.cal_url)
 		else:
-			messages.error(request, "You don't have permission to do that!")
-			return HttpResponseRedirect(calendar.cal_url)
+			user = request.user
+			u_cal = user.calendar
+			return calendar_subscribe_helper(request, u_cal, calendar)
 	else:
 		messages.error(request, "That calendar doesn't exist!")
 		return HttpResponseRedirect(reverse('home:main'))
 
 @login_required
-def org_calendar_unsubscribe(request, token, organization):
+def calendar_unsubscribe(request, token, organization=None):
 	calendar = Calendar.objects.filter(token=token)
 	if calendar:
 		calendar = calendar[0]
-		organization = get_object_or_404(Organization, slug=organization)
-		if organization in request.user.organization_leadership:
-			return calendar_unsubscribe_helper(request, organization.calendar, calendar)
+		if organization:
+			organization = get_object_or_404(Organization, slug=organization)
+			if organization in request.user.organization_leadership:
+				return calendar_unsubscribe_helper(request, organization.calendar, calendar)
+			else:
+				messages.error(request, "You don't have permission to do that!")
+				return HttpResponseRedirect(calendar.cal_url)
 		else:
-			messages.error(request, "You don't have permission to do that!")
-			return HttpResponseRedirect(calendar.cal_url)
+			user = request.user
+			u_cal = user.calendar
+			return calendar_unsubscribe_helper(request, u_cal, calendar)
 	else:
 		messages.error(request, "That calendar doesn't exist!")
 		return HttpResponseRedirect(reverse('home:main'))

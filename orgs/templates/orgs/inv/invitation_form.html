@@ -5,8 +5,6 @@
 {% block title %}Generate an Invitation Link{% endblock %}
 
 {% block content %}
-<script src="{% static 'lib/js/moment.js' %}"></script>
-<script src="{% static 'lib/js/moment-timezone-with-data.js' %}"></script>
 
 <a href="{% url 'orgs:detail' organization.slug %}">back to detail view</a>
 
@@ -22,7 +20,7 @@
 		<option value="12hr">12 hours</option>
 		<option value="1day">1 day</option>
 		<option value="1week">1 week</option>
-		<option value="1mon">1 month</option>
+		<option value="1mon">30 days</option>
 	</select>
     <input type="submit" value="Submit" id="submitBtn">
 </form>
@@ -34,13 +32,13 @@ document.getElementById('submitBtn')
 		if(delta=="never"){
 			document.getElementById("f").value = null;
 		}
-		else if(delta=="30min"){document.getElementById("id_expiration").value = moment().add(30, 'minutes').utc().format("YYYY-MM-DD HH:mm:ss");}
-		else if(delta=="1hr"){document.getElementById("id_expiration").value = moment().add(1, 'hours').utc().format('YYYY-MM-DD HH:mm:ss');}
-		else if(delta=="6hr"){document.getElementById("id_expiration").value = moment().add(6, 'hours').utc().format('YYYY-MM-DD HH:mm:ss');}
-		else if(delta=="12hr"){document.getElementById("id_expiration").value = moment().add(12, 'hours').utc().format('YYYY-MM-DD HH:mm:ss');}
-		else if(delta=="1day"){document.getElementById("id_expiration").value = moment().add(1, 'days').utc().format('YYYY-MM-DD HH:mm:ss');}
-		else if(delta=="1week"){document.getElementById("id_expiration").value = moment().add(1, 'weeks').utc().format('YYYY-MM-DD HH:mm:ss');}
-		else if(delta=="1mon"){document.getElementById("id_expiration").value = moment().add(1, 'months').utc().format('YYYY-MM-DD HH:mm:ss');}
+		else if(delta=="30min"){document.getElementById("id_expiration").value = (30 * 60).toString();}
+		else if(delta=="1hr"){document.getElementById("id_expiration").value = (60 * 60).toString();}
+		else if(delta=="6hr"){document.getElementById("id_expiration").value = (6 * 60 * 60).toString();}
+		else if(delta=="12hr"){document.getElementById("id_expiration").value = (12 * 60 * 60).toString();}
+		else if(delta=="1day"){document.getElementById("id_expiration").value = (24 * 60 * 60).toString();}
+		else if(delta=="1week"){document.getElementById("id_expiration").value = (7 * 24 * 60 * 60).toString();}
+		else if(delta=="1mon"){document.getElementById("id_expiration").value = (30 * 24 * 60 * 60).toString();}
     });
 </script>
 {% endblock %}

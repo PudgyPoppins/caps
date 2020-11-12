@@ -95,7 +95,7 @@ def get_calendar_events(calendar):
 	relatives = []
 	for cal in calendar.get_nested_calendars:
 		for i in cal.event.all():
-			relatives += get_all_relatives(i, empty_relatives)
+			relatives += get_all_relatives(i, relatives)
 	relatives = list(set(relatives))
 	return relatives
 
