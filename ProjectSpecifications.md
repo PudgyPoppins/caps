@@ -28,3 +28,4 @@ I will NOT do bug reporting in this section
 	* You can log hours that you've completed for yourself, and write a description of the work that you did
 	* If a nonprofit has a verified representative, then you can put them as who you volunteered for, then they can confirm that you did volunteer there
 	* Users can add logs from their profile. Users search for a nonprofit, and if one isn't found, then they get prompted to create one.
+		* if that nonprofit does exist, but it doesn't have any reps, then prompt them to notify that nonprofit

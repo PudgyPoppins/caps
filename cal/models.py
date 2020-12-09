@@ -50,7 +50,8 @@ class Calendar(models.Model):
 			cal_list += i.get_nested_calendars
 		for i in self.calendars.all():
 			cal_list += i.get_nested_calendars
-		for i in self.excludedcal.all():
+		for i in list(set(self.excludedcal.all()) & set(cal_list)):
+			print(i)
 			cal_list.remove(i)
 		cal_list = list(set(cal_list))
 		return cal_list

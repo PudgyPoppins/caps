@@ -29,6 +29,7 @@ urlpatterns = [
 	#path('networks/', RedirectView.as_view(url='/network/')), #redirect
 	path('calendar/', include('cal.urls')),
 	path('organization/', include('orgs.urls')),
+	path('logs/', include('logs.urls')),
 
 	path('admin/', admin.site.urls),
 	path('accounts/', include('accounts.urls')),

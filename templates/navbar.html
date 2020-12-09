@@ -30,8 +30,8 @@
         <!--If you're logged in, show this-->
         {% if user.is_authenticated %}
             <a href="{% url 'logout' %}">log out</a>
-            <a href="{% url 'accounts:current_profile' %}" {% if request.path == "/accounts/profile/" %}class="active"{% endif %}>{{ user.username }}</a>
-            <a id="userLink" href="{% url 'accounts:current_profile' %}"> <img src="{{ user.email|gravatar_url }}" class="userIcon" alt="gravitar user icon" title="{{ user }}"/></a>
+            <a href="{% url 'accounts:profile' %}" {% if request.path == "/accounts/profile/" %}class="active"{% endif %}>{{ user.username }}</a>
+            <a id="userLink" href="{% url 'accounts:profile' %}"> <img src="{{ user.email|gravatar_url }}" class="userIcon" alt="gravitar user icon" title="{{ user }}"/></a>
         {% endif %}
     </div>
 </nav>

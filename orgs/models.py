@@ -5,10 +5,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
-
 from django.urls import reverse
-
-from accounts.models import User
 
 import PIL
 from PIL import Image
@@ -16,19 +13,20 @@ from io import StringIO, BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from network.models import Nonprofit
+from accounts.models import User
 
 # Create your models here.
 
 class Organization(models.Model):
 	title = models.CharField(max_length=75, help_text="What is the name of this organization?", unique=True, default="")
-	description = models.CharField(max_length=500, help_text="A short description. This could be a mission statement, or something else.", blank=True, null=True)
+	description = models.CharField(max_length=512, help_text="A short description. This could be a mission statement, or something else.", blank=True, null=True)
 	pub_date = models.DateTimeField('date published', default=timezone.now)
 
 	#Unlike nonprofits, none of these are required
 	website = models.URLField(max_length=200, help_text="If this organization has a website different from here, enter if applicable", null=True, blank=True)
 	phone = models.CharField(max_length=12, help_text="Enter a phone number in the format 111-111-1111, if applicable", null=True, blank=True) #for now, I'm using a charfield but in the future I should use a phonenumber field from a library
 	address = models.CharField(max_length=100, help_text="If this organization has a physical address, enter if applicable", null=True, blank=True)
-	email = models.EmailField(max_length=254, help_text="Enter a relevant email to contact this organization, if applicable", null = True, blank=True)
+	email = models.EmailField(max_length=255, help_text="Enter a relevant email to contact this organization, if applicable", null = True, blank=True)
 
 	src_link = models.URLField(max_length=200, help_text="Enter a url for an image representing the organization", blank=True)	
 	src_file = models.ImageField(upload_to='network_images', help_text = "Submit a file for an image representing the organization", height_field=None, width_field=None, max_length=100, blank=True)

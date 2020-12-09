@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Your volunteering log{% endblock %}
+
+{% block content %}
+<a href="{% url 'accounts:profile' %}">back to profile</a>
+
+<h1>Volunteering log for {{ user }}</h1>
+{% if logs %}
+<ul>
+{% for l in logs %}
+<li>{{ l }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

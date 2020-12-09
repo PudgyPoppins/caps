@@ -81,6 +81,10 @@
 	{% endif %}
 {% endif %}
 
+<h3>{% if user.username == profile.username %}My{% else %}{{ profile.username}}'s{% endif %} Volunteering Log</h3>
+{% if user.username == profile.username %}<p><a href="{% url 'logs:add' %}">Add hours</a></p>{% endif %}
+<p><a href="{% url 'logs:detail' %}">View log</a></p>
+
 {% if user.username == profile.username %}
 <h3>Subscribed Calendars</h3>
 {% if calendar.calendars.all %}

@@ -43,6 +43,8 @@ This might come in handy for providing back links: <a href="javascript:history.g
 	* Nonprofit representatives can also add a log for a user without an event
 	* Users can add their own logs. They can select a nonprofit that's already added or write in their own. They can write in their hours, too.
 
+	* Should logs show up on user calendars as events?
+
 * ## Getting ready for launch:
 	* css top to bottom
 	* will need to override most forms, make them look nice and pretty
@@ -127,6 +129,7 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 11/2 Added announcements / replies for nonprofit reps. Did some work on the TextPost model. Added recursive replies! (That wasn't in the minimum viable product, those nonprofits better be grateful, smh)
 * 11/10 It's been a hot sec, but I got announcements working for organizations, too. I spent some time rewriting the announcement code to make it shared between nonprofits / orgs, and I'm happy with the results. I also added some new properties to the organization model to slim down the views and template code, a bit.
 * 11/12 Made it so that invites expire after a duration of time, which will be easier to do timezone stuff with. Feelin' pretty proud of that idea. Wrote a manage.py command to invalidate invite links, and wrote a crontab commented out under it. Added an invite user to organization link in the profile view. Made it so that adding users to organization via invite sent them an email. Made it so that orgs could "pin" nonprofits/networks (by subscribing to their calendar).
+* 12/8 It's been a sec again, haha. Fixed an error where calendars overzealously tried to exclude other calendars. Fixed a small error where joined orgs were being listed twice on the user profile page. Combined the get_profile and current_profile views into one, better view simply called 'profile'. Added the model for logging. Created a form to add personal logs. Added a search view on network to search for nonprofits with AJAX. Successfully implemented AJAX, but still need to add a way to set the nonprofit from the results.
 
 TODO: 
 	* event create view

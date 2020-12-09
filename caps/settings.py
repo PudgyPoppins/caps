@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 	'home.apps.HomeConfig',
 	'network.apps.NetworkConfig',
 	'orgs.apps.OrgsConfig',
+	'logs.apps.LogsConfig',
 	'lib',
 
 	'django.contrib.admin',

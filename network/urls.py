@@ -6,6 +6,8 @@ import lib.views
 app_name = 'network'
 urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
+    path('search/', views.search, name='search'),
+
     path('add/', views.AddNetView.as_view(), name='addnet'), #add a network
     path('<slug:slug>/delete/', views.DeleteNetView.as_view(), name='deletenet'), #delete a network
     path('<slug:slug>/update/', views.UpdateNetView.as_view(), name='updatenet'), #update a network

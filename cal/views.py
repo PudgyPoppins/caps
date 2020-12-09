@@ -35,10 +35,10 @@ def index(request):
 def usercal(request, username):
 	user = get_object_or_404(User, username=username)
 	if request.user.is_authenticated and user == request.user:
-		return HttpResponseRedirect(reverse('accounts:current_profile') + '#calendar')
+		return HttpResponseRedirect(reverse('accounts:profile') + '#calendar')
 	elif request.user.is_authenticated:
 		messages.error(request, "You don't have permission to view this user's calendar!")
-		return HttpResponseRedirect(reverse('accounts:current_profile') + '#calendar')
+		return HttpResponseRedirect(reverse('accounts:profile') + '#calendar')
 def redirect_usercal(request, username):
 	return HttpResponseRedirect(reverse('cal:usercal', kwargs={'username' : username}))
 

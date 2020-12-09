@@ -72,34 +72,35 @@ class Login(LoginView):
 			return HttpResponseRedirect(redirect_to)
 		return super().dispatch(request, *args, **kwargs)
 
-def get_profile(request, username):
-	user = get_object_or_404(User, username=username)
-	if request.user.is_authenticated and user == request.user:
-		return HttpResponseRedirect(reverse('accounts:current_profile'))
-	joined_organizations = Organization.objects.filter(Q(member=user) | Q(leader=user) | Q(moderator=user))
-	context = {
-		'profile': user,
-		'joined_organizations': joined_organizations,
-	}
-	return render(request, 'accounts/profile.html', context) #I'm passing this info through as profile instead of user because if the profile is not the user's own, I want them to be able to see their stuff still
+
+def profile(request, username=None):
+	context = {}
+	if username:
+		user = get_object_or_404(User, username=username)
+		if request.user.is_authenticated and user == request.user:
+			return HttpResponseRedirect(reverse('accounts:profile'))
+		joined_organizations = Organization.objects.filter(Q(member=user) | Q(leader=user) | Q(moderator=user)).distinct()
+		context = {
+			'profile': user,
+			'joined_organizations': joined_organizations,
+		}
+	else:
+		if request.user.is_authenticated:
+			user = request.user
+			context = {
+				'profile': user,
+				'created_networks': Network.objects.filter(created_by=user),
+				'created_nonprofits': Nonprofit.objects.filter(created_by=user),
+				'joined_organizations': Organization.objects.filter(Q(member=user) | Q(leader=user) | Q(moderator=user)).distinct(),
+				'calendar' : Calendar.objects.get(user=user),
+			}
+		else:
+			messages.error(request, "You aren't logged in and can't see this page")
+			return HttpResponseRedirect(reverse('home:main'))
+	return render(request, 'accounts/profile.html', context)
 
 def redirect_profile(request, username):
 	return HttpResponseRedirect(reverse('accounts:profile', kwargs={'username' : username}))
-@login_required
-def current_profile(request):
-	user = request.user
-	created_networks = Network.objects.filter(created_by=user)
-	created_nonprofits = Nonprofit.objects.filter(created_by=user)
-	joined_organizations = Organization.objects.filter(Q(member=user) | Q(leader=user) | Q(moderator=user))
-	calendar = Calendar.objects.get(user=user)
-	context = {
-		'profile': user,
-		'created_networks': created_networks,
-		'created_nonprofits': created_nonprofits,
-		'joined_organizations': joined_organizations,
-		'calendar' : calendar,
-	}
-	return render(request, 'accounts/profile.html', context)
 
 @login_required
 def delete_user(request, username): 

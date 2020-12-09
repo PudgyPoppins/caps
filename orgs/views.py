@@ -143,7 +143,7 @@ class CreateInvitation(LoginRequiredMixin, CreateView):
 	def form_valid(self, form):
 		invitation = form.save(commit=False)
 		invitation.organization = get_object_or_404(Organization, slug=self.kwargs['organization'])
-		i.expiration = parse_duration(i.expiration)
+		invitation.expiration = parse_duration(invitation.expiration)
 		invitation.save() #saves the object, sets the id
 		self.object = invitation
 		return HttpResponseRedirect(self.get_success_url())

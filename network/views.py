@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.views import generic
@@ -33,6 +33,16 @@ class IndexView(generic.ListView):
 		return Network.objects.filter(
 			pub_date__lte=timezone.now()
 		).order_by('-pub_date')#[:5] uncomment this to show only most recent 5
+
+def search(request):
+	query = request.GET.get('nonprofit', None)
+	results = []
+	if not query is None:
+		results = Nonprofit.objects.filter(title__icontains=query)
+	response = {}
+	for i in results:
+		response[i.id] = {"title":i.title, "location":i.network.title}
+	return JsonResponse(response)
 
 class AddNetView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 	model = Network
