@@ -22,6 +22,8 @@ class Log(models.Model):
 	user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name='log')
 	attendee = models.ForeignKey(Attendee, null=True, blank=True, on_delete=models.SET_NULL) #when your event is done, all of this info can be obtained through this
 	nonprofit = models.ForeignKey(Nonprofit, null=True, blank=True, on_delete=models.SET_NULL)
+	#nonprofit_text = models.CharField(max_length=128, null=True, blank=True) #in case they don't want to add a new nonprofit
+	#^ I commented this out because I'm a greedy bastard that wants to make sure they add their nonprofits to the website, they can't just freeload with their text boxes!
 
 	start_date = models.DateField(default=timezone.now)
 	created_on = models.DateField(default=timezone.now)

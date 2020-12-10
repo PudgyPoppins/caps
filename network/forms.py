@@ -52,6 +52,7 @@ class NonprofitFormUpdate(ModelForm):
 			'tags': CheckboxSelectMultiple(),
 			'lat': forms.HiddenInput(), 'lon': forms.HiddenInput(),
 			'description': forms.Textarea(),
+			'network': forms.HiddenInput(),
 		}
 	def clean_pub_date(self):
 		data = self.cleaned_data['pub_date']
@@ -82,7 +83,9 @@ class NonprofitFormUpdate(ModelForm):
 		if url and file:
 			raise ValidationError(_("You cannot upload both an image url and an image file. Please upload one or the other."))
 		if self.cleaned_data['website'] is None and self.cleaned_data['phone'] is None and self.cleaned_data['address'] is None and self.cleaned_data['email'] is None:
-			raise ValidationError(_("At least one of these forms (website, phone, address, email) needs to be filled out"))
+			raise ValidationError(_("At least one of these fields -- website, phone, address, email -- needs to be filled out"))
+		if not self.cleaned_data.get('network', False):
+			raise ValidationError(_("Must specify network"))
 
 class NonprofitFormCreate(NonprofitFormUpdate):
 	def __init__(self, *args, **kwargs):

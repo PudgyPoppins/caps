@@ -3,12 +3,32 @@
 {% block title %}Add a nonprofit{% endblock %}
 
 {% block content %}
-<a href="{% url 'network:detail' network.slug %}">back to detail view</a>
+{% if network %}<a href="{% url 'network:detail' network.slug %}">back to detail view</a>{% endif %}
 
 <h1>Create a new Nonprofit</h1>
 <form method="post" enctype="multipart/form-data">{% csrf_token %}
-    {{ form.as_p }}
+    {% if not network %}{% include 'logs/snippets/search_snippet.html' with type="network" %}{% endif %}
+    {% for field in form %}
+    	<p>
+    		{{ field.errors }}
+    		{{ field.label_tag }} 
+
+    		{% if field.name != "address" and field.name != "network" %} {{ field }}
+    		{% elif field.name == "address" %} 
+    		<div class="addressWrapper" id="addressWrapper">
+    			{{ field }}
+    			<div id="map"></div>
+    			<pre id="coordinates" class="coordinates"></pre>
+    		</div>
+    		{% endif %}
+    		
+    		{% if field.help_text %}
+    		{{ field.help_text|safe }}
+    		{% endif %}
+    	</p>
+    {% endfor %}
     {% include 'network/snippets/nonprofit_map.html' %}
+
     <input type="submit" value="Save">
 </form>
 {% endblock %}

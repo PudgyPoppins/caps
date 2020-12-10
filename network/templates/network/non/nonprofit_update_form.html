@@ -7,8 +7,28 @@
 
 <h1>Update nonprofit information</h1>
 <form method="post" enctype="multipart/form-data">{% csrf_token %}
-    {{ form.as_p }}
+    {% include 'logs/snippets/search_snippet.html' with type="network" %}
+    {% for field in form %}
+    	<p>
+    		{{ field.errors }}
+    		{{ field.label_tag }} 
+
+    		{% if field.name != "address" and field.name != "network" %} {{ field }}
+    		{% elif field.name == "address" %} 
+    		<div class="addressWrapper" id="addressWrapper">
+    			{{ field }}
+    			<div id="map"></div>
+    			<pre id="coordinates" class="coordinates"></pre>
+    		</div>
+    		{% endif %}
+    		
+    		{% if field.help_text %}
+    		{{ field.help_text|safe }}
+    		{% endif %}
+    	</p>
+    {% endfor %}
     {% include 'network/snippets/nonprofit_map.html' %}
+
     <input type="submit" value="Update">
 </form>
 {% endblock %}

@@ -8,14 +8,10 @@
 
 <h1>Add time to your volunteering log</h1>
 
-<label for="search">Nonprofit:</label>
-<input type="text" placeholder="Search for a nonprofit" id="search"></input>
-<div id="searchResultsContainer" style="display: none;"></div>
-
 <form method="post">{% csrf_token %}
-	{% for hidden in form.hidden_fields %}
-	{{ hidden }}
-	{% endfor %}
+	{{ form.non_field_errors }}
+	{% include 'logs/snippets/search_snippet.html' with type="nonprofit" %}
+
 	{% for field in form.visible_fields %}
 		<p>
 			{{ field.errors }}
@@ -30,50 +26,10 @@
 			{% endif %}
 		</p>
 	{% endfor %}
+
 	<input type="submit" value="Save">
 </form>
 
 <script src="{% static 'lib/js/html-duration-picker.js' %}"></script>
-<script>
-document.getElementById("id_duration").value = "00:15";
-
-var x;
-
-var s = document.getElementById('search');
-var resultBox = document.getElementById('searchResultsContainer');
-var request = new XMLHttpRequest();
-var scheduled_function = false //this is just a flag for the timeout so we don't hammer the server with a ton of calls
- 
-request.onreadystatechange = function() {
-	if(request.readyState === 4) { //it's done
-		resultBox.style.display = "block";
-		if(request.status === 200) {  //we got a successful return
-			resultBox.innerHTML = request.responseText;
-			x=JSON.parse(request.responseText)
-		} else {
-			resultBox.innerHTML = 'An error occurred during your request: ' +  request.status + ' ' + request.statusText;
-		} 
-	}
-};
- 
-s.addEventListener('keyup', doAjaxSmartly);
-
-var doAjax = function () {
-	if(s.value){
-		request.open('GET', '/network/search/?nonprofit=' + s.value);
-		request.send(null);
-	} else{
-		resultBox.innerHTML = "";
-		resultBox.style.display = "none";
-	}
-}
-function doAjaxSmartly() {
-	if (scheduled_function) {
-		clearTimeout(scheduled_function)
-	}
-	scheduled_function = setTimeout(doAjax, 700)
-}
-
-if(s.value){doAjax();}
-</script>
+<script>document.getElementById("id_duration").value = "00:15";</script>
 {% endblock %}

@@ -13,6 +13,7 @@ urlpatterns = [
     path('<slug:slug>/update/', views.UpdateNetView.as_view(), name='updatenet'), #update a network
     path('<slug:slug>/', views.NetDetailView.as_view(), name='detail'), #shows networks in more detail
 
+    path('nonprofit/add/', views.AddNonView.as_view(), name='addnon'), #add a nonprofit w/o specifying the network (it's a search button, now)
     path('<slug:network>/add/', views.AddNonView.as_view(), name='addnon'), #add a nonprofit
     path('<slug:network>/<slug:slug>/', views.NonDetailView.as_view(), name='detailnon'), #nonprofit detail view
     path('<slug:network>/<slug:slug>/update/', views.UpdateNonView.as_view(), name='updatenon'), #update a nonprofit

@@ -1,0 +1,87 @@
+<label for="search">{{ type | capfirst }}:</label>
+<input type="text" placeholder="Search for a {{ type }}" id="search"></input><span id="{{ type }}_valid">Bad</span>
+<ul id="searchResultsContainer" style="display: none;"></ul>
+<input type="hidden" name="{{ type }}" id="id_{{ type }}" required="">
+
+<script>
+var json;
+
+var s = document.getElementById('search');
+var resultBox = document.getElementById('searchResultsContainer');
+var {{ type }} = document.getElementById('id_{{ type }}');
+var {{ type }}_valid = document.getElementById('{{ type }}_valid');
+var request = new XMLHttpRequest();
+var scheduled_function = false; //this is just a flag for the timeout so we don't hammer the server with a ton of calls
+var {{ type }}_already_filled = false; //another flag variable to see if the page should try to auto fill the search bar
+
+request.onreadystatechange = function() {
+	if(request.readyState === 4) { //it's done
+		resultBox.style.display = "block";
+		if(request.status === 200) {  //we got a successful return
+			clear();
+
+			json=JSON.parse(request.responseText);
+			if (Object.keys(json).length > 0){
+				for (let key in json){
+					if(json.hasOwnProperty(key)){
+						resultBox.innerHTML += "<li onclick='selectNP(this)' data-id=" + key + "><span class='title'>" + json[key].title + "</span>{% if type == "nonprofit" %}, " + json[key].location + "{% endif %}</li>"
+					}
+				}
+				if ({{ type }}_already_filled){
+					{{ type }}_already_filled = false;
+					el = document.body.querySelector('#searchResultsContainer li');
+					if(el){selectNP(el)}
+				}
+			} else {
+				resultBox.innerHTML += "<p>That search didn't match any {{ type }}s. If you can't find your {{ type }}, it's probably not in our system. Please <a href='{% if type == "nonprofit" %}{% url 'network:addnon'%}{% else %}{% url 'network:addnet'%}{% endif %}' target='_blank'>add the {{ type }}</a></p>"
+			}
+		} else {
+			clear();
+			//resultBox.innerHTML = 'An error occurred during your request: ' +  request.status + ' ' + request.statusText;
+		} 
+	}
+};
+ 
+s.addEventListener('keyup', doAjaxSmartly);
+
+function clear(){
+	resultBox.innerHTML = "";
+	{{ type }}.value = "";
+	{{ type }}_valid.innerHTML="Bad";
+}
+
+var doAjax = function () {
+	var query = s.value;
+	if(query){
+		request.open('GET', '/network/search/?{{ type }}=' + query);
+		request.send(null);
+	} else{
+		clear()
+	}
+}
+function doAjaxSmartly() {
+	if (scheduled_function) {
+		clearTimeout(scheduled_function)
+	}
+	scheduled_function = setTimeout(doAjax, 700)
+}
+function selectNP(el) {
+	//remove the previously selected values
+	selected = document.body.querySelectorAll("#searchResultsContainer li.selected");
+	for(var i=0; i< selected.length; i++){
+		selected[i].classList.remove('selected');
+	}
+
+	{{ type }}.value = el.getAttribute('data-id');
+	{{ type }}_valid.innerHTML="Good";
+	s.value = el.children[0].textContent;
+
+	el.classList.add('selected');
+}
+
+if({{ type }}.value) {
+	{{ type }}_already_filled = true;
+	request.open('GET', '/network/search/?id=' + {{ type }}.value);
+	request.send(null);
+} else if(s.value){doAjax();}
+</script>

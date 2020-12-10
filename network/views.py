@@ -17,6 +17,7 @@ from django.core.mail import mail_admins
 from django.conf import settings
 
 # Create your views here.
+from django.db.models import Q
 from cal.models import Calendar
 from orgs.models import TextPost
 
@@ -35,13 +36,20 @@ class IndexView(generic.ListView):
 		).order_by('-pub_date')#[:5] uncomment this to show only most recent 5
 
 def search(request):
-	query = request.GET.get('nonprofit', None)
+	non_query = request.GET.get('nonprofit', None)
+	net_query = request.GET.get('network', None)
+	id_query = request.GET.get('id', None)
 	results = []
-	if not query is None:
-		results = Nonprofit.objects.filter(title__icontains=query)
+	if not non_query is None:
+		results = Nonprofit.objects.filter(Q(title__icontains=non_query) | Q(network__title__icontains=non_query)).distinct()
+	elif not net_query is None:
+		results = Network.objects.filter(title__icontains=net_query)
+	elif not id_query is None:
+		results = Nonprofit.objects.filter(id=id_query)
 	response = {}
 	for i in results:
-		response[i.id] = {"title":i.title, "location":i.network.title}
+		if not net_query: response[i.id] = {"title":i.title, "location":i.network.title}
+		else: response[i.id] = {"title":i.title}
 	return JsonResponse(response)
 
 class AddNetView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
@@ -106,16 +114,23 @@ class AddNonView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 	form_class = NonprofitFormCreate
 	template_name = 'network/non/nonprofit_form.html'
 	success_message = "%(title)s was created successfully"
+	def get_form_class(self):
+		if self.kwargs.get('network'):
+			return NonprofitFormCreate
+		else: #no network specified
+			return NonprofitFormUpdate
 	def get_success_url(self):
 		return reverse('network:detailnon', kwargs={'network': self.object.network.slug, 'slug' : self.object.slug})
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		context['network'] = get_object_or_404(Network, slug=self.kwargs['network'])#pass the network data to the createview so it can use it for coords and stuff
+		if self.kwargs.get('network'):
+			context['network'] = get_object_or_404(Network, slug=self.kwargs['network'])#pass the network data to the createview so it can use it for coords and stuff
 		return context
 	def form_valid(self, form):
 		form.instance.created_by = self.request.user
 		nonprofit = form.save(commit=False)
-		nonprofit.network = get_object_or_404(Network, slug=self.kwargs['network'])
+		if self.kwargs.get('network'):
+			nonprofit.network = get_object_or_404(Network, slug=self.kwargs['network'])
 		tag_temp_var = form.cleaned_data.get('tags') #this gets the tag data
 		nonprofit.save() #saves the object, sets the id
 

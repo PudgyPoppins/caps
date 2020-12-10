@@ -199,3 +199,5 @@ input[type=text]:active, input[type=date]:active, input[type=password]:active, i
   box-shadow: 0 0 0 .125em rgba(50,115,220,.25);
   outline:0;
 }
+
+#searchResultsContainer li.selected{background-color:yellow;}
