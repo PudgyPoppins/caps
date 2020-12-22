@@ -1,6 +1,9 @@
 from django.db import models
 
-import datetime, random, string
+import random
+from django.apps import apps
+
+import datetime
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
@@ -16,6 +19,20 @@ from network.models import Nonprofit
 from accounts.models import User
 
 # Create your models here.
+
+def create_token(app, model, valid_check=False, approved_check=False):
+	chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+	token = ''.join(random.choice(chars) for _ in range(apps.get_model(app, model).token.field.max_length))
+	token_list = apps.get_model(app, model).objects.filter(token=token)
+	if valid_check: token_list=token_list.filter(valid=True)
+	if approved_check: token_list=token_list.filter(approved=False)
+	while token_list:
+		token = ''.join(random.choice(chars) for _ in range(apps.get_model(app, model).token.field.max_length))
+		token_list = apps.get_model(app, model).objects.filter(token=token)
+		if valid_check: token_list=token_list.filter(valid=True)
+		if approved_check: token_list=token_list.filter(approved=False)
+	#this while loop makes sure that if the token is found inside a list of current tokens (a duplicate token), then just keep on refreshing. Ensures uniquness
+	return token
 
 class Organization(models.Model):
 	title = models.CharField(max_length=75, help_text="What is the name of this organization?", unique=True, default="")
@@ -76,25 +93,6 @@ class Organization(models.Model):
 	def get_leadership(self):
 		return self.moderator.all() | self.leader.all()
 
-def create_token():
-		chars = string.ascii_lowercase+string.ascii_uppercase+string.digits
-		token = ''.join(random.choice(chars) for _ in range(5))
-		token_list = Invitation.objects.filter(token=token, valid=True)
-		while token_list:
-			token = ''.join(random.choice(chars) for _ in range(5))
-			token_list = Invitation.objects.filter(token=token, valid=True)
-		#this while loop makes sure that if the token is found inside a list of current tokens (a duplicate token), then just keep on refreshing. Ensures uniquness
-		return token
-def create_token_request():
-		chars = string.ascii_lowercase+string.ascii_uppercase+string.digits
-		token = ''.join(random.choice(chars) for _ in range(5))
-		token_list = Request.objects.filter(token=token, approved=False)
-		while token_list:
-			token = ''.join(random.choice(chars) for _ in range(5))
-			token_list = Request.objects.filter(token=token, approved=False)
-		#this while loop makes sure that if the token is found inside a list of current tokens (a duplicate token), then just keep on refreshing. Ensures uniquness
-		return token
-
 class Invitation(models.Model):
 	max_uses = models.IntegerField('Maximum Uses', help_text="What is the maximum number of times this invitation can be used? Leave blank for unlimited", null = True, blank = True, validators=[MinValueValidator(1), MaxValueValidator(100)])
 	uses = models.IntegerField(default=0)
@@ -102,7 +100,7 @@ class Invitation(models.Model):
 	created_on = models.DateTimeField(default=timezone.now)
 	expiration = models.DurationField(help_text='after this time, this link will no longer be valid', blank=True, null=True) #invitations can expire after a certain date
 	valid = models.BooleanField(default=True) #invitations can be set to invalid, in which case they no longer work
-	token = models.CharField(max_length=5) #token is the uniqueness part
+	token = models.CharField(max_length=8) #token is the uniqueness part
 
 	user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE) #if this is true, then you HAVE to be this user to accept the invitation
 	@property
@@ -117,7 +115,7 @@ class Invitation(models.Model):
 
 	def save(self, *args, **kwargs):
 		if not self.token:
-			self.token = create_token() #set the token on save
+			self.token = create_token('orgs', "Invitation", valid_check=True) #set the token on save
 		return super(Invitation, self).save(*args, **kwargs)
 
 	def get_absolute_url(self):
@@ -130,7 +128,7 @@ class Request(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	request_message = models.CharField(max_length=200, null=True, blank=True) #users can optionally add a request message
 	approved = models.BooleanField(default=False)
-	token = models.CharField(max_length=5) #requests have a token, too, just because using id's wouldn't be secure since you could see how many requests there are really quickly
+	token = models.CharField(max_length=8) #requests have a token, too, just because using id's wouldn't be secure since you could see how many requests there are really quickly
 	request_date = models.DateTimeField(default=timezone.now)
 
 	class Meta: 
@@ -145,7 +143,7 @@ class Request(models.Model):
 
 	def save(self, *args, **kwargs):
 		if not self.token:
-			self.token = create_token_request() #set the token on save
+			self.token = create_token('orgs', "Invitation", approved_check=True) #set the token on save
 		return super(Request, self).save(*args, **kwargs)
 
 class Goal(models.Model):

@@ -51,7 +51,7 @@ def approve_applicant(modeladmin, request, queryset):
 			send_mail(
 				"You've been approved as a nonprofit representative for " + i.nonprofit.title,
 				render_to_string('network/snippets/rep_email.txt', {'r': i, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME}),
-				'pudgypoppins@gmail.com',
+				settings.EMAIL_HOST_USER,
 				[email],
 				html_message=render_to_string('network/snippets/rep_email.html', {'r': i, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME}),
 			)

@@ -3,6 +3,7 @@ from django.utils.text import slugify
 import datetime
 from django.utils import timezone
 from django.core.validators import RegexValidator
+from django.urls import reverse
 
 from accounts.models import User
 
@@ -123,6 +124,9 @@ class Nonprofit(models.Model):
 		self.slug = slugify(self.title)
 		imageResize(self)
 		super(Nonprofit, self).save(*args, **kwargs)
+
+	def get_absolute_url(self):
+		return reverse('network:detailnon', kwargs={'network': self.network.slug, 'slug': self.slug})
 
 	def __str__(self): 
 		return self.title

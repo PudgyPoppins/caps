@@ -44,7 +44,7 @@
 {% include "network/snippets/list_announcements.html" with object=nonprofit %}
 {% endif %}
 
-{% if user in nonprofit.nonprofit_reps.all or user.is_admin %}
+{% if user in nonprofit.nonprofit_reps.all or user.is_staff %}
 <h2>Add an announcement</h2>
 <form method="post" action="{% url 'network:create_announcement' nonprofit.network.slug nonprofit.slug %}">{% csrf_token %}
     {{ form.as_p }}

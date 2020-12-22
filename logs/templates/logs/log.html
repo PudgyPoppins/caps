@@ -9,7 +9,7 @@
 {% if logs %}
 <ul>
 {% for l in logs %}
-<li>{{ l }}</li>
+<li><a href="{% url 'logs:detail' l.user.username l.token %}">{{ l }}</a></li>
 {% endfor %}
 </ul>
 {% endif %}

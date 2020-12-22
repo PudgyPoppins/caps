@@ -25,7 +25,8 @@ class LogForm(ModelForm):
 		if start > timezone.now().date():
 			raise ValidationError(_('Invalid start date - cannot be in the future'))
 		elif start < timezone.now().date() - timedelta(days=7):
-			raise ValidationError(_('Invalid start date - must log hours within 7 days of completing volunteering'))
+			time_ago = (timezone.now().date() - timedelta(days=7)).strftime('%x')
+			raise ValidationError(_('Invalid start date - must log hours within 7 days of completing volunteering. Earliest date you can log is %s' % time_ago))
 		# Remember to always return the cleaned data.
 		return start
 
@@ -36,6 +37,8 @@ class LogForm(ModelForm):
 			raise ValidationError(_('Invalid duration - this format could not be understood'))
 		elif (duration_parsed * 60) < timedelta(minutes=15): #*60 so it reads as minutes, not seconds
 			raise ValidationError(_('Invalid duration - must be at least 15 minutes'))
+		elif (duration_parsed * 60) > timedelta(hours=24): #*60 so it reads as minutes, not seconds
+			raise ValidationError(_('Invalid duration - can\'t be longer than 24 hours'))
 		return duration
 
 	'''def clean(self):
@@ -54,3 +57,6 @@ class LogForm(ModelForm):
 	def __init__(self, *args, **kwargs):
 		super(LogForm, self).__init__(*args, **kwargs)
 		self.fields['nonprofit'].required = True
+
+class DenyForm(forms.Form):
+	reason = forms.CharField(max_length=256, widget=forms.Textarea, required=True)

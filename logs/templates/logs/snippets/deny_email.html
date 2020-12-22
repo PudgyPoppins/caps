@@ -1,0 +1,9 @@
+<p>Hello, {{ log.user }}!</p>
+
+<p>This email is to inform you that your volunteering log at "{{ log.nonprofit }}", was denied. The nonprofit you volunteered at gave this reason: "{{ reason }}".</p>
+
+<p>If this is incorrect, you can <a href="{{ domain }}{% url 'logs:edit' log.token %}">update your log</a> ({{ domain }}{% url 'logs:edit' log.token %}){% if log.verified.email %} or email the {{ log.nonprofit }} nonprofit representative at <a href="mailto:{{ log.verified.email }}">{{ log.verified.email }}</a>{% endif %}.</p>
+
+<p>Thanks for helping out your community and volunteering!</p>
+
+<p>The {{ site }} team</p>

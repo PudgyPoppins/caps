@@ -574,7 +574,7 @@ def send_confirmation_email(a):
 	send_mail(
 		'Confirming your event sign up',
 		render_to_string('cal/snippets/attendee_email.txt', {'attendee': a, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME}),
-		'pudgypoppins@gmail.com',
+		settings.EMAIL_HOST_USER,
 		[a.s_email],
 		html_message=render_to_string('cal/snippets/attendee_email.html', {'attendee': a, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME}),
 	)
@@ -684,7 +684,7 @@ def verify_event(request, token):
 		event = event[0]
 		if not event.s_calendar.nonprofit:
 			messages.error(request, "This isn't a nonprofit event")
-		elif request.user not in event.s_calendar.nonprofit.nonprofit_reps.all() and not request.user.is_admin:
+		elif request.user not in event.s_calendar.nonprofit.nonprofit_reps.all() and not request.user.is_staff:
 			rep_link = reverse('network:representnon', kwargs={'network': event.s_calendar.nonprofit.network.slug, 'slug' : event.s_calendar.nonprofit.slug})
 			messages.error(request, mark_safe("You don't have permission to perform this action! If you think that you should be able to verify this event, please fill out the <a href='%s'>form to represent this nonprofit</a>" %(rep_link)))
 		else:

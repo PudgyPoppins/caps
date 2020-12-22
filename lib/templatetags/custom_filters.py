@@ -99,10 +99,25 @@ def get_calendar_events(calendar):
 	relatives = list(set(relatives))
 	return relatives
 
-'''@register.filter
-def get_verified_calendar_events(events):
-	verified_events = []
-	for i in events:
-		if i.s_verified:
-			verified_events.append(i)
-	return verified_events'''
+@register.filter
+def humanize_duration(value):
+	try:
+		hours, remainder = divmod(value.total_seconds(), 3600)
+		minutes, seconds = divmod(remainder, 60)
+		human_format = []
+		if hours:
+			human_format.append(str(int(hours)) + " hours")
+		if minutes:
+			human_format.append(str(int(minutes)) + " minutes")
+		return ", ".join(human_format)
+	except:
+		return value
+
+@register.filter
+def javascriptize_duration(value):
+	try:
+		hours, remainder = divmod(value.total_seconds(), 3600)
+		minutes, seconds = divmod(remainder, 60)
+		return "%.2i:%.2i" % (hours, minutes)
+	except:
+		return value

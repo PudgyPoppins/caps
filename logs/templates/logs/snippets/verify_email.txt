@@ -1,0 +1,11 @@
+{% load custom_filters %}
+
+Hello, {{ log.user }}!
+
+This email is to inform you that your volunteering log at "{{ log.nonprofit }}", was successfully verified by the user "{{ log.verified }}". You volunteered for {{ log.duration|humanize_duration }}.
+
+If this is incorrect, you can update your log here ({{ domain }}{% url 'logs:edit' log.token %}){% if log.verified.email %} or email the {{ log.nonprofit }} nonprofit representative at {{ log.verified.email }}{% endif %}.
+
+Thanks for helping out your community and volunteering!
+
+The {{ site }} team

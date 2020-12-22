@@ -11,7 +11,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 from accounts.models import User
 from network.models import Network, Nonprofit
-from orgs.models import Organization
+from orgs.models import Organization, create_token
 
 from django.core.validators import RegexValidator
 
@@ -19,16 +19,8 @@ rruleValidator = RegexValidator(r'(?P<DTSTART>DTSTART:\d{8}T\d{6}Z?\\n)?RRULE:((
 
 # Create your models here.
 
-def create_token():
-	chars = string.ascii_lowercase+string.ascii_uppercase+string.digits
-	token = ''.join(random.choice(chars) for _ in range(5))
-	token_list = Calendar.objects.filter(token=token)
-	while token_list:
-		token = ''.join(random.choice(chars) for _ in range(5))
-		token_list = Calendar.objects.filter(token=token)
-	return token
 class Calendar(models.Model):
-	token = models.CharField(max_length=5, null=True, blank=True) #token is the uniqueness part
+	token = models.CharField(max_length=8, null=True, blank=True) #token is the uniqueness part
 	
 	user = models.OneToOneField(User, on_delete=models.CASCADE, null = True, blank = True)
 	nonprofit = models.OneToOneField(Nonprofit, on_delete=models.CASCADE, null = True, blank = True)
@@ -96,7 +88,7 @@ class Calendar(models.Model):
 			return ("Global")
 	def save(self, *args, **kwargs):
 		if not self.token:
-			self.token = create_token() #set the token on save
+			self.token = create_token('cal', 'Calendar') #set the token on save
 		return super(Calendar, self).save(*args, **kwargs)
 
 class ExcludedDates(models.Model):
@@ -104,19 +96,10 @@ class ExcludedDates(models.Model):
 	def __str__(self):
 		return self.date.strftime('%Y%m%d')
 
-def create_token_event():
-	chars = string.ascii_lowercase+string.ascii_uppercase+string.digits
-	token = ''.join(random.choice(chars) for _ in range(5))
-	token_list = Event.objects.filter(token=token)
-	while token_list:
-		token = ''.join(random.choice(chars) for _ in range(5))
-		token_list = Event.objects.filter(token=token)
-	return token
-
 class Event(models.Model):
 	title = models.CharField(help_text="What is the name of the event?", max_length=75, blank = True, null = True) #null is true because the children can inherit from the parent
 	description = models.CharField(help_text='Describe the event briefly. What type of work will be done?', max_length=1000, blank = True, null = True)
-	token = models.CharField(max_length=5, null=True, blank=True) #token is the uniqueness part
+	token = models.CharField(max_length=8, null=True, blank=True) #token is the uniqueness part
 
 	created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null = True, blank = True, related_name="created_by")
 
@@ -276,7 +259,7 @@ class Event(models.Model):
 
 	def save(self, *args, **kwargs):
 		if not self.token:
-			self.token = create_token_event() #set the token on save
+			self.token = create_token('cal', 'Event') #set the token on save
 		return super(Event, self).save(*args, **kwargs)
 
 class Attendee(models.Model):

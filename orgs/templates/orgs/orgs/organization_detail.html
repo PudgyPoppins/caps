@@ -114,7 +114,7 @@
 {% include "network/snippets/list_announcements.html" with object=organization %}
 {% endif %}
 
-{% if user in organization.get_leadership or user.is_admin %}
+{% if user in organization.get_leadership or user.is_staff %}
 <h2>Add an announcement</h2>
 <form method="post" action="{% url 'orgs:create_announcement' organization.slug %}">{% csrf_token %}
     {{ form.as_p }}

@@ -1,12 +1,21 @@
 {% extends "base.html" %}
 {% load static %}
+{% load custom_filters %}
 
-{% block title %}Log Volunteering Time{% endblock %}
+{% block title %}{% if not log %}Log Volunteering Time{% else %}Update Volunteering Log{% endif %}{% endblock %}
 
 {% block content %}
 <a href="{% url 'accounts:profile' %}">back to profile</a>
 
-<h1>Add time to your volunteering log</h1>
+<h1>
+{% if not log %}
+Add time to your volunteering log
+{% else %}
+Update volunteering log {{ log }}
+{% endif %}
+</h1>
+
+{% if log.verified %}<p><b>Warning:</b> this log has been verified by a nonprofit representative before this. If you update this log, it will no longer be verified. Are you sure you don't want to <a href="{% url 'logs:detail' log.user.username log.token%}">go back</a>?</p>{% endif %}
 
 <form method="post">{% csrf_token %}
 	{{ form.non_field_errors }}
@@ -27,9 +36,13 @@
 		</p>
 	{% endfor %}
 
-	<input type="submit" value="Save">
+	<input type="submit" value="{% if not log %}Save{% else %}Update{% endif %}">
 </form>
 
 <script src="{% static 'lib/js/html-duration-picker.js' %}"></script>
-<script>document.getElementById("id_duration").value = "00:15";</script>
+<script>
+document.getElementById("id_duration").value = {% if not log %} "00:15";
+{% else %} "{{ log.duration|javascriptize_duration }}"; console.log("{{ log.duration|javascriptize_duration }}");
+{% endif %}
+</script>
 {% endblock %}

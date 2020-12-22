@@ -4,6 +4,7 @@
 <input type="hidden" name="{{ type }}" id="id_{{ type }}" required="">
 
 <script>
+{% if log.nonprofit %}document.getElementById("id_nonprofit").value = "{{ log.nonprofit.id }}";{% endif %}
 var json;
 
 var s = document.getElementById('search');
@@ -14,6 +15,8 @@ var request = new XMLHttpRequest();
 var scheduled_function = false; //this is just a flag for the timeout so we don't hammer the server with a ton of calls
 var {{ type }}_already_filled = false; //another flag variable to see if the page should try to auto fill the search bar
 
+var show_no_rep_message = false;
+
 request.onreadystatechange = function() {
 	if(request.readyState === 4) { //it's done
 		resultBox.style.display = "block";
@@ -21,11 +24,24 @@ request.onreadystatechange = function() {
 			clear();
 
 			json=JSON.parse(request.responseText);
+			show_no_rep_message = false;
 			if (Object.keys(json).length > 0){
 				for (let key in json){
 					if(json.hasOwnProperty(key)){
-						resultBox.innerHTML += "<li onclick='selectNP(this)' data-id=" + key + "><span class='title'>" + json[key].title + "</span>{% if type == "nonprofit" %}, " + json[key].location + "{% endif %}</li>"
+						var el = document.createElement("li");
+						el.setAttribute("onclick","selectNP(this);"); el.setAttribute("data-id", key);
+						el.innerHTML = "<span class='title'>" + json[key].title + "</span>{% if type == "nonprofit" %}, " + json[key].location + "{% endif %}";
+						{% if type == "nonprofit" %}
+						if (!json[key].has_reps){
+							el.innerHTML = "<a href='" + json[key].url + "represent' target='_blank'>*</a> " + el.innerHTML; show_no_rep_message = true;
+						} //add an asterick to nonprofits that don't have representatives in the system
+						{% endif %}
+						resultBox.appendChild(el);
+						//resultBox.innerHTML += "<li onclick='selectNP(this)' data-id=" + key + "><span class='title'>" + json[key].title + "</span>{% if type == "nonprofit" %}, " + json[key].location + "{% endif %}</li>";
 					}
+				}
+				if (show_no_rep_message){
+					resultBox.innerHTML = "<p>Astericked nonprofits indicate that they do not have a nonprofit representatives in our system, which means that those hours cannot be verified as of yet. However, you can still log those hours normally.</p>" + resultBox.innerHTML
 				}
 				if ({{ type }}_already_filled){
 					{{ type }}_already_filled = false;
@@ -74,7 +90,7 @@ function selectNP(el) {
 
 	{{ type }}.value = el.getAttribute('data-id');
 	{{ type }}_valid.innerHTML="Good";
-	s.value = el.children[0].textContent;
+	s.value = el.querySelector(':scope > span.title').textContent;
 
 	el.classList.add('selected');
 }

@@ -14,7 +14,7 @@ from network.models import Network, Nonprofit
 from .forms import *
 
 def create_announcement_helper(request, organization=None, nonprofit=None):
-	if (organization and request.user in organization.get_leadership) or (network and request.user in network.nonprofit_reps.all()) or request.user.is_admin:
+	if (organization and request.user in organization.get_leadership) or (network and request.user in network.nonprofit_reps.all()) or request.user.is_staff:
 		if request.method == 'POST':
 			form = CreateAnnouncement(request.POST)
 			if form.is_valid():

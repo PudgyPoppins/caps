@@ -18,7 +18,7 @@ class Command(BaseCommand):
                     send_mail(
                         "You're volunteering soon!",
                         render_to_string('cal/snippets/attendee_email.txt', {'attendee': a, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME, 'second_notif': True}),
-                        'pudgypoppins@gmail.com',
+                        settings.EMAIL_HOST_USER,
                         [a.s_email],
                         html_message=render_to_string('cal/snippets/attendee_email.html', {'attendee': a, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME, 'second_notif': True}),
                     )

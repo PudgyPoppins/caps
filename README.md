@@ -9,7 +9,8 @@ This might come in handy for providing back links: <a href="javascript:history.g
 
 # TODO:
 * ## Network / Nonprofits
-	* done, for minimum viable product
+	* nonprofit reps can approve self-reported hours
+	* nonprofit reps can approve attendee hours
 
 	* soft deleting as an option (a moderator could recover a deleted object up to 2 weeks later or so) | https://medium.com/@adriennedomingus/soft-deletion-in-django-e4882581c340 | this one is probably better: https://blog.khophi.co/soft-delete-django-quickly/
 	* ### Forms
@@ -40,8 +41,6 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * ## Logging
 	* When a user signs up for an event, after the event has happened, then the nonprofit representative can verify that they helped out
 		* Add another crontab job that runs every 30 minutes. Filter for all of the volunteering events that happened more than one day ago. Send one email to nonprofit reps listing all of the attendees who didn't have their hours verified so far.
-	* Nonprofit representatives can also add a log for a user without an event
-	* Users can add their own logs. They can select a nonprofit that's already added or write in their own. They can write in their hours, too.
 
 	* Should logs show up on user calendars as events?
 
@@ -131,6 +130,7 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 11/12 Made it so that invites expire after a duration of time, which will be easier to do timezone stuff with. Feelin' pretty proud of that idea. Wrote a manage.py command to invalidate invite links, and wrote a crontab commented out under it. Added an invite user to organization link in the profile view. Made it so that adding users to organization via invite sent them an email. Made it so that orgs could "pin" nonprofits/networks (by subscribing to their calendar).
 * 12/8 It's been a sec again, haha. Fixed an error where calendars overzealously tried to exclude other calendars. Fixed a small error where joined orgs were being listed twice on the user profile page. Combined the get_profile and current_profile views into one, better view simply called 'profile'. Added the model for logging. Created a form to add personal logs. Added a search view on network to search for nonprofits with AJAX. Successfully implemented AJAX, but still need to add a way to set the nonprofit from the results.
 * 12/9 The add log view now works! Yay! Users can now add volunteering hours to nonprofits, and are prompted to create a nonprofit if it does not exist in the system. Added a way to search for networks on the add nonprofit form page. Unfucked a bit of the nonprofit map stuff, will have to do that to the network map stuff.
+* 12/21 Now notify users when a nonprofit they log hours for doesn't have a rep and give them a link to apply to be a rep. Fixed a problem where success messages weren't being shown (due to overridden form_valid class). Added max duration to volunteer log. Created a method for create_token instead of repeating it 5 different times across 3 models. Also increased max token length from 5 to 8 on most models. Created a custom template tag to humanize duration field. Fixed a problem that I can't believe I missed where the network slug didn't affect nonprofit class views. Created remove/update/detail views for logs. Added a way for nonprofit reps for verify, unverify, and deny submitted hours to them, and automatically email users if they were accepted or not.
 
 TODO: 
 	* event create view

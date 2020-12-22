@@ -3,7 +3,7 @@
 
 {% block content %}
 
-{% if user in a.nonprofit.nonprofit_reps.all or user in a.organization.get_leadership or user.is_admin %}
+{% if user in a.nonprofit.nonprofit_reps.all or user in a.organization.get_leadership or user.is_staff %}
 <a href="{{ a.get_absolute_url }}update">edit announcement</a>
 <a href="{{ a.get_absolute_url }}delete">delete announcement</a>
 {% endif %}
@@ -20,7 +20,7 @@
 			{% if user == r.created_by %}
 				<a href="{{ r.get_absolute_url }}update">update reply</a>
 			{% endif %}
-			{% if user in a.nonprofit.nonprofit_reps.all or user in a.organization.get_leadership or user.is_admin or user == r.created_by %}
+			{% if user in a.nonprofit.nonprofit_reps.all or user in a.organization.get_leadership or user.is_staff or user == r.created_by %}
 				<a href="{{ r.get_absolute_url }}delete">delete reply</a>
 			{% endif %}
 			{% if user.is_authenticated and r.allows_children %}

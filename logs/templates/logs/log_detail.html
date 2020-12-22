@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}{{ log }} volunteer log{% endblock %}
+
+{% block content %}
+<a href="{% url 'logs:log' %}">Back to full volunteer log</a>
+
+{% if log.user == request.user %}
+| <a href="{% url 'logs:edit' log.token %}">edit</a> | 
+<a href="{% url 'logs:delete' log.token %}">delete</a>
+{% endif %}
+
+<p>{{ log }}</p>
+{% if log.verified %}<p>Verified by {{ log.verified }}</p>{% endif %}
+<p>Duration: {{ log.duration|humanize_duration }}</p>
+<p>Nonprofit: {{ log.nonprofit }}</p>
+<p>{{ log.description }}</p>
+{% endblock %}
