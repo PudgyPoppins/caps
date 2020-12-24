@@ -53,9 +53,12 @@ class AddLogView(LoginRequiredMixin, generic.CreateView):
 		messages.success(self.request, "Your time has been successfully logged")
 		return HttpResponseRedirect(self.get_success_url())
 
-def find(self):
-	token = self.kwargs.get('token')
-	username = self.kwargs.get('username')
+def find(self=None, token=None, username=None):
+	token = token
+	username = username
+	if self:
+		token = self.kwargs.get('token')
+		username = self.kwargs.get('username')
 	if token:
 		queryset = Log.objects.filter(**{'token': token})
 		if username:
@@ -72,21 +75,22 @@ def find(self):
 class DetailView(generic.DetailView):
 	model = Log
 	def get_object(self, queryset=None):
-		return find(self)
+		return find(self=self)
 
 @login_required
 def verify(request, username, token):
-	log = get_object_or_404(Log, user__username=username, token=token)
+	log = find(username=username, token=token)
 	if request.user in log.nonprofit.nonprofit_reps.all() or request.user.is_staff:
 		log.processed = True
 		if not log.verified:
-			send_mail(
-					"Volunteering log at %s verified" % log.nonprofit.title,
-					render_to_string('logs/snippets/verify_email.txt', {'log': log, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME}),
-					settings.EMAIL_HOST_USER,
-					[log.user.email],
-					html_message=render_to_string('logs/snippets/verify_email.html', {'log': log, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME}),
-				)
+			if log.user:
+				send_mail(
+						"Volunteering log at %s verified" % log.nonprofit.title,
+						render_to_string('logs/snippets/verify_email.txt', {'log': log, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME}),
+						settings.EMAIL_HOST_USER,
+						[log.user.email],
+						html_message=render_to_string('logs/snippets/verify_email.html', {'log': log, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME}),
+					)
 			log.verified = request.user
 			messages.success(request, 'Successfully verified log')
 		else:
@@ -98,7 +102,7 @@ def verify(request, username, token):
 		return HttpResponseRedirect(log.nonprofit.get_absolute_url())
 @login_required
 def unverify(request, username, token):
-	log = get_object_or_404(Log, user__username=username, token=token)
+	log = find(username=username, token=token)
 	if request.user in log.nonprofit.nonprofit_reps.all() or request.user.is_staff:
 		log.processed = False
 		if log.verified:
@@ -114,18 +118,19 @@ def unverify(request, username, token):
 
 @login_required
 def deny(request, username, token):
-	log = get_object_or_404(Log, user__username=username, token=token)
+	log = find(username=username, token=token)
 	if request.user in log.nonprofit.nonprofit_reps.all() or request.user.is_staff:
 		if request.method == 'POST':
 			form = DenyForm(request.POST)
 			if form.is_valid():
-				send_mail(
-						"Volunteering log at %s denied" % log.nonprofit.title,
-						render_to_string('logs/snippets/deny_email.txt', {'log': log, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME, 'reason': form.cleaned_data['reason']}),
-						settings.EMAIL_HOST_USER,
-						[log.user.email],
-						html_message=render_to_string('logs/snippets/deny_email.html', {'log': log, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME, 'reason': form.cleaned_data['reason']}),
-					)
+				if log.user:
+					send_mail(
+							"Volunteering log at %s denied" % log.nonprofit.title,
+							render_to_string('logs/snippets/deny_email.txt', {'log': log, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME, 'reason': form.cleaned_data['reason']}),
+							settings.EMAIL_HOST_USER,
+							[log.user.email],
+							html_message=render_to_string('logs/snippets/deny_email.html', {'log': log, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME, 'reason': form.cleaned_data['reason']}),
+						)
 				log.processed = True
 				log.save()
 				messages.success(request, 'Successfully denied volunteering log')
@@ -140,7 +145,7 @@ class EditView(LoginRequiredMixin, generic.UpdateView):
 	form_class = LogForm
 
 	def get_object(self, queryset=None):
-		return find(self)
+		return find(self=self)
 	def get_success_url(self):
 		return reverse('logs:detail', kwargs={'username' : self.object.user.username, 'token': self.object.token})
 
@@ -174,7 +179,7 @@ class DeleteView(LoginRequiredMixin, SuccessMessageMixin, generic.DeleteView):
 	success_message = "Successfully deleted log"
 
 	def get_object(self, queryset=None):
-		return find(self)
+		return find(self=self)
 
 	def user_passes_test(self, request):
 		if request.user.is_authenticated:

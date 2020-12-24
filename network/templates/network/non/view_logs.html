@@ -13,29 +13,39 @@
 </div>
 
 <h3>Filter</h3>
-<div class="button-group filters-button-group">
-	<button data-filter="*" class="button is-checked">All</button>
-	<button data-filter=":not(.processed)" class="button">Unprocessed</button>
-	<button data-filter=".verified" class="button">Verified</button>
+<div class="checkbox-group" id="filters">
+	<input type="checkbox" name="all" value="*" id="filter-all"><label for="all">All</label>
+	<input type="checkbox" name="unprocessed" value=":not(.processed)"><label for="unprocessed">Unprocessed</label>
+	<input type="checkbox" name="verified" value=".verified"><label for="verified">Verified</label>
+	<input type="checkbox" name="attendee" value=".attendee"><label for="attendee">Created Through Event</label>
 </div>
 
-<!--<h2>Logs by Day Volunteered</h2>
+{% comment %}<h2>Logs by Day Volunteered</h2>
 {% for day in logs_day %}
 <h3>{{ day.0.start_date }}</h3>
-<ul class="logs">
+<ul>
 	{% for l in day %}
-	<li class="log {% if l.processed %}processed{% endif %} {% if l.verified %}verfied{% endif %}" data-created_on="{{ l.created_on }}" data-day="{{ l.start_date }}">{{ l.user }} - {{ l.duration | humanize_duration }}</li>
+	<li id="l.token">
+		{{ l.volunteer }} - {{ l.duration | humanize_duration }} <a href="{% if l.user %}{% url 'logs:detail' l.user l.token %}{% else %}{% url 'logs:detail' l.token %}{% endif %}">view details</a> | {% if not l.verified %}<a href="{% url 'logs:verify' l.token %}">verify</a>{% else %}<a href="{% url 'logs:unverify' l.token %}">unverify</a>{% endif %}{% if not l.processed %} | <a href="#" onclick="deny('{{ l.token }}')" id="anchor{{ l.token }}">deny</a>{% elif not l.verified %} | denied{% endif %}
+	
+	<div id="reason{{ l.token }}" style="display: none">
+		<form method="post" action="{% url 'logs:deny' l.token %}">{% csrf_token %}
+		    <textarea name="reason" cols="40" rows="2" maxlength="256" required="" id="id_reason" placeholder="Reason for denial"></textarea>
+		    <input type="submit" value="Deny">
+		</form>
+	</div>
+	</li>
 	{% endfor %}
 </ul>
-{% endfor %}-->
+{% endfor %} {% endcomment %}
 
 <ul class="logs">
 	{% for l in nonprofit.log.all %}
-	<li class="log {% if l.processed %}processed{% endif %} {% if l.verified %}verfied{% endif %}" data-created_on="{{ l.created_on|date:'U' }}" data-day="{{ l.start_date|date:"U" }}" id="l.token">
-		{{ l.user }} - {{ l.duration | humanize_duration }} <a href="{% url 'logs:detail' l.user.username l.token %}">view details</a> | {% if not l.verified %}<a href="{% url 'logs:verify' l.user.username l.token %}">verify</a>{% else %}<a href="{% url 'logs:unverify' l.user.username l.token %}">unverify</a>{% endif %}{% if not l.processed %} | <a href="#" onclick="deny('{{ l.token }}')" id="anchor{{ l.token }}">deny</a>{% elif not l.verified %} | denied{% endif %}
+	<li class="log {% if l.processed %}processed{% endif %} {% if l.verified %}verfied{% endif %} {% if l.attendee %}attendee{% endif %}" data-created_on="{{ l.created_on|date:'U' }}" data-day="{{ l.start_date|date:"U" }}" id="l.token">
+		{{ l.volunteer }} - {{ l.duration | humanize_duration }} <a href="{% if l.user %}{% url 'logs:detail' l.user l.token %}{% else %}{% url 'logs:detail' l.token %}{% endif %}">view details</a> | {% if not l.verified %}<a href="{% url 'logs:verify' l.token %}">verify</a>{% else %}<a href="{% url 'logs:unverify' l.token %}">unverify</a>{% endif %}{% if not l.processed %} | <a href="#" onclick="deny('{{ l.token }}')" id="anchor{{ l.token }}">deny</a>{% elif not l.verified %} | denied{% endif %}
 	
 	<div id="reason{{ l.token }}" style="display: none">
-		<form method="post" action="{% url 'logs:deny' l.user.username l.token %}">{% csrf_token %}
+		<form method="post" action="{% url 'logs:deny' l.token %}">{% csrf_token %}
 		    <textarea name="reason" cols="40" rows="2" maxlength="256" required="" id="id_reason" placeholder="Reason for denial"></textarea>
 		    <input type="submit" value="Deny">
 		</form>
@@ -73,7 +83,9 @@ var iso = new Isotope( elem, {
 	getSortData: {
 		day: '[data-day] parseInt',
 		created_on: '[data-created_on] parseInt',
-	}
+	},
+	sortBy: document.querySelector('.sort-by-button-group .button.is-checked').getAttribute('data-sort'),
+	sortAscending: false,
 });
 
 var sortByGroup = document.querySelector('.sort-by-button-group');
@@ -86,15 +98,39 @@ sortByGroup.addEventListener( 'click', function( event ) {
 	iso.arrange({ sortBy: sortValue });
 });
 
-var filtersElem = document.querySelector('.filters-button-group');
-filtersElem.addEventListener( 'click', function( event ) {
-	// only work with buttons
-	if ( !matchesSelector( event.target, 'button' ) ) {
-		return;
+
+var filtersElem = document.querySelector('#filters');
+filtersElem.addEventListener('click', filterByCheckboxes());
+var allCheck = document.getElementById("filter-all");
+allCheck.addEventListener('click', allCheckFun);
+notAllCheck = document.querySelectorAll('#filters input[type=checkbox]:not(#all-check)');
+for(var i=0; i<notAllCheck.length; i++){
+	notAllCheck[i].addEventListener('click', function(){
+		if(notAllCheck[i].checked){allCheck.checked = false;}
+	});
+}
+
+function filterByCheckboxes(){
+	checkboxes = document.querySelectorAll('#filters input[type=checkbox]:checked');
+	filters = [];
+	for(var i=0; i< checkboxes.length; i++){
+		filters.push(checkboxes[i].value);
 	}
-	var filterValue = event.target.getAttribute('data-filter');
-	iso.arrange({ filter: filterValue });
-});
+	iso.arrange({ filter: filters.join("") });
+}
+filterByCheckboxes();
+function allCheckFun(){
+	checkboxes = document.querySelectorAll('#filters input[type=checkbox]:checked');
+
+	if (allCheck.checked){ //if it is checked, uncheck all other elements
+		for(var i=0; i< checkboxes.length; i++){checkboxes[i].checked = false;}
+		allCheck.checked = true;
+	}
+	if(!checkboxes.length){ //if nothing's checked, check it
+		allCheck.checked = true;
+	}
+}
+allCheckFun();
 
 // change is-checked class on buttons
 var buttonGroups = document.querySelectorAll('.button-group');

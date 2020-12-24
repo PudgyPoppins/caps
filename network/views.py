@@ -262,8 +262,9 @@ def view_logs(request, network, slug):
 	nonprofit = get_object_or_404(Nonprofit, slug=slug, network__slug=network)
 	if request.user in nonprofit.nonprofit_reps.all() or request.user.is_staff:
 		log_array = []
-		for i in list(set([i.start_date for i in nonprofit.log.all().order_by('-start_date')])):
+		for i in list(dict.fromkeys([i.start_date for i in nonprofit.log.all().order_by('-start_date')])):
 			log_array.append(nonprofit.log.filter(start_date=i).order_by('-start_date', '-created_on'))
+		print(log_array)
 		context = {
 			"nonprofit": nonprofit,
 			"logs_day": log_array,

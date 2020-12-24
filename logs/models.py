@@ -23,7 +23,7 @@ class Log(models.Model):
 	processed = models.BooleanField(default=False)
 
 	user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name='log')
-	attendee = models.ForeignKey(Attendee, null=True, blank=True, on_delete=models.SET_NULL) #when your event is done, all of this info can be obtained through this
+	attendee = models.OneToOneField(Attendee, null=True, blank=True, on_delete=models.SET_NULL, related_name='log') #when your event is done, all of this info can be obtained through this
 	nonprofit = models.ForeignKey(Nonprofit, null=True, blank=True, on_delete=models.SET_NULL, related_name='log')
 	#nonprofit_text = models.CharField(max_length=128, null=True, blank=True) #in case they don't want to add a new nonprofit
 	#^ I commented this out because I'm a greedy bastard that wants to make sure they add their nonprofits to the website, they can't just freeload with their text boxes!
@@ -37,8 +37,21 @@ class Log(models.Model):
 	def __str__(self):
 		if self.user:
 			return str(self.user) + " on " + self.start_date.strftime('%x')
+		elif self.attendee:
+			return str(self.attendee) + " on " + self.start_date.strftime('%x')
+		else:
+			return "log on " + self.start_date.strftime('%x')
 
 	def save(self, *args, **kwargs):
 		if not self.token:
 			self.token = create_token('logs', "Log") #set the token on save
 		return super(Log, self).save(*args, **kwargs)
+
+	@property
+	def volunteer(self):
+		if self.user:
+			return str(self.user)
+		elif self.attendee:
+			return str(self.attendee)
+		else:
+			return "Anonymous Volunteer"
