@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Delete goal?{% endblock %}
+
+{% block content %}
+{% if goal.organization %} <a href="{% url 'orgs:detail' goal.organization.slug %}">back to organization view</a>
+{% else %}<a href="{% url 'accounts:profile' %}">back to profile view</a>
+{% endif %}
+
+<h1>Delete this Goal</h1>
+<form method="post">{% csrf_token %}
+    <p>Are you sure you want to delete this goal?</p>
+    {% if goal.organization %}<p>{{ goal.completed_users }} of {{ goal.organization.member.count|add:goal.organization.moderator.count }} members have completed this goal so far</p>{% endif %}
+    <input type="submit" value="Confirm">
+</form>
+{% endblock %}

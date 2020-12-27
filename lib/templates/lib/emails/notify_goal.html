@@ -1,0 +1,15 @@
+<p>Hello!</p>
+
+<p>This email is to inform you that a new volunteering time goal{% if goal.title %}, "{{ goal.title }}",{% endif %} was created at the organization that you're a part of, "{{ goal.organization }}". You can view your progress in completing this goal on your user profile page.</p>
+
+<p>You should try and complete {{ goal.hours }} hour{{ goal.hours|pluralize }} by {{ goal.end|date:"D, F j" }}.</p>
+
+{% if goal.description %}<p>Additionally, the goal comes with the following description:</p>
+<pre>{{ goal.description }}</pre>
+{% endif %}
+
+<p>Any outcome of completing this goal or not will be determined by {{ goal.created_by }}, who assigned this to you.</p>
+
+<p>Thanks for helping out your community and volunteering!</p>
+
+<p>The {{ site }} team</p>

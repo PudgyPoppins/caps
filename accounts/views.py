@@ -87,12 +87,14 @@ def profile(request, username=None):
 	else:
 		if request.user.is_authenticated:
 			user = request.user
+			joined_organizations = Organization.objects.filter(Q(member=user) | Q(leader=user) | Q(moderator=user)).distinct()
 			context = {
 				'profile': user,
 				'created_networks': Network.objects.filter(created_by=user),
 				'created_nonprofits': Nonprofit.objects.filter(created_by=user),
-				'joined_organizations': Organization.objects.filter(Q(member=user) | Q(leader=user) | Q(moderator=user)).distinct(),
+				'joined_organizations': joined_organizations,
 				'calendar' : Calendar.objects.get(user=user),
+				'assigned_goals': [o.goal.all() for o in joined_organizations.exclude(Q(leader=user))] + [user.assigned_goal.all()]
 			}
 		else:
 			messages.error(request, "You aren't logged in and can't see this page")

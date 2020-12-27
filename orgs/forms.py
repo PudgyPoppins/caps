@@ -45,9 +45,11 @@ class TransferLeadership(ModelForm):
 class GoalForm(ModelForm):
 	class Meta:
 		model = Goal
-		exclude = ('',)
+		fields = ('title', 'description', 'hours', 'start', 'end')
 		widgets = {
 			'description': forms.Textarea(),
+			'start': forms.DateInput(attrs={'type': 'date'}),
+			'end': forms.DateInput(attrs={'type': 'date'}),
 		}
 	def clean(self):
 		if self.cleaned_data['start'] is not None and self.cleaned_data['end'] is not None:

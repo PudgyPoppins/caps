@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}{% if obj %}Update{% else %}Create{% endif %} Goal{% endblock %}
+
+{% block content %}
+{% if organization %}<a href="{% url 'orgs:detail' organization.slug %}">back to organization view</a>
+{% else %}<a href="{% url 'accounts:profile' %}">back to profile view</a>
+{% endif %}
+
+<h1>{% if obj %}Update{% else %}Create{% endif %} Goal</h1>
+<form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="{% if obj %}Update{% else %}Submit{% endif %}">
+</form>
+{% endblock %}

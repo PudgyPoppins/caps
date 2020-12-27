@@ -9,6 +9,8 @@ This might come in handy for providing back links: <a href="javascript:history.g
 
 # TODO:
 * ## Network / Nonprofits
+	* ability to *stop* being a nonprofit representative
+
 	* soft deleting as an option (a moderator could recover a deleted object up to 2 weeks later or so) | https://medium.com/@adriennedomingus/soft-deletion-in-django-e4882581c340 | this one is probably better: https://blog.khophi.co/soft-delete-django-quickly/
 	* ### Forms
 		* markdown for the volunteer description would be pretty cool, I think
@@ -29,19 +31,15 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * ## Organizations
 	* hour goals
 	* add goals to user profiles when they get created, if they're in an organization
-
-	* Organizations are a way for groups of users to connect to specific nonprofits and networks
 	* Organizations have leaderboards where they sort who has the most hours in their logging (verified plus verified and unverified scores)
 
-	* add invite to moderator links?
-
 * ## Logging
-	* When a user signs up for an event, after the event has happened, then the nonprofit representative can verify that they helped out
-		* Add another crontab job that runs every 30 minutes. Filter for all of the volunteering events that happened more than one day ago. Send one email to nonprofit reps listing all of the attendees who didn't have their hours verified so far.
 
+	* crontab job to annoy nonprofit reps weekly about unverified
 	* Should logs show up on user calendars as events?
 
 * ## Getting ready for launch:
+	* change "network" to community across all files
 	* css top to bottom
 	* will need to override most forms, make them look nice and pretty
 
@@ -128,7 +126,15 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 12/8 It's been a sec again, haha. Fixed an error where calendars overzealously tried to exclude other calendars. Fixed a small error where joined orgs were being listed twice on the user profile page. Combined the get_profile and current_profile views into one, better view simply called 'profile'. Added the model for logging. Created a form to add personal logs. Added a search view on network to search for nonprofits with AJAX. Successfully implemented AJAX, but still need to add a way to set the nonprofit from the results.
 * 12/9 The add log view now works! Yay! Users can now add volunteering hours to nonprofits, and are prompted to create a nonprofit if it does not exist in the system. Added a way to search for networks on the add nonprofit form page. Unfucked a bit of the nonprofit map stuff, will have to do that to the network map stuff.
 * 12/21 Now notify users when a nonprofit they log hours for doesn't have a rep and give them a link to apply to be a rep. Fixed a problem where success messages weren't being shown (due to overridden form_valid class). Added max duration to volunteer log. Created a method for create_token instead of repeating it 5 different times across 3 models. Also increased max token length from 5 to 8 on most models. Created a custom template tag to humanize duration field. Fixed a problem that I can't believe I missed where the network slug didn't affect nonprofit class views. Created remove/update/detail views for logs. Added a way for nonprofit reps for verify, unverify, and deny submitted hours to them, and automatically email users if they were accepted or not. This should be easily extendable to the attendee created logs.
-* Created a management command and a crontab to create logs for completed attendee events. Made log views more friendly to logs w/o users (ie created through attendee events). Nonprofit reps can now approve attendee logs. Made view_log filters checkboxes. Fixed a sort ascending issue w/isotope.
+* 12/? Created a management command and a crontab to create logs for completed attendee events. Made log views more friendly to logs w/o users (ie created through attendee events). Nonprofit reps can now approve attendee logs. Made view_log filters checkboxes. Fixed a sort ascending issue w/isotope.
+* 12/26 Added model methods / changed some fields on the Goal model. Added hour goals and CRUD views. Email organization users if they can complete the volunteering goal and they're assigned it. Added hour goals and links to both profiles and organization detail pages, now I just need to add my fancy css circles that I also already added a stylesheet for.
+
+TODO:
+	* on the organization detail page add css circle for how many users / total users completed their goals
+	* on the profile page add css circle for each goal
+		* turn a goal's color to light-red if it isn't completed in time
+	* add a leaderboard view with ability to sort by verified, unverified
+		* list users' rank from most to least in either verified / unverified, and also add a smaller circle by each name
 
 TODO: 
 	* event create view

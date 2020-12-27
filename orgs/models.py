@@ -147,15 +147,81 @@ class Request(models.Model):
 		return super(Request, self).save(*args, **kwargs)
 
 class Goal(models.Model):
-	user = models.ForeignKey(User, on_delete=models.CASCADE, null = True, blank = True) #goal is applied to a specific user
-	organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null = True, blank = True) #goal is applied to all users in an organization
+	user = models.ForeignKey(User, on_delete=models.CASCADE, null = True, blank = True, related_name='assigned_goal') #goal is assigned to a specific user
+	organization = models.ForeignKey(Organization, on_delete=models.CASCADE, null = True, blank = True, related_name="goal") #goal is assigned to all users in an organization
+
+	created_on = models.DateTimeField(default=timezone.now)
+	created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_goal')
 	
 	title = models.CharField(max_length=75, help_text="Does this goal have a specific name?", default="")
 	description =  models.CharField(max_length=500, help_text="A short description of the goal", blank = True, null = True)
 
 	hours = models.IntegerField(help_text="How many hours are wanted?", null = True, blank = True, validators=[MinValueValidator(1), MaxValueValidator(100)])
-	start = models.DateTimeField('only hours after this time will count to this goal', blank=True, null=True)
-	end = models.DateTimeField('only hours before this time will count to this goal', blank=True, null=True)
+	start = models.DateField('Start date', help_text='Only hours after or on this date will count to this goal', blank=True, null=True)
+	end = models.DateField('End date', help_text='Only hours before or on this date will count to this goal', blank=True, null=True)
+
+	class Meta: 
+		ordering = ['created_on']
+
+	def __str__(self):
+		if self.title:
+			return self.title
+		foo = ""
+		if self.user:
+			foo = str(self.user)
+		elif self.organization:
+			foo = str(self.organization)
+		return "%s hour goal for %s" % (self.hours, foo)
+
+	@property
+	def logs(self):
+		users = []
+		if self.user:
+			users = [self.user]
+		elif self.organization:
+			users = self.organization.member.all() | self.organization.moderator.all()
+		
+		logs = {}
+		for u in users:
+			log = u.log.all()
+			if self.start:
+				log = log.filter(start_date__gte=self.start)
+			if self.end:
+				log = log.filter(start_date__lte=self.end)
+			logs[u] = log
+		return logs
+
+	@property
+	def total(self):
+		logs = self.logs
+		total = {}
+		for u in logs:
+			t = datetime.timedelta(seconds=0)
+			for i in [i.duration for i in logs[u]]:
+				t += i
+			total[u] = t
+		return total
+
+	@property
+	def total_verified(self):
+		logs = self.logs
+		total = {}
+		for u in logs:
+			t = datetime.timedelta(seconds=0)
+			for i in [i.duration for i in logs[u].filter(verified__isnull=False)]:
+				t += i
+			total[u] = t
+		return total
+
+	@property
+	def completed_users(self):
+		user_dict = self.total
+		total = 0
+		for time in user_dict.values():
+			if time.total_seconds() / 60 / 60 > self.hours:
+				total += 1
+		return total
+	
 
 class TextPost(models.Model): #pretty much a comment / announcement
 	title = models.CharField(max_length=128, blank=True, null=True)

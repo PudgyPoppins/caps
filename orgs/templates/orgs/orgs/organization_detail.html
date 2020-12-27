@@ -23,6 +23,8 @@
 {% if user.is_authenticated and user in organization.leader.all %}
 <a href="{% url 'orgs:deleteorg' organization.slug %}">delete organization</a> |
 <a href="{% url 'orgs:transfer' organization.slug %}">transfer ownership</a>
+<br>
+<a href="{% url 'orgs:create_goal' organization.slug %}">create hour goal</a>
 {% endif %}
 
 {% if organization.src_file%}<br><img src="{{ network.src_file.url }}"><br>{% endif %}
@@ -71,6 +73,20 @@
         {% endfor %}
     	</ul>
 	</li>
+</ul>
+
+<h3>Hour goals</h3>
+<ul>
+  {% for g in organization.goal.all %}
+  <li>
+    {{ g }} -- {{ g.hours }} hour{{ g.hours | pluralize }}
+    <ul>
+      {% if g.description %}<li>{{ g.description }}</li>{% endif %}
+      <li>{{ g.completed_users }} of {{ organization.member.count|add:organization.moderator.count }} members have completed this goal so far</li>
+      {% if request.user in organization.get_leadershipt %}<li><a href="{% url 'orgs:goal_update' organization.slug forloop.counter0 %}">update</a> | <a href="{% url 'orgs:goal_delete' organization.slug forloop.counter0 %}">delete</a></li>{% endif %}
+    </ul>
+  </li>
+  {% endfor %}
 </ul>
 
 {% if not organization.public and request.user in organization.get_leadership %}

@@ -1,6 +1,7 @@
 from django.http import HttpResponseRedirect, Http404
+from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404, render
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from django.utils.decorators import method_decorator
@@ -9,7 +10,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 
-from orgs.models import TextPost, Organization
+from django.utils import timezone
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
+
+from orgs.models import TextPost, Organization, Goal
+from orgs.forms import GoalForm
 from network.models import Network, Nonprofit
 from .forms import *
 
@@ -78,7 +85,7 @@ def announcement_detail(request, organization, pk):
 class UpdateAnnouncementView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 	model = TextPost
 	template_name = 'lib/announcement/announcement_update_form.html'
-	success_message = "announcement was updated successfully"
+	success_message = "Announcement was updated successfully"
 	def get_form_class(self):
 		if not self.object.parent:
 			return CreateAnnouncement
@@ -114,7 +121,7 @@ class UpdateAnnouncementView(LoginRequiredMixin, SuccessMessageMixin, UpdateView
 class DeleteAnnouncementView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
 	model = TextPost
 	template_name = 'lib/announcement/announcement_confirm_delete.html'
-	success_message = "announcement was deleted successfully"
+	success_message = "Announcement was deleted successfully"
 
 	def get_object(self):
 		a = get_object_or_404(TextPost, id=self.kwargs['pk'])
@@ -183,3 +190,147 @@ def announcement_reply(request, network, slug, pk):
 def announcement_reply(request, organization, pk):
 	a = get_object_or_404(TextPost, id=pk)
 	return announcement_reply_helper(request, organization=organization)
+
+def get_goal(self): #this method has support of manually specifying a <username> in the url, but I don't user that later on
+	organization = self.kwargs.get('organization')
+	username = self.kwargs.get('username')
+	if not username:
+		username = self.request.user.username
+	index = self.kwargs.get('index')
+	print(self.kwargs)
+
+	#if not(organization ^ username) or not index:
+	if index is None:
+		raise Http404(_("Invalid url. xkcd 2200"))
+	#proceed if the XOR of organization and username is true (it's one or the other, not both or neither), AND an index is specified
+	
+	queryset = Goal.objects.filter(**{'organization__slug': organization}).order_by('created_on')
+	if not organization:
+		queryset = queryset.filter(**{'user__username':username})
+	
+	try:
+		obj = queryset[index]
+		return obj
+	except queryset.model.DoesNotExist:
+		raise Http404(_("No %(verbose_name)s found matching the query") % {'verbose_name': queryset.model._meta.verbose_name})
+	except IndexError:
+		raise Http404
+
+class CreateGoal(LoginRequiredMixin, CreateView):
+	model = Goal
+	form_class = GoalForm
+	template_name = 'lib/goal/goal_form.html'
+
+	def get_object(self, queryset=None):
+		return get_goal(self)
+	def get_success_url(self):
+		if self.kwargs.get('organization'):
+			return reverse('orgs:detail', kwargs={'slug' : self.kwargs.get('organization')})
+		elif self.kwargs.get('username'):
+			return reverse('accounts:profile', kwargs={'username' : self.kwargs.get('username')})
+		else:
+			return reverse_lazy('accounts:profile')
+
+	def get_organization(self):
+		if self.kwargs.get('organization'):
+			return Organization.objects.get(slug=self.kwargs.get('organization'))
+		else:
+			return None
+
+	def user_passes_test(self, request):
+		if self.kwargs.get('organization'):
+			organization = self.get_organization()
+			return(request.user in organization.get_leadership)
+		return True
+
+	def dispatch(self, request, *args, **kwargs):
+		if not self.user_passes_test(request):
+			messages.error(request, "You don't have permission to create this goal!")
+			return HttpResponseRedirect(reverse(self.get_success_url()))
+		return super(CreateGoal, self).dispatch(request, *args, **kwargs)
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context['organization'] = self.get_organization()
+		return context
+
+	def form_valid(self, form):
+		goal = form.save(commit=False)
+		goal.created_by = self.request.user
+		if self.kwargs.get('organization'):
+			goal.organization = self.get_organization()
+		elif self.kwargs.get('username'):
+			user = get_object_or_404(User, username=self.kwargs.get('username'))
+			goal.user = user
+		else:
+			goal.user = self.request.user
+
+		if goal.organization:
+			if goal.end >= timezone.now().date():
+				send_mail(
+						"Volunteering goal for %s created" % goal.organization,
+						render_to_string('lib/emails/notify_goal.txt', {'goal': goal, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME}),
+						settings.EMAIL_HOST_USER,
+						[u.email for u in goal.organization.member.all() | goal.organization.moderator.all()],
+						html_message=render_to_string('lib/emails/notify_goal.html', {'goal': goal, 'domain':settings.DOMAIN_NAME, 'site': settings.SITE_NAME}),
+					)
+		goal.save()
+		self.object = goal
+		messages.success(self.request, "Successfully added goal")
+		return HttpResponseRedirect(self.get_success_url())
+
+class UpdateGoal(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+	model = Goal
+	form_class = GoalForm
+	template_name = 'lib/goal/goal_form.html'
+	success_message = "Goal was updated successfully"
+
+	def get_object(self, queryset=None):
+		return get_goal(self)
+	def get_success_url(self):
+		if self.kwargs.get('organization'):
+			return reverse('orgs:detail', kwargs={'slug' : self.kwargs.get('organization')})
+		elif self.kwargs.get('username'):
+			return reverse('accounts:profile', kwargs={'username' : self.kwargs.get('username')})
+		else:
+			return reverse_lazy('accounts:profile')
+
+	def user_passes_test(self, request):
+		if self.kwargs.get('organization'):
+			organization = get_object_or_404(Organization, slug=self.kwargs.get('organization'))
+			return(request.user in organization.get_leadership)
+		return True
+
+	def dispatch(self, request, *args, **kwargs):
+		if not self.user_passes_test(request):
+			messages.error(request, "You don't have permission to update this goal!")
+			return HttpResponseRedirect(reverse(self.get_success_url()))
+		return super(UpdateGoal, self).dispatch(request, *args, **kwargs)
+
+class DeleteGoal(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+	model = Goal
+	form_class = GoalForm
+	template_name = 'lib/goal/goal_confirm_delete.html'
+	success_message = "Goal was deleted successfully"
+
+	def get_object(self, queryset=None):
+		return get_goal(self)
+	def get_success_url(self):
+		if self.kwargs.get('organization'):
+			return reverse('orgs:detail', kwargs={'slug' : self.kwargs.get('organization')})
+		elif self.kwargs.get('username'):
+			return reverse('accounts:profile', kwargs={'username' : self.kwargs.get('username')})
+		else:
+			return reverse_lazy('accounts:profile')
+
+	def user_passes_test(self, request):
+		if self.kwargs.get('organization'):
+			organization = get_object_or_404(Organization, slug=self.kwargs.get('organization'))
+			return(request.user in organization.get_leadership)
+		return True
+
+	def dispatch(self, request, *args, **kwargs):
+		if not self.user_passes_test(request):
+			messages.error(request, "You don't have permission to delete this goal!")
+			return HttpResponseRedirect(reverse(self.get_success_url()))
+		return super(DeleteGoal, self).dispatch(request, *args, **kwargs)

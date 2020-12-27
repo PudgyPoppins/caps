@@ -158,7 +158,7 @@ class EditView(LoginRequiredMixin, generic.UpdateView):
 	def dispatch(self, request, *args, **kwargs):
 		if not self.user_passes_test(request):
 			messages.error(request, "You do not have permission to edit this log!")
-			return HttpResponseRedirect(reverse('network:detail', kwargs={'slug' : self.object.slug}))
+			return HttpResponseRedirect(reverse('logs:detail', kwargs={'token' : self.object.token}))
 		return super(EditView, self).dispatch(request, *args, **kwargs)
 
 	def form_valid(self, form):
@@ -190,5 +190,5 @@ class DeleteView(LoginRequiredMixin, SuccessMessageMixin, generic.DeleteView):
 	def dispatch(self, request, *args, **kwargs):
 		if not self.user_passes_test(request):
 			messages.error(request, "You do not have permission to delete this log!")
-			return HttpResponseRedirect(reverse('network:detail', kwargs={'slug' : self.object.slug}))
+			return HttpResponseRedirect(reverse('logs:detail', kwargs={'token' : self.object.token}))
 		return super(DeleteView, self).dispatch(request, *args, **kwargs)

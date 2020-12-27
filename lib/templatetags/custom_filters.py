@@ -5,6 +5,8 @@ import datetime
 from django import template
 
 from cal.models import Event
+from accounts.models import User
+from orgs.models import Goal
 
 register = template.Library()
 
@@ -109,6 +111,8 @@ def humanize_duration(value):
 			human_format.append(str(int(hours)) + " hours")
 		if minutes:
 			human_format.append(str(int(minutes)) + " minutes")
+		if not(minutes or hours):
+			human_format = ["0 minutes"]
 		return ", ".join(human_format)
 	except:
 		return value
@@ -121,3 +125,10 @@ def javascriptize_duration(value):
 		return "%.2i:%.2i" % (hours, minutes)
 	except:
 		return value
+
+@register.filter
+def get(dictionary, key):
+	try:
+		return humanize_duration(dictionary.get(key)) #go through this, if it's a duration it'll format it
+	except:
+		return None

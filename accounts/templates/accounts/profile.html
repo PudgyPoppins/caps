@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load custom_filters %}
 
 {% block title %}{{profile.username}}{% endblock %}
 
@@ -79,6 +80,25 @@
 	{% if user.username == profile.username %}<p>You haven't joined any organizations yet!</p>
 	{% else %}<p>This user may not have joined any organizations yet. Private organization membership is hidden.</p>
 	{% endif %}
+{% endif %}
+
+{% if user.username == profile.username %}
+<a href="{% url 'logs:create_goal' %}">create hour goal</a>
+<h3>Hour goals</h3>
+<ul>
+  {% for set in assigned_goals %}
+  {% for g in set %}
+  <li>
+    {{ g }}
+    <ul>
+      {% if g.description %}<li>{{ g.description }}</li>{% endif %}
+      <li>{{ g.total|get:user }} of {{ g.hours }} hour{{ g.hours | pluralize }} completed</li>
+      {% if not g.organization or user in g.organization.get_leadership %}<li><a href="{% url 'logs:goal_update' forloop.counter0 %}">update</a> | <a href="{% url 'logs:goal_delete' forloop.counter0 %}">delete</a></li>{% endif %}
+    </ul>
+  </li>
+  {% endfor %}
+  {% endfor %}
+</ul>
 {% endif %}
 
 <h3>{% if user.username == profile.username %}My{% else %}{{ profile.username}}'s{% endif %} Volunteering Log</h3>

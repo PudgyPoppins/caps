@@ -32,10 +32,8 @@ urlpatterns = [
     path('<slug:organization>/announcements/<int:pk>/delete', lib.views.DeleteAnnouncementView.as_view(), name='announcement_delete'),
     path('<slug:organization>/announcements/<int:pk>/reply', lib.views.announcement_reply, name='announcement_reply'),
 
-    #path('<slug:network>/add/', views.AddNonView.as_view(), name='addnon'), #add a nonprofit
-    #path('<slug:network>/<slug:slug>/', views.NonDetailView.as_view(), name='detailnon'), #nonprofit detail view
-    #path('<slug:network>/<slug:slug>/update/', views.UpdateNonView.as_view(), name='updatenon'), #update a nonprofit
-    #path('<slug:network>/<slug:slug>/delete/', views.DeleteNonView.as_view(), name='deletenon'), #delete a nonprofit
-    
+    path('<slug:organization>/goals/create', lib.views.CreateGoal.as_view(), name='create_goal'),
+    path('<slug:organization>/goals/<int:index>/update', lib.views.UpdateGoal.as_view(), name='goal_update'),
+    path('<slug:organization>/goals/<int:index>/delete', lib.views.DeleteGoal.as_view(), name='goal_delete'),
     #path('<str:network_id>/report/', views.report, name='report'),
 ]
