@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% load static %}
+
+{% block title %}Leaderboard {% if goal %}for {{ goal }}{% endif %}{% endblock %}
+{% block scss %}<link type="text/x-scss" href="{% static 'lib/css/pie.scss' %}" rel="stylesheet">{% endblock %}
+
+{% block content %}
+<h1>Leaderboard {% if goal %}for {{ goal }}{% endif %}</h1>
+
+
+<style>
+	table, th, td, tr::before {
+	  border: 1px solid black;
+	  border-collapse: collapse;
+	}
+	table {
+	  counter-reset: rowNumber;
+	}
+
+	table tr::before {
+	  display: table-cell;
+	  counter-increment: rowNumber;
+	  content: counter(rowNumber) ".";
+	  padding-right: 0.3em;
+	  text-align: right;
+	  vertical-align: middle;
+	}
+	</style>
+
+<input type="radio" id="total_radio" name="type" value="total" checked>
+<label for="total_radio">Sort by total hours</label><br>
+<input type="radio" id="verified_radio" name="type" value="verified">
+<label for="verified_radio">Sort by verified hours</label><br>
+
+<table id="total">
+	{% for user, duration in total %}
+		<tr>
+			<td>{{ user }}</td>
+			{% if goal %}<td><div class="pie p{{ duration|int_percentage:goal.hours }}" style="transform: scale(80%);"></div></td>{% endif %}
+			<td>{{ duration|humanize_duration }}</td>
+		</tr>
+	{% endfor %}
+</table>
+
+<table id="verified" style="display:none">
+	{% for user, duration in verified %}
+		<tr>
+			<td>{{ user }}</td>
+			{% if goal %}<td><div class="pie p{{ duration|int_percentage:goal.hours }}" style="transform: scale(80%);"></div></td>{% endif %}
+			<td>{{ duration|humanize_duration }}</td>
+		</tr>
+	{% endfor %}
+</table>
+
+<script>
+	total = document.getElementById("total");
+	verified = document.getElementById("verified");
+	radios = document.querySelectorAll("input[type=radio][name=type]");
+	
+	for(var i = 0; i < radios.length; i++) {
+	 	radios[i].addEventListener("click", toggle_table);
+ 	}
+
+ 	function toggle_table(){
+ 		for (var i = 0, length = radios.length; i < length; i++) {
+		  if (radios[i].checked) {
+		    console.log(radios[i].value)
+		    if(radios[i].value == "total"){
+		    	total.style.display = "table";
+		    	verified.style.display = "none";
+		    } else{
+		    	total.style.display = "none";
+		    	verified.style.display = "table";
+		    }
+		    break;
+		  }
+		}
+ 	}
+ 	toggle_table();
+</script>
+{% endblock %}

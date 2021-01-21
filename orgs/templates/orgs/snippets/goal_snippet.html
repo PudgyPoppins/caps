@@ -1,0 +1,24 @@
+{% load custom_filters %}
+<li>
+	{{ g }} -- {{ g.hours }} hour{{ g.hours | pluralize }}
+	<ul>
+	  {% if g.description %}<li>{{ g.description }}</li>{% endif %}
+	  {% if g.start or g.end %}<li>{% if g.start %}Start: {{ g.start }}{% endif %}{% if g.start and g.end %},{% endif %} {% if g.end %}End: {{ g.end }}{% endif %}</li>{% endif %}
+
+	  {% if g.organization and organization %}
+	  {% with participant_count=organization.member.count|add:organization.moderator.count %}
+	  <li>{{ g.completed_users }} of {{ participant_count }} members have completed this goal{% if g.active %} so far{% endif %}</li>
+	  <div class="pie p{{g.completed_users|int_percentage:participant_count }} {% if not g.active %}inactive{% endif %}"></div>
+	  {% endwith %}
+	  {% else %}
+	  {% with user_hours=g.total|get:user %}
+	  <li>{{ user_hours|humanize_duration }} of {{ g.hours }} hour{{ g.hours | pluralize }} completed</li>
+	  <div class="pie p{{user_hours|int_percentage:g.hours }} {% if not g.active %}inactive{% endif %}"></div>
+	  {% endwith %}
+	  {% endif %}
+
+	  {% if g.organization %}<li><a href="{% url 'orgs:leaderboard' g.organization.slug forloop.counter0 %}">view leaderboard</a>
+	  {% if request.user in organization.get_leadership %} | <a href="{% url 'orgs:goal_update' g.organization.slug forloop.counter0 %}">update</a> | <a href="{% url 'orgs:goal_delete' organization.slug forloop.counter0 %}">delete</a>{% endif %}</li>
+	  {% elif user == profile %}<li><a href="{% url 'logs:goal_update' forloop.counter0 %}">update</a> | <a href="{% url 'logs:goal_delete' forloop.counter0 %}">delete</a></li>{% endif %}
+	</ul>
+</li>

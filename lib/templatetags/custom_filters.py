@@ -46,6 +46,22 @@ def subtract(value, arg):
 def multiply(value, arg):
 	return value * arg
 
+@register.filter
+def int_percentage(value, arg):
+	try:
+		value = value.total_seconds() / 60 / 60
+		arg = int(arg)
+	except:
+		try:
+			value = int(value)
+			arg = int(arg)
+		except:
+			return value
+
+	return_val = int(value / arg * 100)
+	if return_val > 100:
+		return 100
+	return return_val
 
 @register.filter
 def getLongDate(value):
@@ -129,6 +145,22 @@ def javascriptize_duration(value):
 @register.filter
 def get(dictionary, key):
 	try:
-		return humanize_duration(dictionary.get(key)) #go through this, if it's a duration it'll format it
+		#return humanize_duration(dictionary.get(key)) #go through this, if it's a duration it'll format it
+		return dictionary.get(key)
 	except:
 		return None
+
+'''
+#Use:  
+@register.filter
+def filter(queryset, filter_value):
+	try:
+		keyword = filter_value.split("|")[0]
+		value = filter_value.split("|")[1]
+
+		custom_filter = {}
+		custom_filter[keyword] = value
+		return queryset.filter(**custom_filter)
+	except:
+		print("oh no!")
+		return queryset'''

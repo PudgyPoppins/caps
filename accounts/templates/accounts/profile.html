@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% load custom_filters %}
+{% load static %}
 
 {% block title %}{{profile.username}}{% endblock %}
+{% block scss %}<link type="text/x-scss" href="{% static 'lib/css/pie.scss' %}" rel="stylesheet">{% endblock %}
 
 {% block content %}
 
@@ -88,14 +90,7 @@
 <ul>
   {% for set in assigned_goals %}
   {% for g in set %}
-  <li>
-    {{ g }}
-    <ul>
-      {% if g.description %}<li>{{ g.description }}</li>{% endif %}
-      <li>{{ g.total|get:user }} of {{ g.hours }} hour{{ g.hours | pluralize }} completed</li>
-      {% if not g.organization or user in g.organization.get_leadership %}<li><a href="{% url 'logs:goal_update' forloop.counter0 %}">update</a> | <a href="{% url 'logs:goal_delete' forloop.counter0 %}">delete</a></li>{% endif %}
-    </ul>
-  </li>
+  {% include "orgs/snippets/goal_snippet.html" with g=g %}
   {% endfor %}
   {% endfor %}
 </ul>

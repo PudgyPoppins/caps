@@ -221,6 +221,12 @@ class Goal(models.Model):
 			if time.total_seconds() / 60 / 60 > self.hours:
 				total += 1
 		return total
+
+	@property
+	def active(self):
+		if (self.start and self.start > timezone.now().date()) or (self.end and self.end < timezone.now().date()):
+			return False
+		return True
 	
 
 class TextPost(models.Model): #pretty much a comment / announcement

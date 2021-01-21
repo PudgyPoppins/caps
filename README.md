@@ -128,13 +128,10 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 12/21 Now notify users when a nonprofit they log hours for doesn't have a rep and give them a link to apply to be a rep. Fixed a problem where success messages weren't being shown (due to overridden form_valid class). Added max duration to volunteer log. Created a method for create_token instead of repeating it 5 different times across 3 models. Also increased max token length from 5 to 8 on most models. Created a custom template tag to humanize duration field. Fixed a problem that I can't believe I missed where the network slug didn't affect nonprofit class views. Created remove/update/detail views for logs. Added a way for nonprofit reps for verify, unverify, and deny submitted hours to them, and automatically email users if they were accepted or not. This should be easily extendable to the attendee created logs.
 * 12/? Created a management command and a crontab to create logs for completed attendee events. Made log views more friendly to logs w/o users (ie created through attendee events). Nonprofit reps can now approve attendee logs. Made view_log filters checkboxes. Fixed a sort ascending issue w/isotope.
 * 12/26 Added model methods / changed some fields on the Goal model. Added hour goals and CRUD views. Email organization users if they can complete the volunteering goal and they're assigned it. Added hour goals and links to both profiles and organization detail pages, now I just need to add my fancy css circles that I also already added a stylesheet for.
+* 1/20 Added css circles on organization detail to show users/total_users who completed their goals. Added css circles to profile and change their color if they aren't completed in time. Added leaderboard with ability to sort by verified / unverified. Almost done with backend (unless I'm forgetting something), I just need to fix the timezone selector.
 
 TODO:
-	* on the organization detail page add css circle for how many users / total users completed their goals
-	* on the profile page add css circle for each goal
-		* turn a goal's color to light-red if it isn't completed in time
-	* add a leaderboard view with ability to sort by verified, unverified
-		* list users' rank from most to least in either verified / unverified, and also add a smaller circle by each name
+	* timezone stuff is the only backend stuff
 
 TODO: 
 	* event create view

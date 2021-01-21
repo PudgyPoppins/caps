@@ -197,12 +197,11 @@ def get_goal(self): #this method has support of manually specifying a <username>
 	if not username:
 		username = self.request.user.username
 	index = self.kwargs.get('index')
-	print(self.kwargs)
 
 	#if not(organization ^ username) or not index:
+	#proceed if the XOR of organization and username is true (it's one or the other, not both or neither), AND an index is specified
 	if index is None:
 		raise Http404(_("Invalid url. xkcd 2200"))
-	#proceed if the XOR of organization and username is true (it's one or the other, not both or neither), AND an index is specified
 	
 	queryset = Goal.objects.filter(**{'organization__slug': organization}).order_by('created_on')
 	if not organization:

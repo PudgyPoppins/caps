@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 from django.utils import timezone
+from datetime import timedelta
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 
 from django.core.mail import send_mail
@@ -99,6 +100,9 @@ class OrgDetailView(generic.DetailView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		context['calendar'] = Calendar.objects.get(organization=self.object.id)
+		context['active_goals'] = [g for g in self.object.goal.all() if g.active]
+		context['past_goals'] = [g for g in self.object.goal.all() if not g.active]
+
 		if self.request.user.is_authenticated:
 			user_requests = Request.objects.filter(user=self.request.user, approved=False, organization=self.object.id)
 			if len(user_requests) > 0:
@@ -470,3 +474,35 @@ def demote_user(request, organization, username):
 	else:
 		messages.error(request, "You don't have permission to perform this action!")
 	return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : organization.slug}))
+
+def leaderboard(request, organization, goal=None):
+	organization = get_object_or_404(Organization, slug=organization)
+	if not organization.public and request.user not in organization.get_participants:
+		messages.error(request, "This is a private organization, and you can't view it's leaderboard")
+		return HttpResponseRedirect(reverse('orgs:detail', kwargs={'slug' : organization.slug}))
+
+	context = {}
+	if not goal is None:
+		queryset = Goal.objects.filter(**{'organization__slug': organization.slug}).order_by('created_on')
+		try:
+			goal = queryset[goal]
+			context["goal"] = goal
+			context["total"] = sorted(goal.total.items(), key=lambda item: item[1], reverse=True)
+			context["verified"] = sorted(goal.total_verified.items(), key=lambda item: item[1], reverse=True)
+		except:
+			messages.error(request, "That leaderboard does not exist")
+			return HttpResponseRedirect(reverse('orgs:leaderboard', kwargs={'organization' : organization.slug}))
+	else:
+		total = {}
+		verified = {}
+		for u in (organization.member.all() | organization.moderator.all()):
+			total[u] = timedelta(seconds=0)
+			verified[u] = timedelta(seconds=0)
+			for log in u.log.all():
+				total[u] += log.duration
+				if log.verified: verified[u] += log.duration
+		context["total"] = sorted(total.items(), key=lambda item: item[1], reverse=True)
+		context["verified"] = sorted(verified.items(), key=lambda item: item[1], reverse=True)
+
+	return render(request, "orgs/leaderboard.html", context)
+

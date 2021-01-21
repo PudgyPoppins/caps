@@ -35,5 +35,7 @@ urlpatterns = [
     path('<slug:organization>/goals/create', lib.views.CreateGoal.as_view(), name='create_goal'),
     path('<slug:organization>/goals/<int:index>/update', lib.views.UpdateGoal.as_view(), name='goal_update'),
     path('<slug:organization>/goals/<int:index>/delete', lib.views.DeleteGoal.as_view(), name='goal_delete'),
+    path('<slug:organization>/leaderboard/', views.leaderboard, name='leaderboard'),
+    path('<slug:organization>/leaderboard/<int:goal>/', views.leaderboard, name='leaderboard'),
     #path('<str:network_id>/report/', views.report, name='report'),
 ]

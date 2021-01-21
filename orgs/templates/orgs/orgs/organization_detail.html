@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% load custom_filters %}
+{% load static %}
 
 {% block title %}{{ organization.title }}{% endblock %}
+{% block scss %}<link type="text/x-scss" href="{% static 'lib/css/pie.scss' %}" rel="stylesheet">{% endblock %}
 
 {% block content %}
 
@@ -75,19 +77,26 @@
 	</li>
 </ul>
 
-<h3>Hour goals</h3>
+
+<h3>Active Hour goals</h3>
 <ul>
-  {% for g in organization.goal.all %}
-  <li>
-    {{ g }} -- {{ g.hours }} hour{{ g.hours | pluralize }}
-    <ul>
-      {% if g.description %}<li>{{ g.description }}</li>{% endif %}
-      <li>{{ g.completed_users }} of {{ organization.member.count|add:organization.moderator.count }} members have completed this goal so far</li>
-      {% if request.user in organization.get_leadershipt %}<li><a href="{% url 'orgs:goal_update' organization.slug forloop.counter0 %}">update</a> | <a href="{% url 'orgs:goal_delete' organization.slug forloop.counter0 %}">delete</a></li>{% endif %}
-    </ul>
-  </li>
+  {% if active_goals %}
+  {% for g in active_goals %}
+    {% include "orgs/snippets/goal_snippet.html" with g=g %}
+  {% endfor %}
+  {% else %}
+  <li>There are no active hour goals. You can <a href="{% url 'orgs:create_goal' organization.slug %}">create a new hour goal</a>, however</li>
+  {% endif %}
+</ul>
+
+{% if past_goals %}
+<h3>Past Hour goals</h3>
+<ul>
+  {% for g in past_goals %}
+    {% include "orgs/snippets/goal_snippet.html" with g=g %}
   {% endfor %}
 </ul>
+{% endif %}
 
 {% if not organization.public and request.user in organization.get_leadership %}
 

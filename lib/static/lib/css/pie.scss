@@ -3,6 +3,7 @@ $circle-border-width: 10px;
 $circle-background-color: #fff;
 $circle-border-color-remaining: #ccc;
 $circle-border-color-elapsed: #307bbb;
+$circle-border-color-elapsed-inactive: #e33;
 $circle-border-color-done: green;
 $circle-background-color-done: #ccc;
 
@@ -10,7 +11,7 @@ $circle-background-color-done: #ccc;
   transition: 0.1s;
   width: $circle-diameter;
   height: $circle-diameter;
-  display: block;
+  display: inline-block;
   border-radius: 50%;
   background-color: $circle-border-color-elapsed;
   position: relative;
@@ -23,9 +24,9 @@ $circle-background-color-done: #ccc;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    height: $circle-diameter - 2*$circle-border-width;
-    width:  $circle-diameter - 2*$circle-border-width;
-    line-height:  $circle-diameter - 2*$circle-border-width;
+    height: calc(#{$circle-diameter} - (2 * #{$circle-border-width}));
+    width:  calc(#{$circle-diameter} - (2 * #{$circle-border-width}));
+    line-height:  calc(#{$circle-diameter} - (2 * #{$circle-border-width}));
     background: $circle-background-color;
     border-radius: 50%;
     font-size: 1.4em;
@@ -35,19 +36,18 @@ $circle-background-color-done: #ccc;
     font-size: 1.5em;
     color: $circle-border-color-elapsed;
     &:after{
-        line-height:  $circle-diameter - 2*($circle-border-width - 5px);
-        height:  $circle-diameter - 2*($circle-border-width - 5px);
-        width:  $circle-diameter - 2*($circle-border-width - 5px);
+        line-height: calc(#{$circle-diameter} - (2 * (#{$circle-border-width} - #{$circle-border-width} / 2)));
+        height:  calc(#{$circle-diameter} - (2 * (#{$circle-border-width} - #{$circle-border-width} / 2)));
+        width:  calc(#{$circle-diameter} - (2 * (#{$circle-border-width} - #{$circle-border-width} / 2)));
     }
   }
   // loop to rotate first 50 percent
-  @for $j from 1 through 50 {
+  @for $j from 0 through 50 {
     &.p#{$j} {
-      background-image:
-        /* 10% = 126deg = 90 + ( 360 * .1 ) */
-        linear-gradient(90deg+(360*0.01*$j), transparent 50%, $circle-border-color-remaining 50%),
-        linear-gradient(90deg, $circle-border-color-remaining 50%, transparent 50%); // remove highlight at the bottom half of the border/circle
-
+        background-image:
+          /* 10% = 126deg = 90 + ( 360 * .1 ) */
+          linear-gradient(90deg+(360*0.01*$j), transparent 50%, $circle-border-color-remaining 50%),
+          linear-gradient(90deg, $circle-border-color-remaining 50%, transparent 50%); // remove highlight at the bottom half of the border/circle
       &:after {
         content: "#{$j}%";
       }
@@ -76,5 +76,9 @@ $circle-background-color-done: #ccc;
       background-color: $circle-background-color-done;
     }
   }
+}
+.pie:not(.p100).inactive{
+  background-color: $circle-border-color-elapsed-inactive;
+  color: $circle-border-color-elapsed-inactive;
 }
 /********* End Circle Pie ***********/
