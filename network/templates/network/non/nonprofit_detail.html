@@ -28,6 +28,7 @@
 
 {% if user not in nonprofit.nonprofit_reps.all %}<a href="{% url 'network:representnon' nonprofit.network.slug nonprofit.slug %}">apply to represent this nonprofit</a>
 {% else %}<p>You are a nonprofit representative for {{ nonprofit.title }}</p>
+<p><a href="{% url 'network:unrepresentnon' nonprofit.network.slug nonprofit.slug %}">Stop being a representative?</a> <b>This cannot be undone. This is all the warning you will get.</b></p>
 {% endif %}
 
 {% if nonprofit.src_file%}<img src="{{ nonprofit.src_file.url }}">{% endif %}

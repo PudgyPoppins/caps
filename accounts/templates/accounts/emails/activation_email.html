@@ -1,0 +1,12 @@
+<h1>Hello, {{ user }}!</h1>
+
+<p>Your {{ site }} account has been successfully created.</p>
+
+<p>Please <a href="{{ domain }}{% url 'activate' uidb64=uid token=token %}">verify your email</a> to start using your account.</p>
+
+<p>If the above link does not work, paste this link into your browser: <a href="{{ domain }}{% url 'activate' uidb64=uid token=token %}">{{ domain }}{% url 'activate' uidb64=uid token=token %}</a></p>
+
+<p>If you did not make this request, you can safely ignore this email.</p>
+
+<p>Thanks!</p>
+<p>The {{ site }} team</p>

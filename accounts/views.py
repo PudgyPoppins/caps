@@ -14,6 +14,15 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import never_cache
 
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
+
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from .tokens import account_activation_token
+
+
 from cal.models import Calendar, Event
 from network.models import Network, Nonprofit
 from orgs.models import Organization
@@ -30,23 +39,36 @@ class SignUp(generic.CreateView):
 	success_url = reverse_lazy('login')
 	template_name = 'accounts/signup.html'
 	
+
 	def form_valid(self, form):
 		user = form.save(commit=False)
-		user.save() #saves the object, sets the id
+		user.is_active = False
+		user.save()
 		self.object = user
-
-		user_cal = Calendar(user=self.object)
-		user_cal.save()
-
-		#all of this down to the return statement creates a yearly repeating account anniversary event
-		today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-		pattern = rrule(freq=YEARLY, dtstart=today)
-
-		description = "On this day in " + str(today.year) + ", your account was created!"
-		aa_event = Event(rrule=pattern, all_day=True, start_time=today, end_time=today + timedelta(days=1), event_type='AA', title="Account Anniversary", description=description)
-		aa_event.calendar = user_cal
-		aa_event.save()
-		return HttpResponseRedirect(self.get_success_url())
+		message = render_to_string('accounts/authentication_email.txt', {
+			'user': user,
+			'domain': settings.DOMAIN_NAME,
+			'site': settings.SITE_NAME,
+			'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+			'token':account_activation_token.make_token(user),
+		})
+		h_message = render_to_string('accounts/authentication_email.html', {
+			'user': user,
+			'domain': settings.DOMAIN_NAME,
+			'site': settings.SITE_NAME,
+			'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+			'token':account_activation_token.make_token(user),
+		})
+		send_mail(
+			'Activate your account on ' + settings.SITE_NAME,
+			message,
+			settings.EMAIL_HOST_USER,
+			[form.cleaned_data.get('email')],
+			html_message=h_message,
+		)
+		messages.info(self.request, "A verification link should arrive shortly to your email address. Check your spam folder!")
+		 
+		return super().form_valid(form)
 
 	def dispatch(self, *args, **kwargs):
 		if self.request.user.is_authenticated:
@@ -54,6 +76,41 @@ class SignUp(generic.CreateView):
 			return HttpResponseRedirect(reverse('home:main'))
 		else:
 			return super().dispatch(*args, **kwargs)
+
+def activate(request, uidb64, token):
+	user = None
+	try:
+		uid = force_text(urlsafe_base64_decode(uidb64))
+		user = User.objects.get(pk=uid)
+	except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+		messages.error(request, "That activation link did not work")
+		return HttpResponseRedirect(reverse_lazy('login'))
+
+	if user is not None and account_activation_token.check_token(user, token):
+		user.is_active = True
+		user.save()
+		login(request, user)
+		try:
+			user_cal = Calendar.objects.get(user=user)
+		except Calendar.DoesNotExist:
+			user_cal = Calendar(user=user)
+			user_cal.save()
+
+			#all of this down to the return statement creates a yearly repeating account anniversary event
+			today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+			pattern = rrule(freq=YEARLY, dtstart=today)
+
+			description = "On this day in " + str(today.year) + ", your account was created!"
+			aa_event = Event(rrule=pattern, all_day=True, start_time=today, end_time=today + timedelta(days=1), event_type='AA', title="Account Anniversary", description=description)
+			aa_event.calendar = user_cal
+			aa_event.save()
+
+	messages.success(request, "Successfully verified your account!")
+	return HttpResponseRedirect(reverse_lazy('home:main'))
+
+
+
+
 
 class Login(LoginView):
 	redirect_authenticated_user = True #overrided the class so that now logging in automatically redirects back to main

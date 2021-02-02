@@ -16,6 +16,8 @@
         {% if user.is_authenticated %}
             <a href="{% url 'orgs:index' %}">organizations</a>
         {% endif %}
+
+        <a href="{% url 'home:set_timezone' %}">{{ tz }}</a>
         
         <!--If you're NOT logged in, show this-->
         {% if not user.is_authenticated %}

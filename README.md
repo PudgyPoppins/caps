@@ -9,7 +9,7 @@ This might come in handy for providing back links: <a href="javascript:history.g
 
 # TODO:
 * ## Network / Nonprofits
-	* ability to *stop* being a nonprofit representative
+	* done for MVP
 
 	* soft deleting as an option (a moderator could recover a deleted object up to 2 weeks later or so) | https://medium.com/@adriennedomingus/soft-deletion-in-django-e4882581c340 | this one is probably better: https://blog.khophi.co/soft-delete-django-quickly/
 	* ### Forms
@@ -29,11 +29,10 @@ This might come in handy for providing back links: <a href="javascript:history.g
 	* rss feeds
 
 * ## Organizations
-	* hour goals
-	* add goals to user profiles when they get created, if they're in an organization
-	* Organizations have leaderboards where they sort who has the most hours in their logging (verified plus verified and unverified scores)
+	* done for MVP
 
 * ## Logging
+	* done for MVP
 
 	* crontab job to annoy nonprofit reps weekly about unverified
 	* Should logs show up on user calendars as events?
@@ -42,6 +41,7 @@ This might come in handy for providing back links: <a href="javascript:history.g
 	* change "network" to community across all files
 	* css top to bottom
 	* will need to override most forms, make them look nice and pretty
+	* change a lot of email forms / remove jokes :(
 
 	* Change DEBUG to TRUE
 	* Get a real email address to use
@@ -129,16 +129,14 @@ This might come in handy for providing back links: <a href="javascript:history.g
 * 12/? Created a management command and a crontab to create logs for completed attendee events. Made log views more friendly to logs w/o users (ie created through attendee events). Nonprofit reps can now approve attendee logs. Made view_log filters checkboxes. Fixed a sort ascending issue w/isotope.
 * 12/26 Added model methods / changed some fields on the Goal model. Added hour goals and CRUD views. Email organization users if they can complete the volunteering goal and they're assigned it. Added hour goals and links to both profiles and organization detail pages, now I just need to add my fancy css circles that I also already added a stylesheet for.
 * 1/20 Added css circles on organization detail to show users/total_users who completed their goals. Added css circles to profile and change their color if they aren't completed in time. Added leaderboard with ability to sort by verified / unverified. Almost done with backend (unless I'm forgetting something), I just need to fix the timezone selector.
+* 2/2 I was forgetting something(s) *sad emoji*. The default timezone is now set to US/Mountain. Added a way to view the timezone in all templates and on the navbar. Added a way to stop being a nonprofit rep. Added a basic email verification system where in order to use your account, you must verify an email (that as of now can only be sent once and to the set email address)
 
 TODO:
-	* timezone stuff is the only backend stuff
+	* add someway to change the user email address or resend the verification email when the user isn't already verified
+	* reporting system
 
 TODO: 
 	* event create view
 		* rrule selector
 			* look at paper for help
 		* event_update, event_form, event.js...
-
-
-Time is still busted, dates are being stored in UTC (invitation), but they aren't be converted to local time.
-TIME SOLUTION: Dates AREN'T being stored in UTC, they're being converted to utc by moment (correct so far), then being converted to utc again by the database that thinks it got handed an American/Mountain time. I have to remove the .utc() from the moment time thing, and I have to have a little thing say what the current timezone is. I should also add a timezone field to the User model, I really should.

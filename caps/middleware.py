@@ -9,10 +9,14 @@ class TimezoneMiddleware:
 	def __call__(self, request):
 		try:
 			tzname = request.session.get('django_timezone')
+			# get the timezone name from the cookie django_timezone
 			if tzname:
 				timezone.activate(pytz.timezone(tzname))
 			else:
-				timezone.deactivate()
+				#timezone.deactivate()
+				#if it doesn't exist just set it to Mountain time
+				request.session['django_timezone'] = "US/Mountain"
+				timezone.activate('US/Mountain')
 		except:
-			timezone.activate('America/Denver')
+			timezone.activate('US/Mountain')
 		return self.get_response(request)

@@ -1,0 +1,650 @@
+/* line 10, lib/static/lib/css/pie.scss */
+.pie {
+  transition: 0.1s;
+  width: 100px;
+  height: 100px;
+  display: inline-block;
+  border-radius: 50%;
+  background-color: #307bbb;
+  position: relative;
+  border: none;
+  margin: 0 auto; }
+  /* line 21, lib/static/lib/css/pie.scss */
+  .pie:after {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: calc(100px - (2 * 10px));
+    width: calc(100px - (2 * 10px));
+    line-height: calc(100px - (2 * 10px));
+    background: #fff;
+    border-radius: 50%;
+    font-size: 1.4em;
+    text-align: center; }
+  /* line 35, lib/static/lib/css/pie.scss */
+  .pie:hover {
+    font-size: 1.5em;
+    color: #307bbb; }
+    /* line 38, lib/static/lib/css/pie.scss */
+    .pie:hover:after {
+      line-height: calc(100px - (2 * (10px - 10px / 2)));
+      height: calc(100px - (2 * (10px - 10px / 2)));
+      width: calc(100px - (2 * (10px - 10px / 2))); }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p0 {
+    background-image: linear-gradient(90deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p0:after {
+      content: "0%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p1 {
+    background-image: linear-gradient(93.6deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p1:after {
+      content: "1%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p2 {
+    background-image: linear-gradient(97.2deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p2:after {
+      content: "2%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p3 {
+    background-image: linear-gradient(100.8deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p3:after {
+      content: "3%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p4 {
+    background-image: linear-gradient(104.4deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p4:after {
+      content: "4%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p5 {
+    background-image: linear-gradient(108deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p5:after {
+      content: "5%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p6 {
+    background-image: linear-gradient(111.6deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p6:after {
+      content: "6%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p7 {
+    background-image: linear-gradient(115.2deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p7:after {
+      content: "7%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p8 {
+    background-image: linear-gradient(118.8deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p8:after {
+      content: "8%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p9 {
+    background-image: linear-gradient(122.4deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p9:after {
+      content: "9%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p10 {
+    background-image: linear-gradient(126deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p10:after {
+      content: "10%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p11 {
+    background-image: linear-gradient(129.6deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p11:after {
+      content: "11%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p12 {
+    background-image: linear-gradient(133.2deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p12:after {
+      content: "12%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p13 {
+    background-image: linear-gradient(136.8deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p13:after {
+      content: "13%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p14 {
+    background-image: linear-gradient(140.4deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p14:after {
+      content: "14%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p15 {
+    background-image: linear-gradient(144deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p15:after {
+      content: "15%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p16 {
+    background-image: linear-gradient(147.6deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p16:after {
+      content: "16%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p17 {
+    background-image: linear-gradient(151.2deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p17:after {
+      content: "17%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p18 {
+    background-image: linear-gradient(154.8deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p18:after {
+      content: "18%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p19 {
+    background-image: linear-gradient(158.4deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p19:after {
+      content: "19%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p20 {
+    background-image: linear-gradient(162deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p20:after {
+      content: "20%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p21 {
+    background-image: linear-gradient(165.6deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p21:after {
+      content: "21%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p22 {
+    background-image: linear-gradient(169.2deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p22:after {
+      content: "22%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p23 {
+    background-image: linear-gradient(172.8deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p23:after {
+      content: "23%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p24 {
+    background-image: linear-gradient(176.4deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p24:after {
+      content: "24%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p25 {
+    background-image: linear-gradient(180deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p25:after {
+      content: "25%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p26 {
+    background-image: linear-gradient(183.6deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p26:after {
+      content: "26%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p27 {
+    background-image: linear-gradient(187.2deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p27:after {
+      content: "27%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p28 {
+    background-image: linear-gradient(190.8deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p28:after {
+      content: "28%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p29 {
+    background-image: linear-gradient(194.4deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p29:after {
+      content: "29%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p30 {
+    background-image: linear-gradient(198deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p30:after {
+      content: "30%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p31 {
+    background-image: linear-gradient(201.6deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p31:after {
+      content: "31%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p32 {
+    background-image: linear-gradient(205.2deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p32:after {
+      content: "32%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p33 {
+    background-image: linear-gradient(208.8deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p33:after {
+      content: "33%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p34 {
+    background-image: linear-gradient(212.4deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p34:after {
+      content: "34%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p35 {
+    background-image: linear-gradient(216deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p35:after {
+      content: "35%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p36 {
+    background-image: linear-gradient(219.6deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p36:after {
+      content: "36%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p37 {
+    background-image: linear-gradient(223.2deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p37:after {
+      content: "37%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p38 {
+    background-image: linear-gradient(226.8deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p38:after {
+      content: "38%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p39 {
+    background-image: linear-gradient(230.4deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p39:after {
+      content: "39%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p40 {
+    background-image: linear-gradient(234deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p40:after {
+      content: "40%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p41 {
+    background-image: linear-gradient(237.6deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p41:after {
+      content: "41%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p42 {
+    background-image: linear-gradient(241.2deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p42:after {
+      content: "42%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p43 {
+    background-image: linear-gradient(244.8deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p43:after {
+      content: "43%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p44 {
+    background-image: linear-gradient(248.4deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p44:after {
+      content: "44%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p45 {
+    background-image: linear-gradient(252deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p45:after {
+      content: "45%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p46 {
+    background-image: linear-gradient(255.6deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p46:after {
+      content: "46%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p47 {
+    background-image: linear-gradient(259.2deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p47:after {
+      content: "47%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p48 {
+    background-image: linear-gradient(262.8deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p48:after {
+      content: "48%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p49 {
+    background-image: linear-gradient(266.4deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p49:after {
+      content: "49%"; }
+  /* line 46, lib/static/lib/css/pie.scss */
+  .pie.p50 {
+    background-image: linear-gradient(270deg, transparent 50%, #ccc 50%), linear-gradient(90deg, #ccc 50%, transparent 50%); }
+    /* line 51, lib/static/lib/css/pie.scss */
+    .pie.p50:after {
+      content: "50%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p51 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-86.4deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p51:after {
+      content: "51%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p52 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-82.8deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p52:after {
+      content: "52%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p53 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-79.2deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p53:after {
+      content: "53%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p54 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-75.6deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p54:after {
+      content: "54%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p55 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-72deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p55:after {
+      content: "55%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p56 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-68.4deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p56:after {
+      content: "56%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p57 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-64.8deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p57:after {
+      content: "57%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p58 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-61.2deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p58:after {
+      content: "58%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p59 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-57.6deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p59:after {
+      content: "59%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p60 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-54deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p60:after {
+      content: "60%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p61 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-50.4deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p61:after {
+      content: "61%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p62 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-46.8deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p62:after {
+      content: "62%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p63 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-43.2deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p63:after {
+      content: "63%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p64 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-39.6deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p64:after {
+      content: "64%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p65 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-36deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p65:after {
+      content: "65%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p66 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-32.4deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p66:after {
+      content: "66%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p67 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-28.8deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p67:after {
+      content: "67%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p68 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-25.2deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p68:after {
+      content: "68%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p69 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-21.6deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p69:after {
+      content: "69%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p70 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-18deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p70:after {
+      content: "70%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p71 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-14.4deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p71:after {
+      content: "71%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p72 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-10.8deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p72:after {
+      content: "72%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p73 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-7.2deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p73:after {
+      content: "73%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p74 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(-3.6deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p74:after {
+      content: "74%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p75 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(0deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p75:after {
+      content: "75%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p76 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(3.6deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p76:after {
+      content: "76%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p77 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(7.2deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p77:after {
+      content: "77%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p78 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(10.8deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p78:after {
+      content: "78%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p79 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(14.4deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p79:after {
+      content: "79%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p80 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(18deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p80:after {
+      content: "80%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p81 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(21.6deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p81:after {
+      content: "81%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p82 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(25.2deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p82:after {
+      content: "82%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p83 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(28.8deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p83:after {
+      content: "83%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p84 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(32.4deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p84:after {
+      content: "84%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p85 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(36deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p85:after {
+      content: "85%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p86 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(39.6deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p86:after {
+      content: "86%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p87 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(43.2deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p87:after {
+      content: "87%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p88 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(46.8deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p88:after {
+      content: "88%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p89 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(50.4deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p89:after {
+      content: "89%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p90 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(54deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p90:after {
+      content: "90%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p91 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(57.6deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p91:after {
+      content: "91%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p92 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(61.2deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p92:after {
+      content: "92%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p93 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(64.8deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p93:after {
+      content: "93%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p94 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(68.4deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p94:after {
+      content: "94%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p95 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(72deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p95:after {
+      content: "95%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p96 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(75.6deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p96:after {
+      content: "96%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p97 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(79.2deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p97:after {
+      content: "97%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p98 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(82.8deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p98:after {
+      content: "98%"; }
+  /* line 58, lib/static/lib/css/pie.scss */
+  .pie.p99 {
+    background-image: linear-gradient(90deg, transparent 50%, #307bbb 50%), linear-gradient(86.4deg, transparent 50%, #ccc 50%); }
+    /* line 64, lib/static/lib/css/pie.scss */
+    .pie.p99:after {
+      content: "99%"; }
+  /* line 70, lib/static/lib/css/pie.scss */
+  .pie.p100 {
+    background-color: green; }
+    /* line 72, lib/static/lib/css/pie.scss */
+    .pie.p100:after {
+      content: "\2713";
+      font-size: 2em;
+      color: #fff;
+      background-color: #ccc; }
+
+/* line 80, lib/static/lib/css/pie.scss */
+.pie.inactive:not(.p100) {
+  background-color: #e33;
+  color: #e33; }
+
+/********* End Circle Pie ***********/

@@ -1,0 +1,10 @@
+Hello, {{ user }}!
+
+Your {{ site }} account has been successfully created.
+
+Please verify your email to start using your account. Use this link to do so: {{ domain }}{% url 'activate' uidb64=uid token=token %}
+
+If you did not make this request, you can safely ignore this email.
+
+Thanks!
+The {{ site }} team

@@ -1,10 +1,11 @@
-from django.urls import path
+from django.urls import path, re_path
 
 from . import views
 
 app_name = 'accounts'
 urlpatterns = [
     path('signup/', views.SignUp.as_view(), name='signup'),
+    re_path(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9a-z-]+)/$', views.activate, name='activate'),
     path('login/', views.Login.as_view(), name='login'),
 
     path('profile/user/<username>', views.profile, name='profile'),

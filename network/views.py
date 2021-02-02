@@ -235,6 +235,17 @@ def non_represent(request, network, slug):
 	return render(request, 'network/non/nonprofit_rep_form.html', context)
 
 @login_required
+def non_unrepresent(request, network, slug):
+	nonprofit = get_object_or_404(Nonprofit, slug=slug, network__slug=network)
+	if request.user in nonprofit.nonprofit_reps.all():
+		nonprofit.nonprofit_reps.remove(request.user)
+		nonprofit.save()
+		messages.success(request, "Successsfully unlocked this nonprofit, allowing edits and event creations by regular users")
+	else:
+		messages.error(request, "You aren't a nonprofit representative!")
+	return HttpResponseRedirect(nonprofit.get_absolute_url())
+
+@login_required
 def non_lock(request, network, slug):
 	nonprofit = get_object_or_404(Nonprofit, slug=slug, network__slug=network)
 	if request.user in nonprofit.nonprofit_reps.all() or request.user.is_staff:

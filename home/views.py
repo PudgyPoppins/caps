@@ -2,6 +2,7 @@ import pytz
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.views.generic.base import TemplateView
+from django.contrib import messages
 # Create your views here.
 from django.http import HttpResponse, HttpResponseRedirect
 
@@ -27,6 +28,7 @@ def index(request):
 def set_timezone(request):
     if request.method == 'POST':
         request.session['django_timezone'] = request.POST['timezone']
+        messages.success(request, "Timezone successfully set")
         return redirect('home:main')
     else:
         return render(request, 'home/time.html', {'timezones': pytz.common_timezones})
